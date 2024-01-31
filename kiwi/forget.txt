@@ -1,0 +1,4 @@
+gcc (program) -nostdlib -static
+-o (name) if needed
+
+syscall table
