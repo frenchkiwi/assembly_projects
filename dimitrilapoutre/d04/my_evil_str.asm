@@ -38,7 +38,7 @@ write:
     ret
 
 _start:
-    mov rdi, string
+    lea rdi, string
     call my_evil_str
     call write
     jmp _exit
