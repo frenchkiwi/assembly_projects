@@ -4,7 +4,7 @@ section .data
 section .text
     global _start
 
-_start:
+my_print_alpha:
     loop:
         mov rax, 1
         mov rdi, 1
@@ -15,7 +15,11 @@ _start:
         inc byte [letter]
         cmp byte [letter], 123
         jne loop
+    ret
 
+_start:
+    call my_print_alpha
+    jmp _exit
 _exit:
     mov rax, 60
     mov rdi, 0

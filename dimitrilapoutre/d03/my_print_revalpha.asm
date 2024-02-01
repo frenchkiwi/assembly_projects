@@ -4,21 +4,21 @@ section .data
 section .text
     global _start
 
-write:
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, letter
-    mov rdx, 1
-    syscall
-    ret
-
-_start:
+my_print_revalpha:
     loop:
-        call write
+        mov rax, 1
+        mov rdi, 1
+        mov rsi, letter
+        mov rdx, 1
+        syscall
         dec byte [letter]
         cmp byte [letter], 96
         jne loop
+    ret
 
+_start:
+    call my_print_revalpha
+    jmp _exit
 
 _exit:
     mov rax, 60

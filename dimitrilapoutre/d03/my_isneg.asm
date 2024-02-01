@@ -1,25 +1,31 @@
 section .data:
-    nb_tested db 97
-    positive db 80
-    negative db 78
+    nb db -97
+    isneg_n db 'N'
+    isneg_p db 'P'
 
 section .text
     global _start
 
-_start:
-    mov r8, negative
-    cmp byte [nb_tested], 0
-    jl write
-    mov r8, positive
-    jmp write
-
-write:
+my_isneg:
+    ; need isneg_n and isneg_p in section .data
     mov rax, 1
     mov rdi, 1
-    mov rsi, r8
     mov rdx, 1
-    syscall
 
+    cmp r8b, 0
+    jl negative
+    positive:
+        mov rsi, isneg_p
+        syscall
+        ret
+    negative:
+        mov rsi, isneg_n
+        syscall
+        ret
+
+_start:
+    mov r8b, byte [nb]
+    call my_isneg
     jmp _exit
 
 _exit:

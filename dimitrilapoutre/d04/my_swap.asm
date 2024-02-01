@@ -1,10 +1,13 @@
 section .data
     a db 'c'
     b db 'h'
-    c db 6, 6, 7
 
 section .text
     global _start
+
+my_swap:
+    xchg rdi, rsi
+    ret
 
 write:
     mov rax, 1
@@ -20,10 +23,11 @@ write:
     ret
 _start:
     call write
-    mov r8b, byte [a]
-    mov r9b, byte [b]
-    mov byte [a], r9b
-    mov byte [b], r8b
+    movzx rdi, byte [a]
+    movzx rsi, byte [b]
+    call my_swap
+    mov qword [a], rdi
+    mov qword [b], rsi
     call write
     jmp _exit
 
