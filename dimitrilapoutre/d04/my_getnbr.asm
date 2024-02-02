@@ -25,6 +25,7 @@ my_getnbr:
         jg bye
         
         mov r9, 1
+
         mov rdx, 10
         mul rdx
 

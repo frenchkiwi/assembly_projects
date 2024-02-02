@@ -124,3 +124,59 @@ my_sort_int_array:
     
     bye_sort_int_array:
         ret
+
+my_compute_factorial_it:
+    mov rax, 1
+    mov rcx, 0
+    cmp rdi, 0
+    jl error_factorial_it
+    loop_factorial_it:
+        inc rcx
+        cmp rcx, rdi
+        jg bye_factorial_it
+        
+        mov rdx, rcx
+        mul rdx
+
+        jmp loop_factorial_it
+
+    bye_factorial_it:
+        ret
+
+    error_factorial_it:
+        mov rax, -1
+        ret
+
+my_compute_factorial_rec:
+    pop rsi
+    pop rdi
+    push rdi
+    push rsi
+    cmp rdi, 0
+    jl error_factorial_rec
+
+    cmp rdi, 0
+    je bye_factorial_rec2
+
+    dec rdi
+    push rdi
+    call my_compute_factorial_rec
+    
+    pop rsi
+    pop rdi
+    push rsi
+    mul rdi
+
+    bye_factorial_rec:
+        ret
+
+    bye_factorial_rec2:
+        pop rsi
+        pop rdi
+        push rsi
+        mov rax, 1
+        ret
+
+    error_factorial_rec:
+        mov rax, -1
+        ret
