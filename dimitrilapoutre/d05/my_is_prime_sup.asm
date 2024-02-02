@@ -33,14 +33,15 @@ my_is_prime_sup:
         jmp loop_prime_sup
 
     one_prime_sup:
-        mov rax, 1
+        mov rax, rdi
         ret
     zero_prime_sup:
-        mov rax, 0
+        inc rdi
+        call my_is_prime_sup
         ret
 
 _start:
-    mov rdi, 31
+    mov rdi, 8
     call my_is_prime_sup
     jmp _exit
 
