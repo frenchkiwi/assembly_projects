@@ -180,3 +180,58 @@ my_compute_factorial_rec:
     error_factorial_rec:
         mov rax, -1
         ret
+
+my_compute_power_it:
+    cmp rsi, 0
+    jl neg_power_it
+    cmp rsi, 0
+    je zero_power_it
+
+    mov rax, 1
+    loop_power_it:
+        dec rsi
+
+        mul rdi
+
+        cmp rsi, 0
+        jne loop_power_it
+    ret
+
+    zero_power_it:
+        mov rax, 1
+        ret
+    
+    neg_power_it:
+        mov rax, 0
+        ret
+
+my_compute_power_rec:
+    pop rdx
+    pop rsi
+    pop rdi
+    push rdi
+    push rsi
+    push rdx
+
+    cmp rsi, 0
+    jl neg_power_rec
+    cmp rsi, 0
+    je zero_power_rec
+
+    dec rsi
+    push rdi
+    push rsi
+    call my_compute_power_rec
+    pop rsi
+    pop rdi
+
+    mul rdi
+    ret
+
+    zero_power_rec:
+        mov rax, 1
+        ret
+    
+    neg_power_rec:
+        mov rax, 0
+        ret
