@@ -1,3 +1,25 @@
+section .text
+    global my_swap
+    global my_strlen
+    global my_putstr
+    global my_revstr
+    global my_getnbr
+    global my_sort_int_array
+    global my_compute_factorial_it
+    global my_compute_factorial_rec
+    global my_compute_power_it
+    global my_compute_power_rec
+    global my_compute_square_root
+    global my_is_prime
+    global my_is_prime_sup
+    global my_strcpy
+    global my_strncpy
+    global my_strstr
+    global my_strcmp
+    global my_strncmp
+    global my_strupcase
+    global my_strdowncase
+
 my_swap:
     xchg rdi, rsi
     ret
@@ -20,14 +42,15 @@ my_putstr:
     mov rax, 1
     mov rdi, 1
     syscall
-    ret
+    bye_putstr:
+        ret
 
-my_evil_str:
+my_revstr:
     mov rcx, -1
-    loop_evil_str:
+    loop_revstr:
         inc rcx
         cmp byte [rdi + rcx], 0
-        jne loop_evil_str
+        jne loop_revstr
     
     mov rax, rcx
     xor rdx, rdx
@@ -36,14 +59,14 @@ my_evil_str:
     xchg rax, rcx
 
     mov rbx, 0
-    loop_evil_str2:
+    loop_revstr2:
         dec rax
         mov r8b, byte [rdi + rbx]
         mov r9b, byte [rdi + rax]
         mov byte [rdi + rbx], r9b
         mov byte [rdi + rax], r8b
         inc rbx
-        loop loop_evil_str2
+        loop loop_revstr2
     mov rax, rdi
     ret
 
@@ -271,3 +294,167 @@ my_is_prime:
     zero_prime:
         mov rax, 0
         ret
+
+my_is_prime_sup:
+    cmp rdi, 1
+    jle zero_prime_sup
+
+    mov rax, rdi
+    xor rdx, rdx
+    mov rbx, 2
+    div rbx
+
+    cmp rdi, 2
+    je one_prime_sup
+
+    cmp rdx, 0
+    je zero_prime_sup
+
+    mov r8, rax
+    loop_prime_sup:
+        inc rbx
+        cmp rbx, r8
+        jge one_prime_sup
+
+        mov rax, rdi
+        xor rdx, rdx
+        div rbx
+
+        cmp rdx, 0
+        je zero_prime_sup
+        jmp loop_prime_sup
+
+    one_prime_sup:
+        mov rax, rdi
+        ret
+    zero_prime_sup:
+        inc rdi
+        call my_is_prime_sup
+        ret
+
+my_strcpy:
+    mov rcx, -1
+    loop_strcpy:
+        inc rcx
+        mov r8b, byte [rsi + rcx]
+        mov byte [rdi + rcx], r8b
+        cmp byte [rsi + rcx], 0
+        jne loop_strcpy
+    mov rax, rdi
+    ret
+
+my_strncpy:
+    mov rcx, -1
+    loop_strncpy:
+        inc rcx
+        cmp rdx, rcx
+        je bye_strncpy
+        mov r8b, byte [rsi + rcx]
+        mov byte [rdi + rcx], r8b
+        cmp byte [rsi + rcx], 0
+        jne loop_strncpy
+    bye_strncpy:
+        mov rax, rdi
+        ret
+
+my_strstr:
+    mov r8, -1
+    loop_strstrlen:
+        inc r8
+        cmp byte [rsi + r8], 0
+        jne loop_strstrlen
+    mov rdx, -1
+    mov rcx, -1
+    loop_my_strstr:
+        inc rdx
+        inc rcx
+        cmp rcx, r8
+        je  bye_strstr
+        mov r9b, byte [rsi + rcx]
+        cmp byte [rdi + rdx], r9b
+        jne reset_and_again_my_strstr
+        again_loop_my_strstr:
+            cmp byte [rdi + rdx], 0
+            jne loop_my_strstr
+    mov rax, 0
+    ret
+
+    reset_and_again_my_strstr:
+        mov rcx, -1
+        jmp again_loop_my_strstr
+
+    bye_strstr:
+        sub rdx, r8
+        lea rax, [rdi + rdx]
+        ret
+
+my_strcmp:
+    mov rcx, -1
+    loop_strcmp:
+        inc rcx
+        mov r9b, byte [rsi + rcx]
+        cmp byte [rdi + rcx], r9b
+        jne bye_strcmp
+        cmp byte [rdi + rcx], 0
+        jne loop_strcmp
+    mov rax, 0
+    ret
+
+    bye_strcmp:
+        mov al, byte [rsi + rcx]
+        sub al, byte [rdi + rcx]
+        ret
+
+my_strncmp:
+    mov rcx, -1
+    dec rdx
+    cmp rdx, 0
+    jl bye_strncmp
+    loop_strncmp:
+        inc rcx
+        cmp rcx, rdx
+        je bye_strncmp2
+        mov r9b, byte [rsi + rcx]
+        cmp byte [rdi + rcx], r9b
+        jne bye_strncmp2
+        cmp byte [rdi + rcx], 0
+        jne loop_strncmp
+    
+    bye_strncmp:
+    mov rax, 0
+    ret
+
+    bye_strncmp2:
+        mov al, byte [rsi + rcx]
+        sub al, byte [rdi + rcx]
+        ret
+
+my_strupcase:
+    mov rcx, -1
+    loop_strupcase:
+        inc rcx
+        cmp byte [rdi + rcx], 'a'
+        jl again_loop_strupcase
+        cmp byte [rdi + rcx], 'z'
+        jg again_loop_strupcase
+        sub byte [rdi + rcx], 32
+        again_loop_strupcase:
+            cmp byte [rdi + rcx], 0
+            jne loop_strupcase
+    mov rax, rdi
+    ret
+
+my_strdowncase:
+    mov rcx, -1
+    loop_strdowncase:
+        inc rcx
+        cmp byte [rdi + rcx], 'A'
+        jl again_loop_strdowncase
+        cmp byte [rdi + rcx], 'Z'
+        jg again_loop_strdowncase
+        add byte [rdi + rcx], 32
+        again_loop_strdowncase:
+            cmp byte [rdi + rcx], 0
+            jne loop_strdowncase
+    mov rax, rdi
+    ret

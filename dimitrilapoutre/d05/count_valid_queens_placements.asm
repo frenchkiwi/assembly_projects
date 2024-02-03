@@ -1,16 +1,13 @@
-;rdi
-;rsi
-;rdx
-;rcx
-;r8-11
-
 section .data
-
+    gay dd 48, 0
 section .text
-    extern my_putnbr
     global _start
 
+count_valid_queens_placements:
+    ret
+
 _start:
+    call count_valid_queens_placements
     jmp _exit
 
 _exit:

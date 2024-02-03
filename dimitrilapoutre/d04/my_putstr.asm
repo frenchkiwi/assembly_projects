@@ -7,14 +7,15 @@ section .text
 my_putstr:
     mov rsi, rdi
     mov rdx, -1
-    loop:
+    loop_putstr:
         inc rdx
         cmp byte [rsi + rdx], 0
-        jne loop
+        jne loop_putstr
     mov rax, 1
     mov rdi, 1
     syscall
-    ret
+    bye_putstr:
+        ret
     
 _start:
     mov rdi, string
