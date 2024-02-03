@@ -20,6 +20,9 @@ section .text
     global my_strupcase
     global my_strdowncase
     global my_strcapitalize
+    global my_str_isalpha
+    global my_str_isnum
+    global my_str_islower
 
 my_swap:
     xchg rdi, rsi
@@ -508,3 +511,125 @@ my_strcapitalize:
     is_capitalize:
         mov rdx, 1
         jmp again_loop_strcapitalize
+
+my_str_isalpha:
+    mov rcx, -1
+    loop_isalpha:
+        inc rcx
+        cmp byte [rdi + rcx], 0
+        je one_isalpha
+        jmp check_isalpha
+
+    check_isalpha:
+        cmp byte [rdi + rcx], 'A'
+        jl zero_isalpha
+        cmp byte [rdi + rcx], 'z'
+        jg zero_isalpha
+        jmp check_isalpha2
+
+    check_isalpha2:
+        cmp byte [rdi + rcx], 'Z'
+        jle loop_isalpha
+        cmp byte [rdi + rcx], 'a'
+        jge loop_isalpha
+        jmp zero_isalpha
+
+    zero_isalpha:
+        mov rax, 0 
+        ret
+    
+    one_isalpha:
+        mov rax, 1
+        ret
+
+my_str_isnum:
+    mov rcx, -1
+    loop_isnum:
+        inc rcx
+        cmp byte [rdi + rcx], 0
+        je one_isnum
+        jmp check_isnum
+
+    check_isnum:
+        cmp byte [rdi + rcx], '0'
+        jl zero_isnum
+        cmp byte [rdi + rcx], '9'
+        jg zero_isnum
+        jmp loop_isnum
+
+    zero_isnum:
+        mov rax, 0 
+        ret
+    
+    one_isnum:
+        mov rax, 1
+        ret
+
+my_str_islower:
+    mov rcx, -1
+    loop_islower:
+        inc rcx
+        cmp byte [rdi + rcx], 0
+        je one_islower
+        jmp check_islower
+
+    check_islower:
+        cmp byte [rdi + rcx], 'a'
+        jl zero_islower
+        cmp byte [rdi + rcx], 'z'
+        jg zero_islower
+        jmp loop_islower
+
+    zero_islower:
+        mov rax, 0 
+        ret
+    
+    one_islower:
+        mov rax, 1
+        ret
+
+my_str_isupper:
+    mov rcx, -1
+    loop_isupper:
+        inc rcx
+        cmp byte [rdi + rcx], 0
+        je one_isupper
+        jmp check_isupper
+
+    check_isupper:
+        cmp byte [rdi + rcx], 'A'
+        jl zero_isupper
+        cmp byte [rdi + rcx], 'Z'
+        jg zero_isupper
+        jmp loop_isupper
+
+    zero_isupper:
+        mov rax, 0 
+        ret
+    
+    one_isupper:
+        mov rax, 1
+        ret
+
+my_str_isprintable:
+    mov rcx, -1
+    loop_isprintable:
+        inc rcx
+        cmp byte [rdi + rcx], 0
+        je one_isprintable
+        jmp check_isprintable
+
+    check_isprintable:
+        cmp byte [rdi + rcx], ' '
+        jl zero_isprintable
+        cmp byte [rdi + rcx], '~'
+        jg zero_isprintable
+        jmp loop_isprintable
+
+    zero_isprintable:
+        mov rax, 0 
+        ret
+    
+    one_isprintable:
+        mov rax, 1
+        ret
