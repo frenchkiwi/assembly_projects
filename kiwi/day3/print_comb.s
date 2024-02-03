@@ -10,7 +10,6 @@
 .text
     _start:
         jmp loop_i
-        jmp end
 
     loop_i:
         mov r8d, [i]
