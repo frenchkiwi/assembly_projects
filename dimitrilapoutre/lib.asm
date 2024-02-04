@@ -29,6 +29,8 @@ section .text
     global my_getnbr_base
     global my_showstr
     global my_showmem
+    global my_strcat
+    global my_strncat
 
 my_swap:
     xchg rdi, rsi
@@ -1081,3 +1083,46 @@ my_showmem:
             syscall
             mov byte [r8], bl
             jmp bye_print_showmem
+
+my_strcat:
+    mov rcx, -1
+    loop_destlen_strcat:
+        inc rcx
+        cmp byte [rdi + rcx], 0
+        jne loop_destlen_strcat
+    mov rdx, -1
+    loop_strcat:
+        inc rdx
+        mov r8b, byte [rsi + rdx]
+        add rcx, rdx
+        mov byte [rdi + rcx], r8b
+        sub rcx, rdx
+        cmp byte [rsi + rdx], 0
+        jne loop_strcat
+    mov rax, rdi
+    ret
+
+my_strncat:
+    mov r9, rdx
+    mov rcx, -1
+    loop_destlen_strncat:
+        inc rcx
+        cmp byte [rdi + rcx], 0
+        jne loop_destlen_strncat
+    mov rdx, -1
+    loop_strncat:
+        inc rdx
+        cmp rdx, r9
+        je bye_strncat
+        cmp byte [rsi + rdx], 0
+        je bye_strncat
+        mov r8b, byte [rsi + rdx]
+        add rcx, rdx
+        mov byte [rdi + rcx], r8b
+        sub rcx, rdx
+        jmp loop_strncat
+    bye_strncat:
+        add rcx, rdx
+        mov byte [rdi + rcx], 0
+        mov rax, rdi
+        ret
