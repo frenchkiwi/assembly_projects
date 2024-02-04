@@ -2,7 +2,7 @@ section .data
     string db "I like ", 10, " ponies!", 0
 
 section .text
-    extern my_putnbr_base
+    extern my_putstr
     global _start
 
 my_showstr:
@@ -38,11 +38,11 @@ my_showstr:
         mov rdi, 1
         mov rdx, 1
 
-        push r8
+        mov bl, byte [r8]
         mov byte [r8], '\' 
         lea rsi, [r8]
         syscall
-        pop r8
+        mov byte [r8], bl
         
         movzx rax, byte [r8 + r9]
         xor rdx, rdx
@@ -58,7 +58,7 @@ my_showstr:
         mov rdi, 1
         mov rdx, 1
 
-        push r8
+        mov bl, byte [r8]
         call is_hexa_showstr
         mov byte [r8], r10b
         lea rsi, [r8]
@@ -66,10 +66,9 @@ my_showstr:
         syscall
         call is_hexa_showstr
         mov byte [r8], r10b
-        call is_hexa_showstr
         lea rsi, [r8]
         syscall
-        pop r8
+        mov byte [r8], bl
 
         jmp loop_showstr
 
@@ -83,6 +82,8 @@ my_showstr:
 _start:
     mov rdi, string
     call my_showstr
+    mov rdi, string
+    call my_putstr
     jmp _exit
 
 _exit:

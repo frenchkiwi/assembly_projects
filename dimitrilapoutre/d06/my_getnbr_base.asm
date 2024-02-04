@@ -1,5 +1,5 @@
 section .data
-    string dq "---1000", 0
+    string dq "6865", 0
     base dq "0123456789", 0
 
 section .text
@@ -74,7 +74,7 @@ my_getnbr_base:
 
 _start:
     mov rdi, string
-    mov rsi, base
+    mov rsi, base2
     call my_getnbr_base
     jmp _exit
 

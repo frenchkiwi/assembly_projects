@@ -1,5 +1,5 @@
 section .data
-    base db "0123456789ABCDEF", 0
+    base db "0123456789", 0
 
 section .text
     extern my_compute_power_it
@@ -83,7 +83,7 @@ my_putnbr_base:
         ret
 
 _start:
-    mov rdi, 31
+    mov rdi, 301
     mov rsi, base
     call my_putnbr_base
     jmp _exit
