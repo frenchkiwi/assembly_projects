@@ -7,7 +7,6 @@
 section .data
 
 section .text
-    extern my_putnbr
     global _start
 
 _start:

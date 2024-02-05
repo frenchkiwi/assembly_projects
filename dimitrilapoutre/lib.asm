@@ -23,6 +23,14 @@ section .text
     global my_str_isalpha
     global my_str_isnum
     global my_str_islower
+    global my_str_isupper
+    global my_str_isprintable
+    global my_putnbr_base
+    global my_getnbr_base
+    global my_showstr
+    global my_showmem
+    global my_strcat
+    global my_strncat
 
 my_swap:
     xchg rdi, rsi
@@ -299,7 +307,7 @@ my_is_prime:
         mov rax, 0
         ret
 
-my_is_prime_sup:
+my_find_prime_sup:
     cmp rdi, 1
     jle zero_prime_sup
 
@@ -333,7 +341,7 @@ my_is_prime_sup:
         ret
     zero_prime_sup:
         inc rdi
-        call my_is_prime_sup
+        call my_find_prime_sup
         ret
 
 my_strcpy:
@@ -405,8 +413,9 @@ my_strcmp:
     ret
 
     bye_strcmp:
-        mov al, byte [rsi + rcx]
-        sub al, byte [rdi + rcx]
+        movzx rax, byte [rdi + rcx]
+        movzx rbx, byte [rsi + rcx]
+        sub rax, rbx
         ret
 
 my_strncmp:
@@ -632,4 +641,489 @@ my_str_isprintable:
     
     one_isprintable:
         mov rax, 1
+        ret
+
+my_putnbr_base:
+    cmp rdi, 0
+    jl my_putnbr_base_neg
+    call my_putnbr_base_pos
+    ret
+
+    my_putnbr_base_neg:
+        mov r9, rdi
+        mov r8b, byte [rsi]
+        mov byte [rsi], 45
+        mov rax, 1
+        mov rdi, 1
+        mov rdx, 1
+        syscall
+
+        mov byte [rsi], r8b
+        mov rdi, r9
+
+        neg rdi
+        call my_putnbr_base_pos
+        ret
+
+    my_putnbr_base_pos:
+        mov r8, rdi
+        mov r9, rsi
+
+        mov r10, -1
+        loop_putnbr_base_len2:
+            inc r10
+            cmp byte [r9 + r10], 0
+            jne loop_putnbr_base_len2
+
+        mov r11, 0
+        loop_putnbr_base_len:
+            inc r11
+
+            mov rdi, r10
+            mov rsi, r11
+            call my_compute_power_it
+
+            mov rbx, rax
+            mov rax, r8
+            xor rdx, rdx
+            div rbx
+
+            cmp rax, 1
+            jge loop_putnbr_base_len
+
+
+        loop_putnbr_base:
+            dec r11
+
+            mov rdi, r10
+            mov rsi, r11
+            call my_compute_power_it
+            mov rbx, rax
+            mov rax, r8
+            xor rdx, rdx
+            div rbx
+
+
+            mov r8, rdx
+            push r11
+            lea rsi, [r9 + rax]
+            mov rax, 1
+            mov rdi, 1
+            mov rdx, 1
+            syscall
+            pop r11
+
+            cmp r11, 0
+            jne loop_putnbr_base
+        mov rax, 0
+        ret
+
+my_getnbr_base:
+    mov r8, 1
+    mov r9, 0
+    mov r10, -1
+    loop_getnbr_base_len:
+        inc r10
+        cmp byte [rsi + r10], 0
+        jne loop_getnbr_base_len
+    mov rax, 0
+    mov rcx, -1
+    loop_getnbr_base:
+        inc rcx
+
+        cmp rax, 2147483647
+        jg zero_getnbr_base
+        cmp rax, -2147483648
+        jl zero_getnbr_base
+
+        cmp byte [rdi + rcx], 0
+        je bye_getnbr_base
+        cmp byte [rdi + rcx], 45
+        je neg_getnbr_base
+        cmp byte [rdi + rcx], 43
+        je pos_getnbr_base
+        call check_getnbr_base
+        mov r9, 1
+        
+        mul r10
+        add rax, r11
+
+        jmp loop_getnbr_base
+
+    check_getnbr_base:
+        mov r11, -1
+        loop_check_getnbr_base:
+            inc r11
+            cmp r11, r10
+            je bye_getnbr_base
+            mov r12b, byte [rsi + r11]
+            cmp byte [rdi + rcx], r12b
+            je bye_check_getnbr_base
+            jmp loop_check_getnbr_base
+        bye_check_getnbr_base:
+            ret
+    
+    zero_getnbr_base:
+        mov rax, 0
+        ret
+
+    pos_getnbr_base:
+        cmp r9, 0
+        jne bye_getnbr_base
+        jmp loop_getnbr_base
+
+    neg_getnbr_base:
+        cmp r9, 0
+        jne bye_getnbr_base
+        neg r8
+        jmp loop_getnbr_base
+
+    bye_getnbr_base:
+        cmp r8, 1
+        je bye_getnbr_base2
+        neg rax
+        bye_getnbr_base2:
+            ret
+
+my_showstr:
+    mov r8, rdi
+    mov r9, -1
+    loop_showstr:
+        inc r9
+        cmp byte [r8 + r9], 0
+        je bye_showstr
+        jmp check_showstr
+
+    bye_showstr:
+        mov rax, 0
+        ret
+
+    check_showstr:
+        cmp byte [r8 + r9], ' '
+        jl np_showstr
+        cmp byte [r8 + r9], '~'
+        jg np_showstr
+        jmp p_showstr
+
+    p_showstr:
+        mov rax, 1
+        mov rdi, 1
+        lea rsi, [r8 + r9]
+        mov rdx, 1
+        syscall
+        jmp loop_showstr
+
+    np_showstr:
+        mov rax, 1
+        mov rdi, 1
+        mov rdx, 1
+
+        mov bl, byte [r8]
+        mov byte [r8], '\' 
+        lea rsi, [r8]
+        syscall
+        mov byte [r8], bl
+        
+        movzx rax, byte [r8 + r9]
+        xor rdx, rdx
+        mov rbx, 16
+        div rbx
+
+        mov r10, rax
+        add r10, 48
+        mov r11, rdx
+        add r11, 48
+
+        mov rax, 1
+        mov rdi, 1
+        mov rdx, 1
+
+        mov bl, byte [r8]
+        call is_hexa_showstr
+        mov byte [r8], r10b
+        lea rsi, [r8]
+        mov r10, r11
+        syscall
+        call is_hexa_showstr
+        mov byte [r8], r10b
+        lea rsi, [r8]
+        syscall
+        mov byte [r8], bl
+
+        jmp loop_showstr
+
+        is_hexa_showstr:
+            cmp r10, 58
+            jl bye_is_hexa_showstr
+            add r10, 39
+            bye_is_hexa_showstr:
+                ret
+
+my_showmem:
+    mov r8, rdi
+    mov r9, rsi
+    mov r10, -1
+    loop_showmem:
+        mov rcx, 8
+        inc r10
+        push r10
+        call print_adress_showmem
+
+        pop r10
+        dec r10
+        
+        loop_showmem2:
+            inc r10
+
+            mov rax, r10
+            xor rdx, rdx
+            mov rbx, 16
+            div rbx
+
+            call print_hexa_showmem
+
+            push rdx
+            mov rax, rdx
+            xor rdx, rdx
+            mov rbx, 2
+            div rbx
+
+            call need_space_showmem
+            pop rdx
+
+            cmp rdx, 15
+            jne loop_showmem2
+        sub r10, 16
+        loop_showmem3:
+            inc r10
+            
+            cmp r10, r9
+            je print_newline_showmem
+
+            mov rax, r10
+            xor rdx, rdx
+            mov rbx, 16
+            div rbx
+
+            call print_showmem
+
+            cmp rdx, 15
+            jne loop_showmem3
+        print_newline_showmem:
+            mov bl, byte [r8]
+            mov rax, 1
+            mov rdi, 1
+            mov byte [r8], 10
+            lea rsi, [r8]
+            mov rdx, 1
+            syscall
+            mov byte [r8], bl
+
+            cmp r10, r9
+            je bye_showmem
+            dec r9
+            cmp r10, r9
+            je bye_showmem
+            inc r9
+
+            jmp loop_showmem
+
+    bye_showmem:
+        mov rax, 0
+        ret
+
+    print_adress_showmem:
+        dec rcx
+
+        mov rdi, 16
+        mov rsi, rcx
+        call my_compute_power_it
+
+        mov rbx, rax
+        mov rax, r10
+        xor rdx, rdx
+        div rbx
+        
+        mov r10, rdx
+
+        mov bl, byte [r8]
+        mov byte [r8], al
+        add byte [r8], 48
+        cmp byte [r8], 58
+        jl print_adress_part_showmem
+        add byte [r8], 39
+        print_adress_part_showmem:
+            push rcx
+            mov rax, 1
+            mov rdi, 1
+            lea rsi, [r8]
+            mov rdx, 1
+            syscall
+            mov byte [r8], bl
+            pop rcx
+
+        cmp rcx, 0
+        jne print_adress_showmem
+        mov rax, 1
+        mov rdi, 1
+        mov rdx, 1
+
+        mov bl, byte [r8]
+        mov byte [r8], ':'
+        lea rsi, [r8]
+        syscall
+        mov byte [r8], ' '
+        lea rsi, [r8]
+        syscall
+        mov byte [r8], bl
+        ret
+
+    print_hexa_showmem:
+        push rdx
+
+        mov rax, 1
+        mov rdi, 1
+        mov rdx, 1
+
+        cmp r10, r9
+        jge print_hexa_empty_showmem
+        
+        movzx rax, byte [r8 + r10]
+        xor rdx, rdx
+        mov rbx, 16
+        div rbx
+
+        push r10
+        mov r10, rax
+        add r10, 48
+        mov r11, rdx
+        add r11, 48
+
+        mov rax, 1
+        mov rdi, 1
+        mov rdx, 1
+
+        mov bl, byte [r8]
+        call is_hexa_showmem
+        mov byte [r8], r10b
+        lea rsi, [r8]
+        mov r10, r11
+        syscall
+        call is_hexa_showmem
+        mov byte [r8], r10b
+        lea rsi, [r8]
+        syscall
+        mov byte [r8], bl
+        pop r10
+
+        pop rdx
+        ret
+
+        is_hexa_showmem:
+            cmp r10, 58
+            jl bye_is_hexa_showmem
+            add r10, 39
+            bye_is_hexa_showmem:
+                ret
+        
+        print_hexa_empty_showmem:
+            mov rax, 1
+            mov rdi, 1
+            mov rdx, 1
+
+            mov bl, byte [r8]
+            mov byte [r8], 32
+            lea rsi, [r8]
+            syscall
+            mov byte [r8], 32
+            lea rsi, [r8]
+            syscall
+            mov byte [r8], bl
+            pop rdx
+            ret
+
+    need_space_showmem:
+        cmp rdx, 1
+        je print_space_showmem
+        ret
+
+        print_space_showmem:
+            mov bl, byte [r8]
+            mov rax, 1
+            mov rdi, 1
+            mov byte [r8], 32
+            lea rsi, [r8]
+            mov rdx, 1
+            syscall
+            mov byte [r8], bl
+            ret
+
+    print_showmem:
+        push rdx
+        cmp byte [r8 + r10], ' '
+        jl print_dot_showmem
+        cmp byte [r8 + r10], '~'
+        jg print_dot_showmem
+
+        mov rax, 1
+        mov rdi, 1
+        lea rsi, [r8 + r10]
+        mov rdx, 1
+        syscall
+
+        bye_print_showmem:
+            pop rdx
+            ret 
+        print_dot_showmem:
+            mov bl, byte [r8]
+            mov rax, 1
+            mov rdi, 1
+            mov byte [r8], 46
+            lea rsi, [r8]
+            mov rdx, 1
+            syscall
+            mov byte [r8], bl
+            jmp bye_print_showmem
+
+my_strcat:
+    mov rcx, -1
+    loop_destlen_strcat:
+        inc rcx
+        cmp byte [rdi + rcx], 0
+        jne loop_destlen_strcat
+    mov rdx, -1
+    loop_strcat:
+        inc rdx
+        mov r8b, byte [rsi + rdx]
+        add rcx, rdx
+        mov byte [rdi + rcx], r8b
+        sub rcx, rdx
+        cmp byte [rsi + rdx], 0
+        jne loop_strcat
+    mov rax, rdi
+    ret
+
+my_strncat:
+    mov r9, rdx
+    mov rcx, -1
+    loop_destlen_strncat:
+        inc rcx
+        cmp byte [rdi + rcx], 0
+        jne loop_destlen_strncat
+    mov rdx, -1
+    loop_strncat:
+        inc rdx
+        cmp rdx, r9
+        je bye_strncat
+        cmp byte [rsi + rdx], 0
+        je bye_strncat
+        mov r8b, byte [rsi + rdx]
+        add rcx, rdx
+        mov byte [rdi + rcx], r8b
+        sub rcx, rdx
+        jmp loop_strncat
+    bye_strncat:
+        add rcx, rdx
+        mov byte [rdi + rcx], 0
+        mov rax, rdi
         ret

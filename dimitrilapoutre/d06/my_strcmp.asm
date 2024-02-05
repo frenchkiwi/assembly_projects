@@ -1,8 +1,9 @@
 section .data
-    test1 db "gay", 0
-    test2 db "gay", 0
+    test1 db " apple", 0
+    test2 db ".banana", 0
+    base db "0123456789", 0
 section .text
-    extern my_put_nbr
+    extern my_putnbr_base
     global _start
 
 my_strcmp:
@@ -18,14 +19,18 @@ my_strcmp:
     ret
 
     bye_strcmp:
-        mov al, byte [rsi + rcx]
-        sub al, byte [rdi + rcx]
+        movzx rax, byte [rdi + rcx]
+        movzx rbx, byte [rsi + rcx]
+        sub rax, rbx
         ret
 
 _start:
     mov rdi, test1
     mov rsi, test2
     call my_strcmp
+    mov rdi, rax
+    mov rsi, base
+    call my_putnbr_base
     jmp _exit
 
 _exit:

@@ -3,7 +3,7 @@ section .data
 section .text
     global _start
 
-my_is_prime_sup:
+my_find_prime_sup:
     cmp rdi, 1
     jle zero_prime_sup
 
@@ -37,12 +37,12 @@ my_is_prime_sup:
         ret
     zero_prime_sup:
         inc rdi
-        call my_is_prime_sup
+        call my_find_prime_sup
         ret
 
 _start:
     mov rdi, 8
-    call my_is_prime_sup
+    call my_find_prime_sup
     jmp _exit
 
 _exit:
