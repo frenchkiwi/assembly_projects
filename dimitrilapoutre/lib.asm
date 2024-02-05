@@ -31,6 +31,7 @@ section .text
     global my_showmem
     global my_strcat
     global my_strncat
+    global my_strdup
 
 my_swap:
     xchg rdi, rsi
@@ -1127,3 +1128,28 @@ my_strncat:
         mov byte [rdi + rcx], 0
         mov rax, rdi
         ret
+
+my_strdup:
+    mov r8, rdi
+    mov rax, 12
+    mov rdi, 0
+    syscall
+    mov r9, rax
+    
+    mov rdi, r8
+    call my_strlen
+    
+    inc rax
+    lea rdi, [r9 + rax]
+    mov rax, 12
+    syscall
+
+    mov rcx, -1
+    loop_strdup:
+        inc rcx
+        movzx r10, byte [r8 + rcx]
+        mov byte [r9 + rcx], r10b
+        cmp byte [r8 + rcx], 0
+        jne loop_strdup
+    mov rax, r9
+    ret 
