@@ -11,7 +11,7 @@
 
 .text
     _start:
-        mov rax, 0
+        mov r12d, 0
         jmp main_loop
 
     write_all:
@@ -49,64 +49,58 @@
         cmp r9d, '8'
         jl bye
         jmp end
-    
-    x_up:
-        sub r11d, 9
-        mov [y], r11d
-        add r10d, 1
-        mov [x], r10d
-        ret
 
-    up_right:
-        mov r10d, [i]
-        mov r11d, [y]
-        cmp r11d, '9'
-        jge x_up
-        add r11d, 1
-        mov [y], r11d
-        ret
-
-    i_up:
-        sub r9d, 9
-        mov [j], r9d
-        add r8d, 1
-        mov [i], r8d
-        ret
-
-    up_left:
+    up:
         cmp r9d, '9'
-        jge i_up
+        je up_left
         add r9d, 1
-        mov [j], r9d
         ret
+        up_left:
+            mov r9d, '0'
+            add r8d, 1
+            ret
 
     check_loop:
+        mov r11d, [y]
+        mov r10d, [x]
         cmp r11d, '9'
-        jge bye
+        jl bye
         cmp r10d, '9'
-        jge bye
-        mov rax, 1
+        jl bye
+        mov r12d, 1
         ret
 
     main_loop:
         mov r8d, [i]
         mov r9d, [j]
         mov [x], r8d
-        add r9d, 1
         mov [y], r9d
         secondary_loop:
+            mov r8d, [x]
+            mov r9d, [y]
+            call up
+            mov [x], r8d
+            mov [y], r9d
             call write_all
-            call up_right
+            call send_end
+            call write_space
             call check_loop
-            cmp rax, 1
+            cmp r12d, 1
             jne secondary_loop
-        mov rax, 0
-        call send_end
-        call write_space
-        call up_left
+        mov r12d, 0
+        mov r8d, [i]
+        mov r9d, [j]
+        call up
+        mov [i], r8d
+        mov [j], r9d
         jmp main_loop
  
     end:
-        mov rax, 60
         mov rdi, 0
+        mov rax, 60
+        syscall
+
+    _error:
+        mov rdi, r11
+        mov rax, 60
         syscall
