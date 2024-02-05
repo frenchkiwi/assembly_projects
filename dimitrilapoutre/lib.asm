@@ -413,8 +413,9 @@ my_strcmp:
     ret
 
     bye_strcmp:
-        mov al, byte [rsi + rcx]
-        sub al, byte [rdi + rcx]
+        movzx rax, byte [rdi + rcx]
+        movzx rbx, byte [rsi + rcx]
+        sub rax, rbx
         ret
 
 my_strncmp:
