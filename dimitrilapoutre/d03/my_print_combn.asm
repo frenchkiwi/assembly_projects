@@ -64,7 +64,6 @@ up:
         mov [number + rcx], r8b
         cmp rcx, len
         jne help_up
-        
     mov byte [number + len], 0
     ret
 
