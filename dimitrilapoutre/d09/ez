@@ -3,7 +3,8 @@
 nasm -f elf64 -i ../include -g -o test.o $1
 nasm -f elf64 -g -o lib.o ../lib.asm
 ld lib.o test.o -o test
-./test
+./test gay ho
+echo $?
 rm -rf test.o
 rm -rf lib.o
 rm -rf test

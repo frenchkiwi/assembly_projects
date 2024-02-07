@@ -1,8 +1,11 @@
 section .data
-    string dq "6865", 0
-    base dq "0123456789", 0
+    string db "1101010111", 0
+    base dq "01", 0
+
+    base_test db "0123456789", 0
 
 section .text
+    extern my_putnbr_base
     global _start
 
 my_getnbr_base:
@@ -74,11 +77,14 @@ my_getnbr_base:
 
 _start:
     mov rdi, string
-    mov rsi, base2
+    mov rsi, base
     call my_getnbr_base
+    mov rdi, rax
+    mov rsi, base_test
+    call my_putnbr_base
     jmp _exit
 
 _exit:
-    mov rax, 60
     mov rdi, 0
+    mov rax, 60
     syscall

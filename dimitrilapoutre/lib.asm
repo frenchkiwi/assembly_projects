@@ -48,6 +48,8 @@ my_strlen:
     ret
 
 my_putstr:
+    cmp rdi, 0
+    je bye_putstr
     mov rsi, rdi
     mov rdx, -1
     loop_putstr:
@@ -58,6 +60,7 @@ my_putstr:
     mov rdi, 1
     syscall
     bye_putstr:
+        mov rax, 0
         ret
 
 my_revstr:
