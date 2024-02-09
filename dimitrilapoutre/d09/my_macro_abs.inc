@@ -2,8 +2,8 @@
     %define MACRO_ABS_
     %macro ABS 1
         cmp %1, 0
-        jge bye_ABS
+        jge %%bye_ABS
         neg %1
-        bye_ABS:
+        %%bye_ABS:
     %endmacro
 %endif

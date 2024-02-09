@@ -1,9 +1,3 @@
-;rdi
-;rsi
-;rdx
-;rcx
-;r8-11
-
 section .data
 
 section .text
