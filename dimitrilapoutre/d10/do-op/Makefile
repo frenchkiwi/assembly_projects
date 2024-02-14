@@ -11,14 +11,14 @@ SRC = do-op.asm
 
 OBJ = ${SRC:.asm=.o}
 
-LIB = ../lib.asm
+LIB = ../../lib.asm
 
 OBJ_LIB = ${LIB:.asm=.o}
 
 all: ${NAME}
 
 ${NAME}:
-	nasm -f elf64 -I ../include/ -o ${OBJ} ${SRC}
+	nasm -f elf64 -I ../../include/ -o ${OBJ} ${SRC}
 	nasm -f elf64 -o ${OBJ_LIB} ${LIB}
 	ld ${OBJ} ${OBJ_LIB} -o ${NAME}
 
