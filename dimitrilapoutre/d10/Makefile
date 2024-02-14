@@ -18,7 +18,7 @@ OBJ_LIB = ${LIB:.asm=.o}
 all: ${NAME}
 
 ${NAME}:
-	nasm -f elf64 -o ${OBJ} ${SRC}
+	nasm -f elf64 -I ../include/ -o ${OBJ} ${SRC}
 	nasm -f elf64 -o ${OBJ_LIB} ${LIB}
 	ld ${OBJ} ${OBJ_LIB} -o ${NAME}
 
