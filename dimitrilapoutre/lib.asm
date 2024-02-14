@@ -7,7 +7,7 @@
         %%bye_ABS:
     %endmacro
 
-    %macro CALL_ 2-7
+    %macro CALL_ 1-7
         push rdi ; -prologue-
         push rsi ;
         push rdx ;
@@ -16,22 +16,24 @@
         push r9 ;
         push r10 ;
         push r11 ; ----------
-        mov rdi, %2 ; set 1st param
-        %if %0 >= 3 ; check if there is 2nd param
-            %rotate 1 ; move to 2nd param
-            mov rsi, %2 ; set 2nd param
-            %if %0 >= 4 ; check if there is 3rd param
-                %rotate 1 ; move to 3rd param
-                mov rdx, %2 ; set 3rd param
-                %if %0 >= 5 ; check if there is 4th param
-                    %rotate 1 ; move to 4th param
-                    mov rcx, %2 ; set 4th param
-                    %if %0 >= 6 ; check if there is 5th param
-                        %rotate 1 ; move to 5th param
-                        mov r8, %2 ; set 5th param
-                        %if %0 == 7 ; check if there is 6th param
-                            %rotate 1 ; move to 6th param
-                            mov r9, %2 ; set 6th param
+        %if %0 >= 2 ; check if there is 1st param
+            mov rdi, %2 ; set 1st param
+            %if %0 >= 3 ; check if there is 2nd param
+                %rotate 1 ; move to 2nd param
+                mov rsi, %2 ; set 2nd param
+                %if %0 >= 4 ; check if there is 3rd param
+                    %rotate 1 ; move to 3rd param
+                    mov rdx, %2 ; set 3rd param
+                    %if %0 >= 5 ; check if there is 4th param
+                        %rotate 1 ; move to 4th param
+                        mov rcx, %2 ; set 4th param
+                        %if %0 >= 6 ; check if there is 5th param
+                            %rotate 1 ; move to 5th param
+                            mov r8, %2 ; set 5th param
+                            %if %0 == 7 ; check if there is 6th param
+                                %rotate 1 ; move to 6th param
+                                mov r9, %2 ; set 6th param
+                            %endif
                         %endif
                     %endif
                 %endif
@@ -89,6 +91,8 @@ section .text
     global my_strdup
     global my_show_word_array
     global my_str_to_word_array
+    global my_sort_word_array
+    global my_advanced_sort_word_array
 
 my_putchar:
     push rax
@@ -1360,3 +1364,64 @@ my_str_to_word_array:
     
     mov rax, rsi
     ret
+
+my_sort_word_array:
+    mov rcx, -1
+    cmp rdi, 0
+    je .bye
+    .loop:
+        inc rcx
+        cmp qword[8 + rdi + rcx * 8], 0
+        je .bye
+        mov rdx, rcx
+        inc rdx
+        .loop2:
+            mov r8, [rdi + rcx * 8]
+            mov r9, [rdi + rdx * 8]
+            CALL_ my_strcmp, r8, r9
+            cmp rax, 0
+            jg .swap
+            .back_up_loop2:
+            inc rdx
+            cmp qword[rdi + rdx * 8], 0
+            jne .loop2
+        jmp .loop
+    .bye:
+    mov rax, 0
+    ret
+
+    .swap:
+        mov [rdi + rcx * 8], r9
+        mov [rdi + rdx * 8], r8
+        jmp .back_up_loop2
+
+my_advanced_sort_word_array:
+    mov r10, rsi
+    mov rcx, -1
+    cmp rdi, 0
+    je .bye
+    .loop:
+        inc rcx
+        cmp qword[8 + rdi + rcx * 8], 0
+        je .bye
+        mov rdx, rcx
+        inc rdx
+        .loop2:
+            mov r8, [rdi + rcx * 8]
+            mov r9, [rdi + rdx * 8]
+            CALL_ r10, r8, r9
+            cmp rax, 0
+            jg .swap
+            .back_up_loop2:
+            inc rdx
+            cmp qword[rdi + rdx * 8], 0
+            jne .loop2
+        jmp .loop
+    .bye:
+    mov rax, 0
+    ret
+
+    .swap:
+        mov [rdi + rcx * 8], r9
+        mov [rdi + rdx * 8], r8
+        jmp .back_up_loop2

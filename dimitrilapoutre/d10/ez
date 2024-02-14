@@ -1,6 +1,6 @@
 #! /bin/bash
 
-nasm -f elf64 -g -o test.o $1
+nasm -f elf64 -I ../include/ -g -o test.o $1
 nasm -f elf64 -g -o lib.o ../lib.asm
 ld lib.o test.o -o test
 shift

@@ -1,3 +1,5 @@
+%include "my_macro.asm"
+
 section .data
 
 section .text
