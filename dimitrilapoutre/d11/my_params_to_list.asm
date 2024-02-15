@@ -5,6 +5,7 @@ section .data
 section .text
     extern my_putchar
     extern my_putstr
+    extern my_putnbr_base
     global _start
 
 my_params_to_list:
@@ -42,8 +43,7 @@ my_params_to_list:
 
 _start:
     call my_params_to_list
-    mov rax, [rax + 8]
-    CALL_ my_putstr, [rax]
+    mov rdi, rax
     jmp _exit
 
 _exit:
