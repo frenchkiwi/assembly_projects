@@ -6,12 +6,12 @@ section .text
     global _start
 
 my_apply_to_nodes:
-    mov rax, rdi
+    mov r8, rdi
     .loop:
-        cmp rax, 0
+        cmp r8, 0
         je .bye
-        CALL_ rsi, [rax]
-        mov rax, [rax + 8]
+        CALL_ rsi, [r8]
+        mov r8, [r8 + 8]
         jmp .loop
     .bye:
     mov rax, 0

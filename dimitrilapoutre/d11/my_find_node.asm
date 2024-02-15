@@ -5,15 +5,16 @@ section .data
 section .text
     global _start
 
-my_apply_to_matching_nodes:
+my_find_node:
     mov r8, rdi
     .loop:
         cmp r8, 0
         je .bye
-        CALL_ rcx, [r8], rdx
+        CALL_ rdx, [r8], rsi
         cmp rax, 0
         jne .continue
-        CALL_ rsi, [r8]
+        mov rax, r8
+        ret
         .continue:
         mov r8, [r8 + 8]
         jmp .loop

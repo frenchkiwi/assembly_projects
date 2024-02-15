@@ -8,7 +8,8 @@ section .text
     extern my_putstr
     extern my_strcmp
     extern my_putnbr_base
-    extern my_apply_to_matching_nodes
+    extern my_apply_to_nodes
+    extern my_delete_nodes
     global _start
 
 my_params_to_list:
@@ -46,7 +47,9 @@ my_params_to_list:
 
 _start:
     call my_params_to_list
-    
+    mov rdi, rax
+    CALL_ my_delete_nodes, rdi, ref, my_strcmp
+    CALL_ my_apply_to_nodes, rdi, my_putstr
     jmp _exit
 
 _exit:
