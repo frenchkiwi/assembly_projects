@@ -1,19 +1,20 @@
+%include "my_macro.asm"
+
 section .data
 
 section .text
     global _start
 
-my_list_size:
-    mov rcx, -1
+my_apply_to_nodes:
     mov rax, rdi
     .loop:
-        inc rcx
         cmp rax, 0
         je .bye
+        CALL_ rsi, [rax]
         mov rax, [rax + 8]
         jmp .loop
     .bye:
-    mov rax, rcx
+    mov rax, 0
     ret
 
 _start:

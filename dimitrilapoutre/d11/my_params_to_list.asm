@@ -2,10 +2,13 @@
 
 section .data
     base db "0123456789", 0
+    ref db "gay", 0
 section .text
     extern my_putchar
     extern my_putstr
+    extern my_strcmp
     extern my_putnbr_base
+    extern my_apply_to_matching_nodes
     global _start
 
 my_params_to_list:
@@ -43,6 +46,7 @@ my_params_to_list:
 
 _start:
     call my_params_to_list
+    
     jmp _exit
 
 _exit:

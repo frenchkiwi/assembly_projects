@@ -95,6 +95,10 @@ section .text
     global my_str_to_word_array
     global my_sort_word_array
     global my_advanced_sort_word_array
+    global my_list_size
+    global my_rev_list
+    global my_apply_to_nodes
+    global my_apply_to_matching_nodes
 
 my_putchar:
     push rax
@@ -1478,3 +1482,72 @@ my_advanced_sort_word_array:
         mov [rdi + rcx * 8], r9
         mov [rdi + rdx * 8], r8
         jmp .back_up_loop2
+
+my_list_size:
+    mov rcx, -1
+    mov rax, rdi
+    .loop:
+        inc rcx
+        cmp rax, 0
+        je .bye
+        mov rax, [rax + 8]
+        jmp .loop
+    .bye:
+    mov rax, rcx
+    ret
+
+my_rev_list:
+    cmp rdi, 0
+    je .bye
+    mov rdx, rdi
+    .loop:
+        cmp qword [rdi + 8], 0
+        je .continue
+        mov rdi, [rdi + 8]
+        jmp .loop
+    .continue:
+    mov rax, rdi
+    .loop2:
+        mov rsi, rdx
+        .loop3:
+            cmp qword [rsi + 8], rax
+            je .add_next
+            mov rsi, [rsi + 8]
+            jmp .loop3
+        .add_next:
+        mov [rax + 8], rsi
+        mov rax, [rax + 8]
+        cmp rsi, rdx
+        jne .loop2
+    mov rsi, 0
+    mov [rax + 8], rsi
+    .bye:
+    ret
+
+my_apply_to_nodes:
+    mov r8, rdi
+    .loop:
+        cmp rax, 0
+        je .bye
+        CALL_ rsi, [r8]
+        mov r8, [r8 + 8]
+        jmp .loop
+    .bye:
+    mov rax, 0
+    ret
+
+my_apply_to_matching_nodes:
+    mov r8, rdi
+    .loop:
+        cmp r8, 0
+        je .bye
+        CALL_ rcx, [r8], rdx
+        cmp rax, 0
+        jne .continue
+        CALL_ rsi, [r8]
+        .continue:
+        mov r8, [r8 + 8]
+        jmp .loop
+    .bye:
+    mov rax, 0
+    ret
