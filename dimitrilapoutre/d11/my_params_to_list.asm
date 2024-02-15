@@ -2,7 +2,7 @@
 
 section .data
     base db "0123456789", 0
-    ref db "gay", 0
+    ref db "de", 0
 section .text
     extern my_putchar
     extern my_putstr
@@ -10,6 +10,7 @@ section .text
     extern my_putnbr_base
     extern my_apply_to_nodes
     extern my_delete_nodes
+    extern my_concat_list
     global _start
 
 my_params_to_list:
@@ -47,9 +48,6 @@ my_params_to_list:
 
 _start:
     call my_params_to_list
-    mov rdi, rax
-    CALL_ my_delete_nodes, rdi, ref, my_strcmp
-    CALL_ my_apply_to_nodes, rdi, my_putstr
     jmp _exit
 
 _exit:
