@@ -56,9 +56,11 @@
 
 section .text
     global my_putchar
+    global my_putcharerror
     global my_swap
     global my_strlen
     global my_putstr
+    global my_puterror
     global my_revstr
     global my_getnbr
     global my_sort_int_array
@@ -129,6 +131,41 @@ my_putchar:
     pop rax
     ret
 
+my_putcharerror:
+    push rax
+    push rdi
+    push rsi
+    push rdx
+    push rcx
+    push r11
+
+    mov dl, dil
+    mov rax, 12
+    mov rdi, 0
+    syscall
+    mov rsi, rax
+    mov rax, 12
+    lea rdi, [rsi + 1]
+    syscall
+    
+    mov byte [rsi], dl
+    mov rax, 1
+    mov rdi, 2
+    mov rdx, 1
+    syscall
+
+    mov rax, 12
+    lea rdi, [rsi]
+    syscall
+
+    pop r11
+    pop rcx
+    pop rdx
+    pop rsi
+    pop rdi
+    pop rax
+    ret
+
 my_swap:
     xchg rdi, rsi
     ret
@@ -152,6 +189,22 @@ my_putstr:
         jne .loop_putstr
     mov rax, 1
     mov rdi, 1
+    syscall
+    .bye_putstr:
+        mov rax, 0
+        ret
+
+my_puterror:
+    cmp rdi, 0
+    je .bye_putstr
+    mov rsi, rdi
+    mov rdx, -1
+    .loop_putstr:
+        inc rdx
+        cmp byte [rsi + rdx], 0
+        jne .loop_putstr
+    mov rax, 1
+    mov rdi, 2
     syscall
     .bye_putstr:
         mov rax, 0

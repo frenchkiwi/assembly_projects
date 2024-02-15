@@ -1,79 +1,71 @@
 %include "my_macro.asm"
+%include "../d10/my_advanced_do-op/my_opp.asm"
 
 section .data
     error_div db "Stop: division by zero", 0
     error_mod db "Stop: modulo by zero", 0
+    error_usage1 db "error: only [ ", 0
+    error_usage2 db "] are supported", 0
     base db "0123456789", 0
 
 section .text
     extern my_getnbr
     extern my_puterror
+    extern my_putstr
+    extern my_strncmp
     extern my_putnbr_base
+    extern my_strlen
     extern my_putcharerror
     extern my_putchar
     global _start
 
-get_sign:
-    mov rax, 0
-    cmp byte[rdi], '+'
-    je .add
-    cmp byte[rdi], '-'
-    je .sub
-    cmp byte[rdi], '*'
-    je .mul
-    cmp byte[rdi], '/'
-    je .div
-    cmp byte[rdi], '%'
-    je .mod
-    .bye:
-    ret
-    .add:
-        mov rax, 1
-        jmp .bye
-    .sub:
-        mov rax, 2
-        jmp .bye
-    .mul:
-        mov rax, 3
-        jmp .bye
-    .div:
-        mov rax, 4
-        jmp .bye
-    .mod:
-        mov rax, 5
-        jmp .bye
-
 calcul:
-    cmp rsi, 1
-    je .add
-    cmp rsi, 2
-    je .sub
-    cmp rsi, 3
-    je .mul
-    cmp rsi, 4
-    je .div
-    cmp rsi, 5
-    je .mod
-    CALL_ my_putcharerror, '0'
-    CALL_ my_putcharerror, 10
-    jmp _error
-    .add:
+    mov rcx, -1
+    .loop:
+        inc rcx
+        mov r8, [OPERATOR_FUNCS + rcx * 8]
+        mov r9, [r8]
+        CALL_ my_strlen, r9
+        CALL_ my_strncmp, r9, rsi, rax
+        cmp rax, 0
+        je .jump
+        jmp .loop
+    .jump:
+        jmp [r8 + 8]
+    my_usage:
+        CALL_ my_puterror, error_usage1
+        mov rcx, -1
+        .loop2:
+            inc rcx
+            mov r8, [OPERATOR_FUNCS + rcx * 8]
+            mov r9, [r8]
+            cmp byte [r9], 0
+            je .continue
+            mov r9, [r8]
+            CALL_ my_puterror, r9
+            CALL_ my_putcharerror, ' '
+            jmp .loop2
+        .continue:
+        CALL_ my_puterror, error_usage2
+        CALL_ my_putcharerror, 10
+        jmp _error
+    my_add:
         add rdi, rdx
         CALL_ my_putnbr_base, rdi, base
         CALL_ my_putchar, 10
         jmp _exit
-    .sub:
+    my_sub:
         sub rdi, rdx
         CALL_ my_putnbr_base, rdi, base
         CALL_ my_putchar, 10
         jmp _exit
-    .mul:
+    my_mul:
         mov rax, rdi
         mul rdx
         CALL_ my_putnbr_base, rax, base
         CALL_ my_putchar, 10
         jmp _exit
-    .div:
+    my_div:
         cmp rdx, 0
         je .error_div
         mov rax, rdi
@@ -83,7 +75,11 @@ calcul:
         CALL_ my_putnbr_base, rax, base
         CALL_ my_putchar, 10
         jmp _exit
-    .mod:
+        .error_div:
+            CALL_ my_puterror, error_div
+            CALL_ my_putcharerror, 10
+            jmp _error
+    my_mod:
         cmp rdx, 0
         je .error_mod
         mov rax, rdi
@@ -93,16 +89,10 @@ calcul:
         CALL_ my_putnbr_base, rdx, base
         CALL_ my_putchar, 10
         jmp _exit
-    
-    .error_div:
-        CALL_ my_puterror, error_div
-        CALL_ my_putcharerror, 10
-        jmp _error
-
-    .error_mod:
-        CALL_ my_puterror, error_mod
-        CALL_ my_putcharerror, 10
-        jmp _error
+        .error_mod:
+            CALL_ my_puterror, error_mod
+            CALL_ my_putcharerror, 10
+            jmp _error
 
 _start:
     xor rdi, rdi
@@ -116,8 +106,6 @@ _start:
     mov rsi, [rsp + 24]
     cmp rsi, 0
     je _error
-    CALL_ get_sign, rsi
-    mov rsi, rax
 
     xor rdx, rdx
     mov rdx, [rsp + 32]
@@ -125,6 +113,11 @@ _start:
     je _error
     CALL_ my_getnbr, rdx
     mov rdx, rax
+
+    xor rsi, rsi
+    mov rsi, [rsp + 24]
+    cmp rsi, 0
+    je _error
 
     jmp calcul
 
