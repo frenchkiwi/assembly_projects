@@ -43,7 +43,6 @@ my_params_to_list:
 
 _start:
     call my_params_to_list
-    mov rdi, rax
     jmp _exit
 
 _exit:
