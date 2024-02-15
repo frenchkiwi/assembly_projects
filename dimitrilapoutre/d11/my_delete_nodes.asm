@@ -6,11 +6,11 @@ section .text
     global _start
 
 my_delete_nodes:
-    mov r8, rdi
+    mov r8, [rdi]
     .loop:
         cmp r8, 0
         je .bye
-        cmp r8, rdi
+        cmp r8, [rdi]
         je .first_node
         CALL_ rdx, [r8], rsi
         cmp rax, 0
@@ -21,7 +21,8 @@ my_delete_nodes:
         mov r8, [r8 + 8]
         jmp .loop
     .bye:
-    cmp rdi, 0
+    mov r11, [rdi]
+    cmp r11, 0
     je .bye2
     mov [r9 + 8], r8
     .bye2:
@@ -35,7 +36,8 @@ my_delete_nodes:
         mov r9, r8
         jmp .continue
         .move_begin:
-            mov rdi, [r8 + 8]
+            mov r11, [r8 + 8]
+            mov [rdi], r11
             jmp .continue
 
 _start:

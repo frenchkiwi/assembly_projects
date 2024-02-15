@@ -6,7 +6,7 @@ section .text
     global _start
 
 my_concat_list:
-    mov r8, rdi
+    mov r8, [rdi]
     cmp r8, 0
     je .no_first
     xor r9, r9
@@ -21,7 +21,7 @@ my_concat_list:
     mov rax, 0
     ret
     .no_first:
-        mov rdi, rsi
+        mov [rdi], rsi
         jmp .bye
 
 _start:

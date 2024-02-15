@@ -11,6 +11,10 @@ section .text
     extern my_apply_to_nodes
     extern my_delete_nodes
     extern my_concat_list
+    extern my_sort_list
+    extern get_ptr
+    extern my_add_in_sorted_list
+    extern my_merge
     global _start
 
 my_params_to_list:
@@ -45,9 +49,13 @@ my_params_to_list:
         pop rcx
         mov rax, r10
         ret
-
 _start:
     call my_params_to_list
+    CALL_ get_ptr, rax
+    mov r12, rax
+    call my_params_to_list
+    CALL_ my_merge, r12, rax, my_strcmp
+    CALL_ my_apply_to_nodes, [r12], my_putstr
     jmp _exit
 
 _exit:

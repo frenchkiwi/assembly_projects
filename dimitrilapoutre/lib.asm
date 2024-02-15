@@ -102,6 +102,10 @@ section .text
     global my_find_node
     global my_delete_nodes
     global my_concat_list
+    global my_sort_list
+    global get_ptr
+    global my_add_in_sorted_list
+    global my_merge
 
 my_putchar:
     push rax
@@ -1573,11 +1577,11 @@ my_find_node:
     ret
 
 my_delete_nodes:
-    mov r8, rdi
+    mov r8, [rdi]
     .loop:
         cmp r8, 0
         je .bye
-        cmp r8, rdi
+        cmp r8, [rdi]
         je .first_node
         CALL_ rdx, [r8], rsi
         cmp rax, 0
@@ -1588,7 +1592,8 @@ my_delete_nodes:
         mov r8, [r8 + 8]
         jmp .loop
     .bye:
-    cmp rdi, 0
+    mov r11, [rdi]
+    cmp r11, 0
     je .bye2
     mov [r9 + 8], r8
     .bye2:
@@ -1602,11 +1607,12 @@ my_delete_nodes:
         mov r9, r8
         jmp .continue
         .move_begin:
-            mov rdi, [r8 + 8]
+            mov r11, [r8 + 8]
+            mov [rdi], r11
             jmp .continue
 
 my_concat_list:
-    mov r8, rdi
+    mov r8, [rdi]
     cmp r8, 0
     je .no_first
     xor r9, r9
@@ -1621,5 +1627,80 @@ my_concat_list:
     mov rax, 0
     ret
     .no_first:
-        mov rdi, rsi
+        mov [rdi], rsi
         jmp .bye
+
+my_sort_list:
+    mov rcx, [rdi]
+    cmp rcx, 0
+    je .bye
+    xor r10, r10
+    mov r11, rsi
+    .loop:
+        cmp [rcx + 8], r10
+        je .bye
+        mov rdx, [rcx + 8]
+        .loop2:
+            cmp rdx, 0
+            je .continue
+            CALL_ r11, [rcx], [rdx]
+            cmp rax, 0
+            jg .swap
+            .continue2:
+            mov rdx, [rdx + 8]
+            jmp .loop2
+        .continue:
+        mov rcx, [rcx + 8]
+        jmp .loop
+    .bye:
+    xor rax, rax
+    ret
+
+    .swap:
+        mov r8, [rcx]
+        mov r9, [rdx]
+        mov [rcx], r9
+        mov [rdx], r8
+        jmp .continue2
+
+get_ptr:
+    push rdi
+    mov rax, 12
+    mov rdi, 0
+    syscall
+    mov r8, rax
+
+    mov rax, 12
+    lea rdi, [r8 + 16]
+    syscall
+    pop rdi
+    mov qword [r8], rdi
+    mov rax, r8
+    ret
+
+my_add_in_sorted_list:
+    push rdi
+    mov rax, [rdi]
+    push rax
+    push rsi
+    mov rax, 12
+    mov rdi, 0
+    syscall
+    mov r10, rax
+
+    mov rax, 12
+    lea rdi, [r10 + 16]
+    syscall
+    pop r8
+    mov [r10], r8
+    pop r8
+    mov [r10 + 8], r8
+    pop rdi
+    mov [rdi], r10
+    CALL_ my_sort_list, rdi, rdx
+    ret
+
+my_merge:
+    CALL_ my_concat_list, rdi, rsi
+    CALL_ my_sort_list, rdi, rdx
+    ret
