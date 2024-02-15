@@ -1,4 +1,4 @@
-%include "my_macro.inc"
+%include "my_macro.asm"
 
 section .data
     base db "0123456789", 0
