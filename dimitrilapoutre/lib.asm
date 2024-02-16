@@ -1724,7 +1724,7 @@ get_ptr:
     mov r8, rax
 
     mov rax, 12
-    lea rdi, [r8 + 16]
+    lea rdi, [r8 + 8]
     syscall
     pop rdi
     mov qword [r8], rdi
