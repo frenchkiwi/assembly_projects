@@ -67,7 +67,7 @@ _start:
         mov r12, rax
         CALL_ my_puterror, error_msg
         CALL_ my_puterror, rdi
-        mov r9, 84
+        mov r9, 1
         cmp r12, -13
         je .acc
         cmp r12, -2
