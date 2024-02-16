@@ -1,19 +1,20 @@
 %include "my_macro.asm"
 
 section .data
+    error_msg db "cat: ", 0
+    error_not db ": No such file or directory", 10, 0
+    error_acc db ": Permission denied", 10, 0
+    error_dir db ": Is a directory", 10, 0
 
 section .text
     extern my_putnbr
+    extern my_putchar
+    extern my_putcharerror
+    extern my_putstr
+    extern my_puterror
     global _start
 
 _start:
-    pop rdi ; get ac
-    cmp rdi, 1 ; check if its a cat void
-    jle cat_void ; go to cat void if yes
-    CALL_ my_putnbr, rdi
-    jmp _exit
-
-cat_void:
     mov rax, 12
     mov rdi, 0
     syscall
@@ -23,6 +24,71 @@ cat_void:
     lea rdi, [r8 + 30000]
     syscall ; malloc char buffer[30000]
     
+    mov r9, 0
+
+    pop r10 ; get ac
+    cmp r10, 1 ; check if its a cat void
+    jle cat_void ; go to cat void if yes
+
+    pop rdi
+    .loop:
+        dec r10
+        cmp r10, 0
+        je _exit ; check if end
+
+        pop rdi ; get param
+        mov rax, 2
+        mov rsi, 0
+        mov rdx, 0
+        syscall ; open(param, O_RDONLY)
+
+        cmp rax, 0
+        jl .error ; check if error with open
+
+        mov r12, rax
+        .loop2:
+            mov rdi, r12 ; set fd with open return
+            mov rax, 0 ; read()
+            mov rsi, r8 ; buffer
+            mov rdx, 29999 ; size
+            syscall ; read the file
+
+            push rax
+            mov rdx, rax
+            mov rax, 1
+            mov rdi, 1
+            mov rsi, r8
+            syscall ; print the buffer
+            pop rax
+
+            cmp rax, 29999
+            je .loop2 ; check if exit
+
+        jmp .loop
+    jmp _exit
+    .error:
+        mov r12, rax
+        CALL_ my_puterror, error_msg
+        CALL_ my_puterror, rdi
+        mov r9, 84
+        cmp r12, -13
+        je .acc
+        cmp r12, -2
+        je .not
+        cmp r12, -21
+        je .dir
+        jmp .loop
+        .acc:
+            CALL_ my_puterror, error_acc
+            jmp .loop
+        .dir:
+            CALL_ my_puterror, error_dir
+            jmp .loop
+        .not:
+            CALL_ my_puterror, error_not
+            jmp .loop
+
+cat_void:
     .loop:
         mov rax, 0
         mov rdi, 0
@@ -42,10 +108,5 @@ cat_void:
 
 _exit:
     mov rax, 60
-    mov rdi, 0
-    syscall
-
-_error:
-    mov rax, 60
-    mov rdi, 84
+    mov rdi, r9
     syscall

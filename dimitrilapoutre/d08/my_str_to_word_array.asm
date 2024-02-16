@@ -1,5 +1,5 @@
 section .rodata
-    string db "hello gay homo pd     _sale merde", 0
+    string db "  hello     -test world war ~", 0
 section .text
     extern my_putstr
     extern my_show_word_array

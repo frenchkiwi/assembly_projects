@@ -1,5 +1,5 @@
 section .data
-    string db "ZIZI-", 0
+    string db "TEST-", 0
 
 section .text
     extern my_putstr

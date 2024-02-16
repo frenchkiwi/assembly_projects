@@ -1,6 +1,6 @@
 section .data
-    string db "spale pute de merde", 0
-    to_find db "pute", 0
+    string db "hello wor world really", 0
+    to_find db "world", 0
     test1 db 'G'
 section .text
     extern my_putstr

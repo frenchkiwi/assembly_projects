@@ -1,7 +1,7 @@
 %include "my_macro.asm"
 
 section .data
-    string db " gay de merde a gaz", 0
+    string db " test word banana", 0
 section .text
     extern my_swap
     extern my_putchar

@@ -1,7 +1,7 @@
 
 section .data
-    string1 db "sale merde", 0, 0, 0, 0, 0
-    string2 db " bro", 0
+    string1 db "va etre concat", 0, 0, 0, 0, 0
+    string2 db " va etre concat aussi", 0
 section .text
     extern my_putstr
     global _start

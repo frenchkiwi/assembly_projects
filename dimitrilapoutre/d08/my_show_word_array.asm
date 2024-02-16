@@ -1,7 +1,7 @@
 section .data
-    string1 db "gay", 0
-    string2 db "homo", 0
-    string3 db "pd", 0
+    string1 db "hello", 0
+    string2 db "world", 0
+    string3 db "wide", 0
 
     list_char dq string1, string2, string3, 0
 

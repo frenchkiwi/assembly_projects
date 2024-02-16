@@ -1,6 +1,6 @@
 section .data
-    test1 db "gay", 0
-    test2 db "gay", 0
+    test1 db "oui", 0
+    test2 db "oui", 0
 section .text
     extern my_put_nbr
     global _start

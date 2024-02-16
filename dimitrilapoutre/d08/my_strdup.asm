@@ -1,5 +1,5 @@
 section .data
-    oue db "siuuu", 0
+    oue db "test", 0
 
 section .text
     extern my_strlen
