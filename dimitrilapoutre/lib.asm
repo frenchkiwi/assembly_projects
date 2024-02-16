@@ -57,6 +57,7 @@
 section .text
     global my_putchar
     global my_putcharerror
+    global my_putnbr
     global my_swap
     global my_strlen
     global my_putstr
@@ -176,6 +177,58 @@ my_putcharerror:
     pop rdi
     pop rax
     ret
+
+my_putnbr:
+    cmp rdi, 0
+    jl .my_putnbr_neg
+    call .my_putnbr_pos
+    ret
+
+    .my_putnbr_neg:
+        CALL_ my_putchar, '-'
+
+        neg rdi
+        call .my_putnbr_pos
+        ret
+
+    .my_putnbr_pos:
+        mov r8, rdi
+
+        mov r11, 0
+        .loop_putnbr_len:
+            inc r11
+
+            mov rdi, 10
+            mov rsi, r11
+            call my_compute_power_it
+
+            mov rbx, rax
+            mov rax, r8
+            xor rdx, rdx
+            div rbx
+
+            cmp rax, 1
+            jge .loop_putnbr_len
+        
+        .loop_putnbr:
+            dec r11
+
+            mov rdi, 10
+            mov rsi, r11
+            call my_compute_power_it
+            mov rbx, rax
+            mov rax, r8
+            xor rdx, rdx
+            div rbx
+
+            mov r8, rdx
+            add rax, '0'
+            CALL_ my_putchar, rax
+
+            cmp r11, 0
+            jne .loop_putnbr
+        xor rax, rax
+        ret
 
 my_swap:
     xchg rdi, rsi
