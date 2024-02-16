@@ -6,6 +6,9 @@ section .data
     error_acc db ": Permission denied", 10, 0
     error_dir db ": Is a directory", 10, 0
 
+section .bss
+    buffer resb 30000
+
 section .text
     extern my_putnbr
     extern my_putchar
@@ -15,15 +18,6 @@ section .text
     global _start
 
 _start:
-    mov rax, 12
-    mov rdi, 0
-    syscall
-    mov r8, rax
-
-    mov rax, 12
-    lea rdi, [r8 + 30000]
-    syscall ; malloc char buffer[30000]
-    
     mov r9, 0
 
     pop r10 ; get ac
@@ -46,10 +40,11 @@ _start:
         jl .error ; check if error with open
 
         mov r12, rax
+        CALL_ my_putnbr, r12
         .loop2:
             mov rdi, r12 ; set fd with open return
             mov rax, 0 ; read()
-            mov rsi, r8 ; buffer
+            mov rsi, buffer ; buffer
             mov rdx, 29999 ; size
             syscall ; read the file
 
@@ -57,13 +52,15 @@ _start:
             mov rdx, rax
             mov rax, 1
             mov rdi, 1
-            mov rsi, r8
+            mov rsi, buffer
             syscall ; print the buffer
             pop rax
 
             cmp rax, 29999
             je .loop2 ; check if exit
-
+        mov rax, 3
+        mov rdi, r12
+        syscall
         jmp .loop
     jmp _exit
     .error:
@@ -92,7 +89,7 @@ cat_void:
     .loop:
         mov rax, 0
         mov rdi, 0
-        mov rsi, r8
+        mov rsi, buffer
         mov rdx, 29999
         syscall ; read the stdin
 
@@ -102,7 +99,7 @@ cat_void:
         mov rdx, rax
         mov rax, 1
         mov rdi, 1
-        mov rsi, r8
+        mov rsi, buffer
         syscall ; print the buffer
         jmp .loop ; go again forever
 
