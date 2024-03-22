@@ -1,5 +1,0 @@
-#! /bin/bash
-
-nasm -f elf64 lib.asm -o lib.o
-ld -shared -o libasm.so lib.o
-rm -rf lib.o

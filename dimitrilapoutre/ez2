@@ -1,0 +1,10 @@
+#! /bin/bash
+
+nasm -f elf64 $1 -o lib.o
+gcc -shared -o libmy.so lib.o -z execstack
+gcc main.c -L. -lmy -o main
+export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
+./main
+rm -rf lib.o
+rm -rf libmy.so
+rm -rf main

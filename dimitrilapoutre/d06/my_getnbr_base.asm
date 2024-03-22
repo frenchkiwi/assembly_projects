@@ -1,8 +1,8 @@
 section .data
-    string db "1101010111", 0
+    string db "01101000", 0
     base dq "01", 0
 
-    base_test db "0123456789", 0
+    base_test db "0123456789ABCDEF", 0
 
 section .text
     extern my_putnbr_base
