@@ -113,6 +113,7 @@ section .text
     global my_merge
     global my_malloc
     global my_free
+    global my_calloc
 
 my_putchar:
     mov dl, dil
@@ -1965,6 +1966,7 @@ my_free:
         je .dalloc
         mov r10, qword [r10]
         jmp .unprotect
+        
     .dalloc:
     pop rdi
 
@@ -1978,10 +1980,66 @@ my_free:
         je .error_free
         cmp qword [r10 + r11 + 8], rdi
         jne .find_malloc
-
+    
     cmp byte [r10 + r11 + 16], 0
     je .error_free
     mov byte [r10 + r11 + 16], 0
+
+    mov r8, r10
+    add r8, r11
+    mov r10, qword [rel malloc_base]
+    mov r11, -1
+    .find_free_prev:
+        add r11, 17
+        cmp r11, 4096
+        jge .go_next_malloc_page_prev
+        cmp qword [r10 + r11], 0
+        je .leave_find_free_prev
+        cmp byte [r10 + r11 + 16], 1
+        je .find_free_prev
+        mov r9, qword [r10 + r11 + 8]
+        add r9, qword [r10 + r11]
+        cmp qword [r8 + 8], r9
+        jne .find_free_prev
+        mov r9, qword [r8]
+        add qword [r10 + r11], r9
+        jmp .swap_prev
+
+         .go_next_malloc_page_prev:
+            cmp qword [r10], 0
+            je .leave_find_free_prev
+            mov r10, qword [r10]
+            mov r11, -1
+            jmp .find_free_prev
+
+    .leave_find_free_prev:
+
+    mov r10, qword [rel malloc_base]
+    mov r11, -1
+    mov r9, qword [r8 + 8]
+    add r9, qword [r8]
+    .find_free_next:
+        add r11, 17
+        cmp r11, 4096
+        jge .go_next_malloc_page_next
+        cmp qword [r10 + r11], 0
+        je .leave_find_free_next
+        cmp byte [r10 + r11 + 16], 1
+        je .find_free_next
+        cmp qword [r10 + r11 + 8], r9
+        jne .find_free_next
+        mov r9, qword [r10 + r11]
+        add qword [r8], r9
+        jmp .swap_next
+
+         .go_next_malloc_page_next:
+            cmp qword [r10], 0
+            je .leave_find_free_next
+            mov r10, qword [r10]
+            mov r11, -1
+            jmp .find_free_next
+
+    .leave_find_free_next:
 
     .protect:
         mov r10, qword [rel malloc_base]
@@ -1996,15 +2054,106 @@ my_free:
             syscall
             mov r10, r8
             jmp .loop_protect
+
     .bye:
     ret
-    
+
     .go_next_malloc_page:
         cmp qword [r10], 0
         je .error_free
         mov r10, qword [r10]
         mov r11, -1
         jmp .find_malloc
+
+    .swap_prev:
+        mov r9, r10
+        add r9, r11
+        push r9
+        mov r10, qword [rel malloc_base]
+        mov r11, -1
+        mov r9, 0
+        .find_last_prev:
+            add r11, 17
+            cmp r11, 4096
+            jge .go_next_malloc_page_last_prev
+            cmp qword [r10 + r11], 0
+            je .leave_find_last_prev
+            mov r9, r10
+            add r9, r11
+            jmp .find_last_prev
+        .leave_find_last_prev:
+        mov r10, r9
+        pop r9
+        mov rdx, qword [r10 + 8]
+        cmp qword [r9 + 8], rdx
+        je .prev_is_last
+        mov rdx, qword [r10]
+        mov qword [r8], rdx
+        mov rdx, qword [r10 + 8]
+        mov qword [r8 + 8], rdx
+        mov dl, byte [r10 + 16]
+        mov byte [r8 + 16], dl
+        mov qword [r10], 0
+        mov qword [r10 + 8], 0
+        mov byte [r10 + 16], 0
+        mov r8, r9
+        jmp .leave_find_free_prev
+
+        .go_next_malloc_page_last_prev:
+            cmp qword [r10], 0
+            je .leave_find_last_prev
+            mov r10, qword [r10]
+            mov r11, -1
+            jmp .find_last_prev
+
+        .prev_is_last:
+            mov rdx, qword [r10]
+            mov qword [r8], rdx
+            mov rdx, qword [r10 + 8]
+            mov qword [r8 + 8], rdx
+            mov dl, byte [r10 + 16]
+            mov byte [r8 + 16], dl
+            mov qword [r10], 0
+            mov qword [r10 + 8], 0
+            mov byte [r10 + 16], 0
+            jmp .leave_find_free_prev
+        
+    .swap_next:
+        mov r9, r10
+        add r9, r11
+        push r9
+        mov r10, qword [rel malloc_base]
+        mov r11, -1
+        mov r9, 0
+        .find_last_next:
+            add r11, 17
+            cmp r11, 4096
+            jge .go_next_malloc_page_last_next
+            cmp qword [r10 + r11], 0
+            je .leave_find_last_next
+            mov r9, r10
+            add r9, r11
+            jmp .find_last_next
+        .leave_find_last_next:
+        mov r10, r9
+        pop r9
+        mov rdx, qword [r10]
+        mov qword [r9], rdx
+        mov rdx, qword [r10 + 8]
+        mov qword [r9 + 8], rdx
+        mov dl, byte [r10 + 16]
+        mov byte [r9 + 16], dl
+        mov qword [r10], 0
+        mov qword [r10 + 8], 0
+        mov byte [r10 + 16], 0
+        jmp .leave_find_free_next
+
+        .go_next_malloc_page_last_next:
+            cmp qword [r10], 0
+            je .leave_find_last_next
+            mov r10, qword [r10]
+            mov r11, -1
+            jmp .find_last_next
 
     .error_free:
         mov rax, 1
@@ -2019,3 +2168,15 @@ my_free:
         mov rax, 62
         syscall
         ret
+
+my_calloc:
+    push rdi
+    call my_malloc
+    pop rdi
+    mov rcx, 0
+    .loop_calloc:
+        mov byte [rax + rcx], 0
+        inc rcx
+        cmp rcx, rdi
+        jne .loop_calloc
+    ret
