@@ -57,65 +57,67 @@
 section .data
     malloc_base dq -1
     free_error db 'f', 'r', 'e', 'e', '(', ')', ':', ' ', 'i', 'n', 'v', 'a', 'l', 'i', 'd', ' ', 'p', 'o', 'i', 'n', 't', 'e', 'r', 10
-    
-section .text
-    global my_putchar
-    global my_putcharerror
-    global my_putnbr
-    global my_swap
-    global my_strlen
-    global my_putstr
-    global my_puterror
-    global my_revstr
-    global my_getnbr
-    global my_sort_int_array
-    global my_compute_factorial_it
-    global my_compute_factorial_rec
-    global my_compute_power_it
-    global my_compute_power_rec
-    global my_compute_square_root
-    global my_is_prime
-    global my_is_prime_sup
-    global my_strcpy
-    global my_strncpy
-    global my_strstr
-    global my_strcmp
-    global my_strncmp
-    global my_strupcase
-    global my_strdowncase
-    global my_strcapitalize
-    global my_str_isalpha
-    global my_str_isnum
-    global my_str_islower
-    global my_str_isupper
-    global my_str_isprintable
-    global my_putnbr_base
-    global my_getnbr_base
-    global my_showstr
-    global my_showmem
-    global my_strcat
-    global my_strncat
-    global my_strdup
-    global my_show_word_array
-    global my_str_to_word_array
-    global my_sort_word_array
-    global my_advanced_sort_word_array
-    global my_list_size
-    global my_rev_list
-    global my_apply_to_nodes
-    global my_apply_to_matching_nodes
-    global my_find_node
-    global my_delete_nodes
-    global my_concat_list
-    global my_sort_list
-    global get_ptr
-    global my_add_in_sorted_list
-    global my_merge
-    global my_malloc
-    global my_free
-    global my_calloc
 
-my_putchar:
+section .text
+    global putchar
+    global putcharerror
+    global putnbr
+    global swap
+    global strlen
+    global putstr
+    global puterror
+    global revstr
+    global getnbr
+    global sort_int_array
+    global compute_factorial_it
+    global compute_factorial_rec
+    global compute_power_it
+    global compute_power_rec
+    global compute_square_root
+    global is_prime
+    global is_prime_sup
+    global strcpy
+    global strncpy
+    global strstr
+    global strcmp
+    global strncmp
+    global strupcase
+    global strdowncase
+    global strcapitalize
+    global str_isalpha
+    global str_isnum
+    global str_islower
+    global str_isupper
+    global str_isprintable
+    global putnbr_base
+    global getnbr_base
+    global showstr
+    global showmem
+    global strcat
+    global strncat
+    global strdup
+    global show_word_array
+    global str_to_word_array
+    global sort_word_array
+    global advanced_sort_word_array
+    global list_size
+    global rev_list
+    global apply_on_nodes
+    global apply_on_matching_nodes
+    global find_node
+    global delete_nodes
+    global concat_list
+    global sort_list
+    global get_ptr
+    global add_in_sorted_list
+    global merge
+    global malloc
+    global free
+    global calloc
+    global realloc
+    global show_malloc
+
+putchar:
     mov dl, dil
     mov rax, 12
     mov rdi, 0
@@ -136,7 +138,7 @@ my_putchar:
     syscall
     ret
 
-my_putcharerror:
+putcharerror:
     push rax
     push rdi
     push rsi
@@ -171,20 +173,20 @@ my_putcharerror:
     pop rax
     ret
 
-my_putnbr:
+putnbr:
     cmp rdi, 0
-    jl .my_putnbr_neg
-    call .my_putnbr_pos
+    jl .putnbr_neg
+    call .putnbr_pos
     ret
 
-    .my_putnbr_neg:
-        CALL_ my_putchar, '-'
+    .putnbr_neg:
+        CALL_ putchar, '-'
 
         neg rdi
-        call .my_putnbr_pos
+        call .putnbr_pos
         ret
 
-    .my_putnbr_pos:
+    .putnbr_pos:
         mov r8, rdi
 
         mov r11, 0
@@ -193,7 +195,7 @@ my_putnbr:
 
             mov rdi, 10
             mov rsi, r11
-            call my_compute_power_it
+            call power
 
             mov rbx, rax
             mov rax, r8
@@ -208,7 +210,7 @@ my_putnbr:
 
             mov rdi, 10
             mov rsi, r11
-            call my_compute_power_it
+            call power
             mov rbx, rax
             mov rax, r8
             xor rdx, rdx
@@ -216,18 +218,15 @@ my_putnbr:
 
             mov r8, rdx
             add rax, '0'
-            CALL_ my_putchar, rax
+            CALL_ putchar, rax
 
             cmp r11, 0
             jne .loop_putnbr
         xor rax, rax
         ret
 
-my_swap:
-    xchg rdi, rsi
-    ret
 
-my_strlen:
+strlen:
     mov rax, -1
     .loop_strlen:
         inc rax
@@ -235,7 +234,7 @@ my_strlen:
         jne .loop_strlen
     ret
 
-my_putstr:
+putstr:
     cmp rdi, 0
     je .bye_putstr
     mov rsi, rdi
@@ -251,7 +250,7 @@ my_putstr:
         mov rax, 0
         ret
 
-my_puterror:
+puterror:
     cmp rdi, 0
     je .bye_putstr
     mov rsi, rdi
@@ -267,7 +266,7 @@ my_puterror:
         mov rax, 0
         ret
 
-my_revstr:
+revstr:
     mov rcx, -1
     .loop_revstr:
         inc rcx
@@ -292,7 +291,7 @@ my_revstr:
     mov rax, rdi
     ret
 
-my_getnbr:
+getnbr:
     mov r8, 1
     mov r9, 0
     mov rax, 0
@@ -343,7 +342,7 @@ my_getnbr:
         .bye_getnbr2:
             ret
 
-my_sort_int_array:
+sort_int_array:
     mov rcx, 0
     .loop_sort_int_array:
         cmp rcx, rsi
@@ -370,7 +369,7 @@ my_sort_int_array:
     .bye_sort_int_array:
         ret
 
-my_compute_factorial_it:
+factorial:
     mov rax, 1
     mov rcx, 0
     cmp rdi, 0
@@ -392,7 +391,7 @@ my_compute_factorial_it:
         mov rax, -1
         ret
 
-my_compute_power_it:
+power:
     cmp rsi, 0
     jl .neg_power_it
     cmp rsi, 0
@@ -416,7 +415,7 @@ my_compute_power_it:
         mov rax, 0
         ret
 
-my_is_prime:
+is_prime:
     cmp rdi, 1
     jle .zero_prime
 
@@ -452,7 +451,7 @@ my_is_prime:
         mov rax, 0
         ret
 
-my_find_prime_sup:
+find_prime_sup:
     cmp rdi, 1
     jle .zero_prime_sup
 
@@ -486,10 +485,10 @@ my_find_prime_sup:
         ret
     .zero_prime_sup:
         inc rdi
-        call my_find_prime_sup
+        call find_prime_sup
         ret
 
-my_strcpy:
+strcpy:
     mov rcx, -1
     .loop_strcpy:
         inc rcx
@@ -500,7 +499,7 @@ my_strcpy:
     mov rax, rdi
     ret
 
-my_strncpy:
+strncpy:
     mov rcx, -1
     .loop_strncpy:
         inc rcx
@@ -514,7 +513,7 @@ my_strncpy:
         mov rax, rdi
         ret
 
-my_strstr:
+strstr:
     mov r8, -1
     .loop_strstrlen:
         inc r8
@@ -522,30 +521,30 @@ my_strstr:
         jne .loop_strstrlen
     mov rdx, -1
     mov rcx, -1
-    .loop_my_strstr:
+    .loop_strstr:
         inc rdx
         inc rcx
         cmp rcx, r8
         je  .bye_strstr
         mov r9b, byte [rsi + rcx]
         cmp byte [rdi + rdx], r9b
-        jne .reset_and_again_my_strstr
-        .again_loop_my_strstr:
+        jne .reset_and_again_strstr
+        .again_loop_strstr:
             cmp byte [rdi + rdx], 0
-            jne .loop_my_strstr
+            jne .loop_strstr
     mov rax, 0
     ret
 
-    .reset_and_again_my_strstr:
+    .reset_and_again_strstr:
         mov rcx, -1
-        jmp .again_loop_my_strstr
+        jmp .again_loop_strstr
 
     .bye_strstr:
         sub rdx, r8
         lea rax, [rdi + rdx]
         ret
 
-my_strcmp:
+strcmp:
     mov rcx, -1
     .loop_strcmp:
         inc rcx
@@ -563,7 +562,7 @@ my_strcmp:
         sub rax, rbx
         ret
 
-my_strncmp:
+strncmp:
     mov rcx, -1
     dec rdx
     cmp rdx, 0
@@ -587,7 +586,7 @@ my_strncmp:
         sub al, byte [rdi + rcx]
         ret
 
-my_strupcase:
+strupcase:
     mov rcx, -1
     .loop_strupcase:
         inc rcx
@@ -602,7 +601,7 @@ my_strupcase:
     mov rax, rdi
     ret
 
-my_strdowncase:
+strdowncase:
     mov rcx, -1
     .loop_strdowncase:
         inc rcx
@@ -617,11 +616,11 @@ my_strdowncase:
     mov rax, rdi
     ret
 
-my_strcapitalize:
+strcapitalize:
     mov rcx, -1
     mov rdx, 1
     .loop_strcapitalize:
-.        inc rcx
+        inc rcx
         call .down_strcapitalize
         .again_loop_strcapitalize:
             cmp byte [rdi + rcx], 0
@@ -666,7 +665,7 @@ my_strcapitalize:
         mov rdx, 1
         jmp .again_loop_strcapitalize
 
-my_str_isalpha:
+str_isalpha:
     mov rcx, -1
     .loop_isalpha:
         inc rcx
@@ -696,7 +695,7 @@ my_str_isalpha:
         mov rax, 1
         ret
 
-my_str_isnum:
+str_isnum:
     mov rcx, -1
     .loop_isnum:
         inc rcx
@@ -719,7 +718,7 @@ my_str_isnum:
         mov rax, 1
         ret
 
-my_str_islower:
+str_islower:
     mov rcx, -1
     .loop_islower:
         inc rcx
@@ -742,7 +741,7 @@ my_str_islower:
         mov rax, 1
         ret
 
-my_str_isupper:
+str_isupper:
     mov rcx, -1
     .loop_isupper:
         inc rcx
@@ -765,7 +764,7 @@ my_str_isupper:
         mov rax, 1
         ret
 
-my_str_isprintable:
+str_isprintable:
     mov rcx, -1
     .loop_isprintable:
         inc rcx
@@ -788,13 +787,13 @@ my_str_isprintable:
         mov rax, 1
         ret
 
-my_putnbr_base:
+putnbr_base:
     cmp rdi, 0
-    jl .my_putnbr_base_neg
-    call .my_putnbr_base_pos
+    jl .putnbr_base_neg
+    call .putnbr_base_pos
     ret
 
-    .my_putnbr_base_neg:
+    .putnbr_base_neg:
         mov r9, rdi
         mov r8b, byte [rsi]
         mov byte [rsi], 45
@@ -807,10 +806,10 @@ my_putnbr_base:
         mov rdi, r9
 
         neg rdi
-        call .my_putnbr_base_pos
+        call .putnbr_base_pos
         ret
 
-    .my_putnbr_base_pos:
+    .putnbr_base_pos:
         mov r8, rdi
         mov r9, rsi
 
@@ -826,7 +825,7 @@ my_putnbr_base:
 
             mov rdi, r10
             mov rsi, r11
-            call my_compute_power_it
+            call power
 
             mov rbx, rax
             mov rax, r8
@@ -842,7 +841,7 @@ my_putnbr_base:
 
             mov rdi, r10
             mov rsi, r11
-            call my_compute_power_it
+            call power
             mov rbx, rax
             mov rax, r8
             xor rdx, rdx
@@ -863,7 +862,7 @@ my_putnbr_base:
         mov rax, 0
         ret
 
-my_getnbr_base:
+getnbr_base:
     mov r8, 1
     mov r9, 0
     mov r10, -1
@@ -930,7 +929,7 @@ my_getnbr_base:
         .bye_getnbr_base2:
             ret
 
-my_showstr:
+showstr:
     mov r8, rdi
     mov r9, -1
     .loop_showstr:
@@ -1004,7 +1003,7 @@ my_showstr:
             .bye_is_hexa_showstr:
                 ret
 
-my_showmem:
+showmem:
     mov r8, rdi
     mov r9, rsi
     mov r10, -1
@@ -1082,7 +1081,7 @@ my_showmem:
 
         mov rdi, 16
         mov rsi, rcx
-        call my_compute_power_it
+        call power
 
         mov rbx, rax
         mov rax, r10
@@ -1230,7 +1229,7 @@ my_showmem:
             mov byte [r8], bl
             jmp .bye_print_showmem
 
-my_strcat:
+strcat:
     mov rcx, -1
     .loop_destlen_strcat:
         inc rcx
@@ -1248,7 +1247,7 @@ my_strcat:
     mov rax, rdi
     ret
 
-my_strncat:
+strncat:
     mov r9, rdx
     mov rcx, -1
     .loop_destlen_strncat:
@@ -1273,32 +1272,18 @@ my_strncat:
         mov rax, rdi
         ret
 
-my_strdup:
-    mov r8, rdi
-    mov rax, 12
-    mov rdi, 0
-    syscall
-    mov r9, rax
-    
-    mov rdi, r8
-    call my_strlen
-    
+strdup:
+    push rdi
+    call strlen
     inc rax
-    lea rdi, [r9 + rax]
-    mov rax, 12
-    syscall
-
-    mov rcx, -1
-    .loop_strdup:
-        inc rcx
-        movzx r10, byte [r8 + rcx]
-        mov byte [r9 + rcx], r10b
-        cmp byte [r8 + rcx], 0
-        jne .loop_strdup
-    mov rax, r9
+    mov rdi, rax
+    call malloc
+    mov rdi, rax
+    pop rsi
+    call strcpy
     ret 
 
-my_show_word_array:
+show_word_array:
     mov rsi, rdi
     mov rcx, -1
     .loop_show_word_array:
@@ -1308,7 +1293,7 @@ my_show_word_array:
         je .bye_show_word_array
         push rsi
         push rcx
-        call my_putstr
+        call putstr
         pop rcx
         pop rsi
         push rsi
@@ -1328,7 +1313,7 @@ my_show_word_array:
     mov rax, 0
     ret
 
-my_str_to_word_array:
+str_to_word_array:
     ; count_word
     mov rcx, -1
     mov rdx, 0
@@ -1475,7 +1460,7 @@ my_str_to_word_array:
     mov rax, rsi
     ret
 
-my_sort_word_array:
+sort_word_array:
     mov rcx, -1
     cmp rdi, 0
     je .bye
@@ -1488,7 +1473,7 @@ my_sort_word_array:
         .loop2:
             mov r8, [rdi + rcx * 8]
             mov r9, [rdi + rdx * 8]
-            CALL_ my_strcmp, r8, r9
+            CALL_ strcmp, r8, r9
             cmp rax, 0
             jg .swap
             .back_up_loop2:
@@ -1505,7 +1490,7 @@ my_sort_word_array:
         mov [rdi + rdx * 8], r8
         jmp .back_up_loop2
 
-my_advanced_sort_word_array:
+advanced_sort_word_array:
     mov r10, rsi
     mov rcx, -1
     cmp rdi, 0
@@ -1536,128 +1521,133 @@ my_advanced_sort_word_array:
         mov [rdi + rdx * 8], r8
         jmp .back_up_loop2
 
-my_list_size:
+list_size:
     mov rcx, -1
     mov rax, rdi
     .loop:
         inc rcx
         cmp rax, 0
         je .bye
-        mov rax, [rax + 8]
+        mov rax, qword [rax + 8]
         jmp .loop
     .bye:
     mov rax, rcx
     ret
 
-my_rev_list:
+rev_list:
     cmp rdi, 0
     je .bye
-    mov rdx, rdi
+    mov r8, rdi
+    mov rdi, qword [r8]
+    mov rdx, qword [r8]
     .loop:
         cmp qword [rdi + 8], 0
         je .continue
-        mov rdi, [rdi + 8]
+        mov rdi, qword [rdi + 8]
         jmp .loop
     .continue:
+    mov qword [r8], rdi
     mov rax, rdi
     .loop2:
         mov rsi, rdx
         .loop3:
             cmp qword [rsi + 8], rax
             je .add_next
-            mov rsi, [rsi + 8]
+            mov rsi, qword [rsi + 8]
             jmp .loop3
         .add_next:
-        mov [rax + 8], rsi
-        mov rax, [rax + 8]
-        cmp rsi, rdx
+        mov qword [rax + 8], rsi
+        mov rax, rsi
+        mov rsi, rdx
+        cmp qword [rsi + 8], rax
         jne .loop2
     mov rsi, 0
-    mov [rax + 8], rsi
+    mov qword [rax + 8], rsi
     .bye:
+    mov rax, r8
     ret
 
-my_apply_to_nodes:
+apply_on_nodes:
     mov r8, rdi
     .loop:
         cmp r8, 0
         je .bye
-        CALL_ rsi, [r8]
-        mov r8, [r8 + 8]
+        CALL_ rsi, qword [r8]
+        mov r8, qword [r8 + 8]
         jmp .loop
     .bye:
     mov rax, 0
     ret
 
-my_apply_to_matching_nodes:
+apply_on_matching_nodes:
     mov r8, rdi
     .loop:
         cmp r8, 0
         je .bye
-        CALL_ rcx, [r8], rdx
+        CALL_ rcx, qword [r8], rdx
         cmp rax, 0
         jne .continue
-        CALL_ rsi, [r8]
+        CALL_ rsi, qword [r8]
         .continue:
-        mov r8, [r8 + 8]
+        mov r8, qword [r8 + 8]
         jmp .loop
     .bye:
     mov rax, 0
     ret
 
-my_find_node:
+find_node:
     mov r8, rdi
     .loop:
         cmp r8, 0
         je .bye
-        CALL_ rdx, [r8], rsi
+        CALL_ rdx, qword [r8], rsi
         cmp rax, 0
         jne .continue
         mov rax, r8
         ret
         .continue:
-        mov r8, [r8 + 8]
+        mov r8, qword [r8 + 8]
         jmp .loop
     .bye:
     mov rax, 0
     ret
 
-my_delete_nodes:
-    mov r8, [rdi]
+delete_nodes:
+    mov r8, qword [rdi]
     .loop:
         cmp r8, 0
         je .bye
-        cmp r8, [rdi]
+        cmp r8, qword [rdi]
         je .first_node
-        CALL_ rdx, [r8], rsi
+        CALL_ rdx, qword [r8], rsi
         cmp rax, 0
         je .continue
-        mov [r9 + 8], r8
-        mov r9, [r9 + 8]
+        mov qword [r9 + 8], r8
+        mov r9, qword [r9 + 8]
         .continue:
-        mov r8, [r8 + 8]
+        mov r8, qword [r8 + 8]
         jmp .loop
     .bye:
-    mov r11, [rdi]
+    mov r11, qword [rdi]
     cmp r11, 0
     je .bye2
-    mov [r9 + 8], r8
+    mov qword [r9 + 8], r8
     .bye2:
     mov rax, 0
     ret
 
     .first_node:
-        CALL_ rdx, [r8], rsi
+        CALL_ rdx, qword [r8], rsi
         cmp rax, 0
         je .move_begin
         mov r9, r8
         jmp .continue
         .move_begin:
-            mov r11, [r8 + 8]
-            mov [rdi], r11
+            mov r11, qword [r8 + 8]
+            mov qword [rdi], r11
             jmp .continue
 
-my_concat_list:
+concat_list:
     mov r8, [rdi]
     cmp r8, 0
     je .no_first
@@ -1676,7 +1666,7 @@ my_concat_list:
         mov [rdi], rsi
         jmp .bye
 
-my_sort_list:
+sort_list:
     mov rcx, [rdi]
     cmp rcx, 0
     je .bye
@@ -1711,20 +1701,13 @@ my_sort_list:
 
 get_ptr:
     push rdi
-    mov rax, 12
-    mov rdi, 0
-    syscall
-    mov r8, rax
-
-    mov rax, 12
-    lea rdi, [r8 + 8]
-    syscall
+    mov rdi, 8
+    call malloc
     pop rdi
-    mov qword [r8], rdi
-    mov rax, r8
+    mov qword [rax], rdi
     ret
 
-my_add_in_sorted_list:
+add_in_sorted_list:
     push rdi
     mov rax, [rdi]
     push rax
@@ -1743,15 +1726,15 @@ my_add_in_sorted_list:
     mov [r10 + 8], r8
     pop rdi
     mov [rdi], r10
-    CALL_ my_sort_list, rdi, rdx
+    CALL_ sort_list, rdi, rdx
     ret
 
-my_merge:
-    CALL_ my_concat_list, rdi, rsi
-    CALL_ my_sort_list, rdi, rdx
+merge:
+    CALL_ concat_list, rdi, rsi
+    CALL_ sort_list, rdi, rdx
     ret
 
-my_malloc:
+malloc:
     cmp rdi, 0
     jle .malloc_error
     push rdi
@@ -1880,7 +1863,7 @@ my_malloc:
         add rdi, r8
         mov qword [r10 + r11], rsi
         mov qword [r10 + r11 + 8], rdi
-        mov qword [r10 + r11 + 16], 0
+        mov byte [r10 + r11 + 16], 0
         jmp .protect
 
     .create_malloc_page2:
@@ -1951,7 +1934,9 @@ my_malloc:
         mov rax, 0
         ret
 
-my_free:
+free:
+    cmp rdi, 0
+    je .bye
     mov r10, qword [rel malloc_base]
     cmp r10, -1
     je .error_free
@@ -2169,14 +2154,109 @@ my_free:
         syscall
         ret
 
-my_calloc:
+calloc:
     push rdi
-    call my_malloc
+    push rsi
+    call malloc
+    pop rsi
     pop rdi
     mov rcx, 0
     .loop_calloc:
-        mov byte [rax + rcx], 0
+        mov byte [rax + rcx], sil
         inc rcx
         cmp rcx, rdi
         jne .loop_calloc
     ret
+
+realloc:
+    push rsi
+    cmp rdi, 0
+    jne .free
+    .back_free:
+    pop rdi
+    cmp rdi, 0
+    jne .malloc
+    .back_malloc:
+    ret
+
+    .free:
+        call free
+        jmp .back_free
+
+    .malloc:
+        call malloc
+        jmp .back_malloc
+
+show_malloc:
+    CALL_ putchar, 'g'
+    CALL_ putchar, 'o'
+    CALL_ putchar, 10
+    mov r10, qword [rel malloc_base]
+    cmp r10, -1
+    je .bye
+    .unprotect:
+        mov rax, 10
+        mov rdi, r10
+        mov rsi, 4096
+        mov rdx, 3
+        syscall
+        cmp qword [r10], 0
+        je .alloc
+        mov r10, qword [r10]
+        jmp .unprotect
+    .alloc:
+
+    mov r10, qword [rel malloc_base]
+    mov r11, -1
+    .find_space:
+        add r11, 17
+        cmp r11, 4096
+        jge .go_next_malloc_page
+        cmp qword[r10 + r11], 0
+        je .continue_find_space
+        xor rdi, rdi
+        mov rdi, qword[r10 + r11]
+        CALL_ putchar, 's'
+        CALL_ putchar, ':'
+        CALL_ putnbr, rdi
+        CALL_ putchar, 32
+        xor rdi, rdi
+        mov rdi, qword[r10 + r11 + 8]
+        CALL_ putchar, 'a'
+        CALL_ putchar, ':'
+        CALL_ putnbr, rdi
+        CALL_ putchar, 32
+        xor rdi, rdi
+        movzx rdi, byte[r10 + r11 + 16]
+        CALL_ putchar, 'e'
+        CALL_ putchar, ':'
+        CALL_ putnbr, rdi
+        CALL_ putchar, 10
+        jmp .find_space
+    .continue_find_space:
+
+    .protect:
+        mov r10, qword [rel malloc_base]
+        .loop_protect:
+            cmp r10, 0
+            je .bye
+            mov r8, qword [r10]
+            mov rax, 10
+            mov rdi, r10
+            mov rsi, 4096
+            mov rdx, 1
+            syscall
+            mov r10, r8
+            jmp .loop_protect
+    .bye:
+    ret
+
+    .go_next_malloc_page:
+        cmp qword [r10], 0
+        je .bye
+        CALL_ putchar, 'n'
+        CALL_ putchar, 'p'
+        CALL_ putchar, 10
+        mov r10, qword [r10]
+        mov r11, -1
+        jmp .find_space

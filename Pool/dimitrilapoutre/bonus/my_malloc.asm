@@ -218,6 +218,8 @@ my_malloc:
         ret
 
 my_free:
+    cmp rdi, 0
+    je .bye
     mov r10, qword [rel malloc_base]
     cmp r10, -1
     je .error_free
