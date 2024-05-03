@@ -564,26 +564,24 @@ strcmp:
 
 strncmp:
     mov rcx, -1
-    dec rdx
-    cmp rdx, 0
-    jl .bye_strncmp
-    .loop_strncmp:
+    .loop_strcmp:
+        dec rdx
+        cmp rdx, 0
+        je .bye
         inc rcx
-        cmp rcx, rdx
-        je .bye_strncmp2
         mov r9b, byte [rsi + rcx]
         cmp byte [rdi + rcx], r9b
-        jne .bye_strncmp2
+        jne .bye_strcmp
         cmp byte [rdi + rcx], 0
-        jne .loop_strncmp
-    
-    .bye_strncmp:
+        jne .loop_strcmp
+    .bye:
     mov rax, 0
     ret
 
-    .bye_strncmp2:
-        mov al, byte [rsi + rcx]
-        sub al, byte [rdi + rcx]
+    .bye_strcmp:
+        movzx rax, byte [rdi + rcx]
+        movzx rbx, byte [rsi + rcx]
+        sub rax, rbx
         ret
 
 strupcase:

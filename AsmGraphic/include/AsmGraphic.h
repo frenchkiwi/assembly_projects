@@ -82,7 +82,7 @@ aSize aGetWindowSize(aWindow *window);
 
 // // AsmLink
 
-aLink *aCreateLink(void);
+aLink *aCreateLink(char **env);
 
 int aCloseLink(aLink *link);
 

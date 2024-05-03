@@ -4,6 +4,8 @@ section .data
     generate_id dd 0
     font_error dd "Font can't be load."
     closed_atom dd "WM_DELETE_WINDOW", 0
+    xauthority dd "XAUTHORITY=", 0
+    xdisplay dd "DISPLAY=", 0
 
 section .text
     global aCreateLink
@@ -31,6 +33,41 @@ section .text
     global test_truc
 
 aCreateLink:
+    mov rcx, 0
+    mov rdx, 0
+    .loop:
+        cmp rdx, 3
+        je .quit_loop
+        cmp qword[rdi + rcx * 8], 0
+        je .bye_error
+        cmp rdx, 1
+        je .is_xauthority
+        .is_display:
+            lea r11, [rel xdisplay]
+            CALL_ strncmp, qword[rdi + rcx * 8], r11, 8
+            cmp rax, 0
+            jne .is_xauthority
+            add rdx, 1
+            mov r9, qword[rdi + rcx * 8]
+            add r9, 9
+            jmp .reloop
+        .is_xauthority:
+            cmp rdx, 2
+            je .reloop
+            lea r11, [rel xauthority]
+            CALL_ strncmp, qword[rdi + rcx * 8], r11, 11
+            cmp rax, 0
+            jne .reloop
+            add rdx, 2
+            mov r10, qword[rdi + rcx * 8]
+            add r10, 11
+        .reloop:
+        inc rcx
+        jmp .loop
+    .quit_loop:
+    push r10
+    push r9
+
     mov rax, 41
     mov rdi, 1
     mov rsi, 1
@@ -38,15 +75,15 @@ aCreateLink:
     syscall
     mov r8, rax
 
+    pop r9
+    pop r10
     cmp r8, 0
     jl .bye_error
+    push r10
+    push r9
 
-    push r8
-    mov rdi, 110
-    mov rsi, 0
-    call calloc
+    CALL_ calloc, 110, 0
     mov r9, rax
-    pop r8
 
     mov word[r9], 1
     mov byte[r9 + 2], '/'
@@ -65,7 +102,10 @@ aCreateLink:
     mov byte[r9 + 15], 'x'
     mov byte[r9 + 16], '/'
     mov byte[r9 + 17], 'X'
-    mov byte[r9 + 18], '0'
+    pop r10
+    mov r11, r9
+    add r11, 18
+    CALL_ strcpy, r11, r10
 
     mov rax, 42
     mov rdi, r8
@@ -73,39 +113,203 @@ aCreateLink:
     mov rdx, 110
     syscall
 
+    pop r10
     cmp rax, 0
     jne .bye_error_free
 
-    push r8
-    mov rdi, r9
-    call free
-    pop r8
+    CALL_ free, r9
 
     push r8
-    mov rdi, 12
+
+    mov rax, 2
+    mov rdi, r10
     mov rsi, 0
-    call calloc
-    mov r9, rax
-    pop r8
-
-    mov byte[r9], 'l'
-    mov word[r9 + 2], 11
-
-    mov rax, 1
-    mov rdi, r8
-    mov rsi, r9
-    mov rdx, 12
     syscall
 
-    push r8
-    mov rdi, r9
-    call free
+    cmp rax, -1
+    je .bye_error
+
+    mov r8, rax
+    CALL_ malloc, 1024
+    mov r9, rax
+
+    .loop_len_r10:
+        xor r10, r10
+        mov rax, 0
+        mov rdi, r8
+        lea rsi, [r9]
+        mov rdx, 2
+        syscall ; read the family of the auth
+
+        cmp rax, 2
+        jne .bye_error_free
     
-    mov rdi, 8
-    mov rsi, 0
-    call calloc
-    mov r11, rax
+        cmp word[r9], 1 ; check if its unix family
+        jne .not_auth
+        mov r10, 1 ; set the mark for know if its the right family
+        .not_auth:
+
+        mov rax, 0
+        mov rdi, r8
+        lea rsi, [r9 + 2]
+        mov rdx, 2
+        syscall ; read adress size
+
+        cmp rax, rdx
+        jne .bye_error_free
+
+        mov rax, 0
+        mov rdi, r8
+        lea rsi, [r9 + 4]
+        xor rdx, rdx
+        mov dl, byte[r9 + 2]
+        shl rdx, 8
+        mov dl, byte[r9 + 3] ; read adress
+        add rdx, 2 ; and read seat number size too
+        syscall
+
+        cmp rax, rdx
+        jne .bye_error_free
+
+        mov rbx, rax
+        add rbx, 4
+
+        mov rax, 0
+        mov rdi, r8
+        lea rsi, [r9 + rbx]
+        xor rdx, rdx
+        mov dl, byte[r9 + rbx - 2]
+        shl rdx, 8
+        mov dl, byte[r9 + rbx - 1] ; read seat numnber
+        add rdx, 2 ; and read name protocol size too
+        syscall
+
+        cmp rax, rdx
+        jne .bye_error_free
+
+        add rbx, rax
+
+        mov rax, 0
+        mov rdi, r8
+        lea rsi, [r9 + rbx]
+        xor rdx, rdx
+        mov dl, byte[r9 + rbx - 2]
+        shl rdx, 8
+        mov dl, byte[r9 + rbx - 1] ; read name protocol
+        add rdx, 2 ; and read key protocol size too
+        syscall
+
+        cmp rax, rdx
+        jne .bye_error_free
+
+        add rbx, rax
+
+        mov rax, 0
+        mov rdi, r8
+        lea rsi, [r9 + rbx]
+        xor rdx, rdx
+        mov dl, byte[r9 + rbx - 2]
+        shl rdx, 8
+        mov dl, byte[r9 + rbx - 1] ; read key protocol
+        syscall
+
+        cmp rax, rdx
+        jne .bye_error_free
+
+        cmp r10, 0
+        je .loop_len_r10
+
+    mov rax, 3
+    mov rdi, r8
+    syscall
+
+    cmp rax, 0
+    jne .bye_error_free
+    
+    mov rbx, 12 ; set empty request size
+    mov r8, 4 ; add family and size adress
+    xor r11, r11
+    mov r11b, byte[r9 + 2]
+    shl r11, 8
+    mov r11b, byte[r9 + 3]
+    add r8, r11 ; add adress
+    add r8 , 2 ; add size seat number
+    xor r11, r11
+    mov r11b, byte[r9 + r8 - 2]
+    shl r11, 8
+    mov r11b, byte[r9 + r8 - 1]
+    add r8, r11 ; add seat number
+    add r8 , 2 ; add size name protocol
+    xor r11, r11
+    mov r11b, byte[r9 + r8 - 2]
+    shl r11, 8
+    mov r11b, byte[r9 + r8 - 1]
+    push r11 ; save name protocol size
+    add rbx, r11
+    add r8, r11 ; add name protocol
+    add r8 , 2 ; add size key protocol
+    xor r11, r11
+    mov r11b, byte[r9 + r8 - 2]
+    shl r11, 8
+    mov r11b, byte[r9 + r8 - 1]
+    push r11 ; save name protocol size
+    add rbx, r11 ; add key protocol size
+    add r8, r11 ; add key protocol
+
+    add rbx, 6 ; for padding
+
+    CALL_ calloc, rbx, 0
+    mov r10, rax
+
+    mov byte[r10], 'l' ; set order byte
+    mov word[r10 + 2], 11 ; set version
+    pop r11
+    mov word[r10 + 8], r11w ; set size of key protocol
+    pop r11
+    mov word[r10 + 6], r11w ; set size of name protocol
+    mov rdi, r10
+    add rdi, 12
+    mov rsi, r9
+    add rsi, r8
+    xor r11, r11
+    mov r11w, word[r10 + 8]
+    sub rsi, r11
+    sub rsi, 2
+    xor r11, r11
+    mov r11w, word[r10 + 6]
+    sub rsi, r11
+    CALL_ strncpy, rdi, rsi, r11
+    neg r11
+    and r11, -4
+    neg r11
+
+    add rdi, r11
+    mov rsi, r9
+    add rsi, r8
+    xor r11, r11
+    mov r11w, word[r10 + 8]
+    sub rsi, r11
+    CALL_ strncpy, rdi, rsi, r11
+    neg r11
+    and r11, -4
+    neg r11
+
+    add rdi, r11
+    sub rdi, r10
+
+    CALL_ free, r9
+    
     pop r8
+    mov rdx, rdi
+    mov rax, 1
+    mov rdi, r8
+    mov rsi, r10
+    syscall
+
+    CALL_ free, r10
+    
+    CALL_ calloc, 8, 0
+    mov r11, rax
 
     push r11
     mov rax, 0
@@ -125,17 +329,12 @@ aCreateLink:
     mov rbx, 4
     mul rbx
 
-    push r8
-    push r11
     push rax
     mov rdi, rax
     add rdi, 20
-    mov rsi, 0
-    call calloc
+    CALL_ calloc, rdi, 0
     mov r9, rax
     pop r10
-    pop r11
-    pop r8
 
     mov dword[r9], r8d
 
@@ -147,12 +346,7 @@ aCreateLink:
         cmp rcx, 12
         jne .loop_copy_header
 
-    push r9
-    push r10
-    mov rdi, r11
-    call free
-    pop r10
-    pop r9
+    CALL_ free, r11
 
     mov rax, 0
     movzx rdi, byte[r9]
@@ -171,13 +365,8 @@ aCreateLink:
     mov r8, rdi ; get socket_fd
 
     push rdi
-    push r8
-    push rsi
-    mov rdi, 24 ; add basic need for this request
-    call malloc
+    CALL_ malloc, 24 ; add basic need for this request
     mov r9, rax ; set my message
-    pop rsi
-    pop r8
 
     mov byte[r9], 55 ; code
     mov word[r9 + 2], 6 ; length of request
@@ -219,8 +408,7 @@ aCreateLink:
     pop rdi
     mov r10d, dword[r9 + 4]
     mov dword[rdi + 48], r10d
-    mov rdi, r9
-    call free
+    CALL_ free, r9
 
     pop rax
     .bye:

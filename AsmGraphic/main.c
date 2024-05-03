@@ -70,11 +70,11 @@ void analize_event(aLink *link, aWindow *window, aEvent event, global_t *base)
     }
 }
 
-global_t *init(void)
+global_t *init(char **env)
 {
     global_t *base = malloc(sizeof(global_t));
 
-    base->link = aCreateLink();
+    base->link = aCreateLink(env);
     base->window = aCreateWindow(base->link, (short[2]){800, 600});
     base->window_close = 0;
     base->rect = aCreateRectangle((aPosSize){200, 120, 300, 300}, (aColor){255, 255, 0});
@@ -85,9 +85,9 @@ global_t *init(void)
     return base;
 }
 
-int main(void)
+int main(int ac, char **av, char **env)
 {
-    global_t *base = init();
+    global_t *base = init(env);
     
     aOpenFont(base->link, "fixed");
     aMapWindow(base->link, base->window);
