@@ -14,10 +14,14 @@ section .text
     global aCreateWindow
     global aMapWindow
     global aCloseWindow
+    global aDestroyWindow
     global aOpenFont
     global aPollEvent
     global aWindowUpdate
+    global aIsWindowOpen
     global aIsWindowClosing
+    global aIsWindowMoving
+    global aIsWindowResizing
     global aClearWindow
     global aDisplayWindow
     global aGetWindowFps
@@ -44,7 +48,7 @@ aCreateLink:
         je .is_xauthority
         .is_display:
             lea r11, [rel xdisplay]
-            CALL_ strncmp, qword[rdi + rcx * 8], r11, 8
+            CALL_ my_strncmp, qword[rdi + rcx * 8], r11, 8
             cmp rax, 0
             jne .is_xauthority
             add rdx, 1
@@ -55,7 +59,7 @@ aCreateLink:
             cmp rdx, 2
             je .reloop
             lea r11, [rel xauthority]
-            CALL_ strncmp, qword[rdi + rcx * 8], r11, 11
+            CALL_ my_strncmp, qword[rdi + rcx * 8], r11, 11
             cmp rax, 0
             jne .reloop
             add rdx, 2
@@ -82,7 +86,7 @@ aCreateLink:
     push r10
     push r9
 
-    CALL_ calloc, 110, 0
+    CALL_ my_calloc, 110, 0
     mov r9, rax
 
     mov word[r9], 1
@@ -105,7 +109,7 @@ aCreateLink:
     pop r10
     mov r11, r9
     add r11, 18
-    CALL_ strcpy, r11, r10
+    CALL_ my_strcpy, r11, r10
 
     mov rax, 42
     mov rdi, r8
@@ -115,9 +119,9 @@ aCreateLink:
 
     pop r10
     cmp rax, 0
-    jne .bye_error_free
+    jne .bye_error_my_free
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     push r8
 
@@ -130,7 +134,7 @@ aCreateLink:
     je .bye_error
 
     mov r8, rax
-    CALL_ malloc, 1024
+    CALL_ my_malloc, 1024
     mov r9, rax
 
     .loop_len_r10:
@@ -142,7 +146,7 @@ aCreateLink:
         syscall ; read the family of the auth
 
         cmp rax, 2
-        jne .bye_error_free
+        jne .bye_error_my_free
     
         cmp word[r9], 1 ; check if its unix family
         jne .not_auth
@@ -156,7 +160,7 @@ aCreateLink:
         syscall ; read adress size
 
         cmp rax, rdx
-        jne .bye_error_free
+        jne .bye_error_my_free
 
         mov rax, 0
         mov rdi, r8
@@ -169,7 +173,7 @@ aCreateLink:
         syscall
 
         cmp rax, rdx
-        jne .bye_error_free
+        jne .bye_error_my_free
 
         mov rbx, rax
         add rbx, 4
@@ -185,7 +189,7 @@ aCreateLink:
         syscall
 
         cmp rax, rdx
-        jne .bye_error_free
+        jne .bye_error_my_free
 
         add rbx, rax
 
@@ -200,7 +204,7 @@ aCreateLink:
         syscall
 
         cmp rax, rdx
-        jne .bye_error_free
+        jne .bye_error_my_free
 
         add rbx, rax
 
@@ -214,7 +218,7 @@ aCreateLink:
         syscall
 
         cmp rax, rdx
-        jne .bye_error_free
+        jne .bye_error_my_free
 
         cmp r10, 0
         je .loop_len_r10
@@ -224,7 +228,7 @@ aCreateLink:
     syscall
 
     cmp rax, 0
-    jne .bye_error_free
+    jne .bye_error_my_free
     
     mov rbx, 12 ; set empty request size
     mov r8, 4 ; add family and size adress
@@ -258,7 +262,7 @@ aCreateLink:
 
     add rbx, 6 ; for padding
 
-    CALL_ calloc, rbx, 0
+    CALL_ my_calloc, rbx, 0
     mov r10, rax
 
     mov byte[r10], 'l' ; set order byte
@@ -278,7 +282,7 @@ aCreateLink:
     xor r11, r11
     mov r11w, word[r10 + 6]
     sub rsi, r11
-    CALL_ strncpy, rdi, rsi, r11
+    CALL_ my_strncpy, rdi, rsi, r11
     neg r11
     and r11, -4
     neg r11
@@ -289,7 +293,7 @@ aCreateLink:
     xor r11, r11
     mov r11w, word[r10 + 8]
     sub rsi, r11
-    CALL_ strncpy, rdi, rsi, r11
+    CALL_ my_strncpy, rdi, rsi, r11
     neg r11
     and r11, -4
     neg r11
@@ -297,7 +301,7 @@ aCreateLink:
     add rdi, r11
     sub rdi, r10
 
-    CALL_ free, r9
+    CALL_ my_free, r9
     
     pop r8
     mov rdx, rdi
@@ -306,9 +310,9 @@ aCreateLink:
     mov rsi, r10
     syscall
 
-    CALL_ free, r10
+    CALL_ my_free, r10
     
-    CALL_ calloc, 8, 0
+    CALL_ my_calloc, 8, 0
     mov r11, rax
 
     push r11
@@ -332,7 +336,7 @@ aCreateLink:
     push rax
     mov rdi, rax
     add rdi, 20
-    CALL_ calloc, rdi, 0
+    CALL_ my_calloc, rdi, 0
     mov r9, rax
     pop r10
 
@@ -346,7 +350,7 @@ aCreateLink:
         cmp rcx, 12
         jne .loop_copy_header
 
-    CALL_ free, r11
+    CALL_ my_free, r11
 
     mov rax, 0
     movzx rdi, byte[r9]
@@ -356,7 +360,7 @@ aCreateLink:
     syscall
 
     cmp rax, 20
-    jl .bye_error_free
+    jl .bye_error_my_free
 
     mov rdi, r9
     push r9
@@ -365,7 +369,7 @@ aCreateLink:
     mov r8, rdi ; get socket_fd
 
     push rdi
-    CALL_ malloc, 24 ; add basic need for this request
+    CALL_ my_malloc, 24 ; add basic need for this request
     mov r9, rax ; set my message
 
     mov byte[r9], 55 ; code
@@ -408,7 +412,7 @@ aCreateLink:
     pop rdi
     mov r10d, dword[r9 + 4]
     mov dword[rdi + 48], r10d
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     pop rax
     .bye:
@@ -416,9 +420,9 @@ aCreateLink:
     .bye_error:
         mov rax, 0
         ret
-    .bye_error_free:
+    .bye_error_my_free:
         mov rdi, r9
-        call free
+        call my_free
         mov rax, 0
         ret
 
@@ -426,7 +430,7 @@ aCloseLink:
     cmp rdi, 0
     je .bye_error
 
-    CALL_ malloc, 4
+    CALL_ my_malloc, 4
     mov r9, rax
 
     mov byte[r9], 112
@@ -443,9 +447,9 @@ aCloseLink:
     syscall
     pop rdi
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
-    CALL_ free, rdi
+    CALL_ my_free, rdi
 
     ret
     .bye_error:
@@ -460,7 +464,7 @@ aCreateContext:
     push r8
     push rsi
     mov rdi, 24 ; add basic need for this request
-    call malloc
+    call my_malloc
     mov r9, rax ; set my message
     pop rsi
     pop r8
@@ -506,7 +510,7 @@ aCreateContext:
     mov r10d, dword[r9 + 4]
     mov dword[rdi + 48], r10d
     mov rdi, r9
-    call free
+    call my_free
     
     ret
 
@@ -519,7 +523,7 @@ aCreateWindow:
     push rsi
     mov rdi, 32 ; add basic need for this request
     add rdi, 8 ; add 2 value
-    call malloc
+    call my_malloc
     mov r9, rax ; set my message
     pop rsi
     pop r8
@@ -582,9 +586,9 @@ aCreateWindow:
 
     push rax
     mov rdi, r9
-    call free
+    call my_free
 
-    CALL_ malloc, 18
+    CALL_ my_malloc, 20
     mov r8, rax
     pop rax
     mov dword[r8], eax
@@ -595,13 +599,13 @@ aCreateWindow:
     push rdi
 
     push rsi
-    CALL_ malloc, 24
+    CALL_ my_malloc, 24
     mov r9, rax
 
     mov byte[r9], 16 ; code
     mov byte[r9 + 1], 1 ; only if exits
     mov word[r9 + 2], 6 ; 2 + 16 / 4
-    mov word[r9 + 4], 16 ; strlen de l'atom
+    mov word[r9 + 4], 16 ; my_strlen de l'atom
     mov byte[r9 + 8], 'W'
     mov byte[r9 + 9], 'M'
     mov byte[r9 + 10], '_'
@@ -627,9 +631,9 @@ aCreateWindow:
     mov rdx, 24
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
-    CALL_ malloc, 32
+    CALL_ my_malloc, 32
     mov r9, rax
 
     mov rax, 0
@@ -641,15 +645,15 @@ aCreateWindow:
     xor r8, r8
     mov r8d, dword[r9 + 8]
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
-    CALL_ malloc, 20
+    CALL_ my_malloc, 20
     mov r9, rax
 
     mov byte[r9], 16 ; code
     mov byte[r9 + 1], 0 ; only if exits
     mov word[r9 + 2], 5 ; 2 + 12 / 4
-    mov word[r9 + 4], 12 ; strlen de l'atom
+    mov word[r9 + 4], 12 ; my_strlen de l'atom
     mov byte[r9 + 8], 'W'
     mov byte[r9 + 9], 'M'
     mov byte[r9 + 10], '_'
@@ -669,9 +673,9 @@ aCreateWindow:
     mov rdx, 20
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
-    CALL_ malloc, 32
+    CALL_ my_malloc, 32
     mov r9, rax
 
     mov rax, 0
@@ -683,9 +687,9 @@ aCreateWindow:
     xor r10, r10
     mov r10d, dword[r9 + 8]
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
-    CALL_ malloc, 28
+    CALL_ my_malloc, 28
     mov r9, rax
 
     pop rsi
@@ -706,12 +710,12 @@ aCreateWindow:
     mov rdx, 28
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     pop rsi
     pop rdi
 
-    CALL_ malloc, 8
+    CALL_ my_malloc, 8
     mov r9, rax
 
     mov byte[r9], 14
@@ -732,7 +736,7 @@ aCreateWindow:
     pop rsi
     pop rdi
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     CALL_ wait_reply, rdi
 
@@ -746,9 +750,9 @@ aCreateWindow:
     push r8
     mov r8b, byte[rax + 1]
 
-    CALL_ free, rax
+    CALL_ my_free, rax
 
-    CALL_ malloc, 16
+    CALL_ my_malloc, 16
     mov r9, rax
 
     mov byte[r9], 53 ; create pixmap
@@ -774,15 +778,17 @@ aCreateWindow:
     mov r10d, dword[r9 + 4]
     mov dword[r8 + 4], r10d
     mov byte[r8 + 17], 244
+    mov byte[r8 + 18], 1
+    mov byte[r8 + 19], 0
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     mov rax, r8
 
     ret
 
 aMapWindow:
-    CALL_ malloc, 8
+    CALL_ my_malloc, 8
     mov r9, rax
 
     mov byte[r9], 8
@@ -799,12 +805,16 @@ aMapWindow:
     mov rdx, 8
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     ret
 
 aCloseWindow:
-    CALL_ malloc, 8
+    mov byte[rdi + 18], 0
+    ret
+
+aDestroyWindow:
+    CALL_ my_malloc, 8
     mov r9, rax
 
     mov byte[r9], 4
@@ -835,22 +845,22 @@ aCloseWindow:
     syscall
     pop rsi
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
-    CALL_ free, rsi
+    CALL_ my_free, rsi
 
     ret
 
 aOpenFont:
     push rdi
-    CALL_ strlen, rsi
+    CALL_ my_strlen, rsi
     mov rdx, rax
     neg rax
     and rax, -4
     neg rax
     add rax, 12
     push rax
-    CALL_ malloc, rax
+    CALL_ my_malloc, rax
     mov r9, rax
     pop rax
     push rax
@@ -896,7 +906,7 @@ aOpenFont:
     syscall
 
     push rax
-    CALL_ free, r9
+    CALL_ my_free, r9
     pop rax
 
     pop r8
@@ -904,7 +914,7 @@ aOpenFont:
     cmp rax, rdx
     jne .error
 
-    CALL_ malloc, 16
+    CALL_ my_malloc, 16
     mov r9, rax
 
     pop rdi
@@ -924,7 +934,7 @@ aOpenFont:
     mov rdx, 16
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     ret
 
@@ -960,7 +970,7 @@ aPollEvent:
     pop rsi
     pop rdi
 
-    CALL_ malloc, 8
+    CALL_ my_malloc, 8
     mov r9, rax
 
     mov r10d, dword[rdi]
@@ -986,9 +996,9 @@ aPollEvent:
     cmp word[r9 + 6], 16
     je _exit
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
-    CALL_ calloc, 32, 0
+    CALL_ my_calloc, 32, 0
     mov r9, rax
 
     push rdi
@@ -1015,7 +1025,7 @@ aPollEvent:
     mov r10, qword[r9 + 24]
     mov qword[rsi + 24], r10
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     mov rax, 72
     xor r10, r10
@@ -1036,7 +1046,7 @@ aPollEvent:
     mov rax, 1
     ret
     .bye_no_event:
-        CALL_ free, r9
+        CALL_ my_free, r9
 
         mov rax, 72
         xor r10, r10
@@ -1070,21 +1080,31 @@ aPollEvent:
         mov r10, qword[r9 + 24]
         mov qword[rsi + 24], r10
 
-        CALL_ free, r9
+        CALL_ my_free, r9
 
         mov rax, 1
         ret
 
 aWindowUpdate:
+    mov byte[rsi + 19], 0
     mov r10d, dword[rdx + 20]
+    push rsi
+    push rdx
     cmp dword[rsi + 12], r10d
     jne .resize
     .quit_resize:
+    pop rdx
+    pop rsi
+    mov r10d, dword[rdx + 16]
+    cmp dword[rsi + 8], r10d
+    jne .move
+    .quit_move:
     ret
 
     .resize:
+        add byte[rsi + 19], 2
         mov dword[rsi + 12], r10d
-        CALL_ malloc, 28
+        CALL_ my_malloc, 28
         mov r9, rax
 
         mov r8d, dword[rsi + 4]
@@ -1162,12 +1182,16 @@ aWindowUpdate:
         pop rsi
         pop rdi
 
-        CALL_ free, r9
+        CALL_ my_free, r9
         jmp .quit_resize
-        
+    
+    .move:
+        mov dword[rsi + 8], r10d
+        add byte[rsi + 19], 1
+        jmp .quit_move
 
 aIsWindowClosing:
-    CALL_ malloc, 8
+    CALL_ my_malloc, 8
     mov r9, rax
 
     mov r10d, dword[rdx + 4]
@@ -1189,7 +1213,7 @@ aIsWindowClosing:
     syscall
     pop rdi
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     CALL_ wait_reply, rdi
     mov r9, rax
@@ -1210,19 +1234,48 @@ aIsWindowClosing:
 
     xor r10, r10
     lea r10, [rel closed_atom]
-    CALL_ strncmp, r10, r9, 16
+    CALL_ my_strncmp, r10, r9, 16
     cmp rax, 0
     jne .bye_zero
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     mov rax, 1
     ret
 
     .bye_zero:
-        CALL_ free, r9
+        CALL_ my_free, r9
         mov rax, 0
         ret
+
+aIsWindowOpen:
+    xor rax, rax
+    mov al, byte[rdi + 18]
+    ret
+
+aIsWindowMoving:
+    xor rax, rax
+    mov al, byte[rdi + 19]
+    or rax, 1
+    cmp al, byte[rdi + 19]
+    je .bye_1
+    mov rax, 0
+    ret
+    .bye_1:
+    mov rax, 1
+    ret
+
+aIsWindowResizing:
+    xor rax, rax
+    mov al, byte[rdi + 19]
+    or rax, 2
+    cmp al, byte[rdi + 19]
+    je .bye_1
+    mov rax, 0
+    ret
+    .bye_1:
+    mov rax, 1
+    ret
 
 aGetWindowFps:
     xor rax, rax
@@ -1240,7 +1293,10 @@ aGetWindowSize:
     ret
 
 aClearWindow:
-    CALL_ malloc, 12
+    cmp byte[rsi + 18], 0
+    je .bye
+
+    CALL_ my_malloc, 12
     mov r9, rax
 
     mov word[r9], 0
@@ -1253,12 +1309,16 @@ aClearWindow:
 
     CALL_ aDrawRectangle, rdi, rsi, r9
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
+    .bye:
     ret
 
 aDisplayWindow:
-    CALL_ malloc, 28
+    cmp byte[rsi + 18], 0
+    je .bye
+
+    CALL_ my_malloc, 28
     mov r9, rax
 
     mov byte[r9], 62 ; code copy area
@@ -1282,8 +1342,9 @@ aDisplayWindow:
     mov rdx, 28
     syscall
     
-    CALL_ free, r9
+    CALL_ my_free, r9
 
+    .bye:
     ret
 
 aCreateText:
@@ -1291,12 +1352,12 @@ aCreateText:
     push rsi
     push rdx
     mov rdi, 16
-    call malloc
+    call my_malloc
     mov r9, rax
     pop rdx
     pop rsi
     pop rdi
-    CALL_ strdup, rdi
+    CALL_ my_strdup, rdi
     mov qword[r9], rax
     mov r10w, si
     mov word[r9 + 8], r10w
@@ -1315,11 +1376,14 @@ aCreateText:
     ret
 
 aDrawText:
+    cmp byte[rsi + 18], 0
+    je .bye
+
     push rdi
     push rsi
     push rdx
 
-    CALL_ malloc, 16
+    CALL_ my_malloc, 16
     mov r9, rax
 
     mov byte[r9], 56 ; code for change gc
@@ -1339,7 +1403,7 @@ aDrawText:
     mov rdx, 16
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     pop rdx
     pop rsi
@@ -1349,7 +1413,7 @@ aDrawText:
     add rcx, 8
     mov rdx, qword[rdx] ; decompose aText struct
 
-    CALL_ strlen, rdx
+    CALL_ my_strlen, rdx
     xor r10, r10
     mov r10b, al
     neg r10
@@ -1357,13 +1421,13 @@ aDrawText:
     neg r10
     add r10, 16
     push r10
-    ; get size to malloc
+    ; get size to my_malloc
 
-    CALL_ malloc, r10
+    CALL_ my_malloc, r10
     mov r9, rax
 
     mov byte[r9], 76 ; code
-    CALL_ strlen, rdx
+    CALL_ my_strlen, rdx
     mov byte[r9 + 1], al ; length of string
     push rdx
     mov rax, r10
@@ -1401,21 +1465,22 @@ aDrawText:
     pop rdx
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
+    .bye:
     ret
 
 aDestroyText:
     mov r10, qword[rdi]
-    CALL_ free, r10
-    CALL_ free, rdi
+    CALL_ my_free, r10
+    CALL_ my_free, rdi
     ret
 
 aCreateRectangle:
     push rdi
     push rsi
     mov rdi, 12
-    call malloc
+    call my_malloc
     mov r9, rax
     pop rsi
     pop rdi
@@ -1442,11 +1507,14 @@ aCreateRectangle:
     ret
 
 aDrawRectangle:
+    cmp byte[rsi + 18], 0
+    je .bye
+
     push rdi
     push rsi
     push rdx
 
-    CALL_ malloc, 16
+    CALL_ my_malloc, 16
     mov r9, rax
 
     mov byte[r9], 56 ; code for change gc
@@ -1467,13 +1535,13 @@ aDrawRectangle:
     mov rdx, 16
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     pop rdx
     pop rsi
     pop rdi
 
-    CALL_ malloc, 20
+    CALL_ my_malloc, 20
     mov r9, rax
 
     mov byte[r9], 70 ; code
@@ -1500,12 +1568,13 @@ aDrawRectangle:
     mov rdx, 20
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
+    .bye:
     ret
 
 aDestroyRectangle:
-    CALL_ free, rdi
+    CALL_ my_free, rdi
     ret
 
 aBell:
@@ -1514,7 +1583,7 @@ aBell:
     cmp rsi, 100
     jg .bye
 
-    CALL_ malloc, 4
+    CALL_ my_malloc, 4
     mov r9, rax
 
     mov byte[r9], 104
@@ -1529,7 +1598,7 @@ aBell:
     mov rdx, 4
     syscall
 
-    CALL_ free, r9
+    CALL_ my_free, r9
     .bye:
     ret
 _exit:
@@ -1539,7 +1608,7 @@ _exit:
 
 wait_reply:
     .loop:
-        CALL_ malloc, 40
+        CALL_ my_malloc, 40
         mov r9, rax
 
         mov qword[r9 + 32], 0
@@ -1575,7 +1644,7 @@ wait_reply:
     ret
 
 test_truc:
-    CALL_ malloc, 32
+    CALL_ my_malloc, 32
     mov r9, rax
 
     mov rax, 0
@@ -1586,9 +1655,9 @@ test_truc:
 
     xor r10, r10
     mov r10b, byte[r9]
-    CALL_ putnbr, r10
-    CALL_ putchar, 10
+    CALL_ my_putnbr, r10
+    CALL_ my_putchar, 10
 
-    CALL_ free, r9
+    CALL_ my_free, r9
 
     ret

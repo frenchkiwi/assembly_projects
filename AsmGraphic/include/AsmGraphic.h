@@ -10,6 +10,18 @@
 
     #include "AsmFunctions.h"
 
+#define aEventRequestError 0
+#define aEventReplyError 1
+#define aEventKeyPressed 2
+#define aEventKeyRelease 3
+#define aEventMouseButtonPressed 4
+#define aEventMouseButtonRelease 5
+#define aEventExposure 12
+#define aEventWindowMapped 19
+#define aEventWindowCreate 21
+#define aEventWindowModified 22
+#define aEventSpecial 33
+
 #define TYPE(event) (unsigned char)event.data[0]
 #define KEYCODE(event) (unsigned char)event.data[1]
 #define BUTTON(event) (unsigned char)event.data[1]
@@ -21,8 +33,8 @@
 
 typedef struct AsmLink aLink;
 
+// 4byte window_id | 4byte pixmap_id | 4byte window_pos | 4byte window_size | 1byte window_depth | 1byte window_fps | 1byte window_state | 1byte window_event (1 == move | 2 == resize)
 typedef struct AsmWindow aWindow;
-// typedef unsigned long aWindow;
 
 typedef unsigned char aColor[3];
 
@@ -66,11 +78,13 @@ int aPollEvent(aLink *link, aEvent *event);
 
 void aWindowUpdate(aLink *link, aWindow *window, aEvent *event);
 
-int aIsWindowMoving(aLink *link, aWindow *window, aEvent *event);
+int aIsWindowMoving(aWindow *window);
 
-int aIsWindowResizing(aLink *link, aWindow *window, aEvent *event);
+int aIsWindowResizing(aWindow *window);
 
-int aIsWindowClosing(aLink *link, aWindow *window, aEvent *event);
+int aIsWindowClosing(aLink *lin, aWindow *window, aEvent *event);
+
+int aIsWindowOpen(aWindow *window);
 
 aFps aGetWindowFps(aWindow *window);
 
@@ -96,7 +110,9 @@ void aClearWindow(aLink *link, aWindow *window);
 
 void aDisplayWindow(aLink *link, aWindow *window);
 
-void aCloseWindow(aLink *link, aWindow *window);
+void aCloseWindow(aWindow *window);
+
+void aDestroyWindow(aLink *link, aWindow *window);
 
 // // AsmFont
 

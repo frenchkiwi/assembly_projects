@@ -13,7 +13,6 @@
 typedef struct global_s {
     aLink *link;
     aWindow *window;
-    int window_close;
     aEvent event;
     aRectangle *rect;
     aText *text;

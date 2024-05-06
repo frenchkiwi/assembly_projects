@@ -31,42 +31,47 @@ void update(aLink *link, aWindow *window)
 void analize_event(aLink *link, aWindow *window, aEvent event, global_t *base)
 {
     switch (TYPE(event) % 128) {
-        case 0:
-            putstr("error: ");
-            putnbr(KEYCODE(event));
-            putchar('\n');
+        case aEventRequestError:
+            my_putstr("error: ");
+            my_putnbr(KEYCODE(event));
+            my_putchar('\n');
             exit(0);
-        case 1:
-            putstr("reply in event\n");
+        case aEventReplyError:
+            my_putstr("reply in event\n");
             exit(0);
-        case 2:
-            putstr("key_pressed: ");
-            putnbr(KEYCODE(event));
-            putchar('\n');
+        case aEventKeyPressed:
+            my_putstr("key_pressed: ");
+            my_putnbr(KEYCODE(event));
+            my_putchar('\n');
             aBell(link, 40);
             break;
-        case 4:
-            putstr("button_pressed\n");
+        case aEventMouseButtonPressed:
+            my_putstr("button_pressed\n");
             break;
-        case 12:
+        case aEventExposure:
             aDisplayWindow(base->link, base->window);
             break;
-        case 19:
-            putstr("window mapped successfully\n");
+        case aEventWindowMapped:
+            my_putstr("window mapped successfully\n");
             break;
-        case 21:
-            putstr("create window\n");
+        case aEventWindowCreate:
+            my_putstr("create window\n");
             break;
-        case 22:
+        case aEventWindowModified:
             aWindowUpdate(link, window, &event);
+            if (aIsWindowResizing(window))
+                my_putstr("window resized\n");
+            if (aIsWindowMoving(window))
+                my_putstr("window moved\n");
             break;
-        case 33:
-            base->window_close = aIsWindowClosing(link, window, &event);
+        case aEventSpecial:
+            if (aIsWindowClosing(link, window, &event))
+                aCloseWindow(window);
             break;
         default:
-            putstr("analize: ");
-            putnbr(TYPE(event));
-            putchar('\n');
+            my_putstr("analize: ");
+            my_putnbr(TYPE(event));
+            my_putchar('\n');
     }
 }
 
@@ -76,9 +81,8 @@ global_t *init(char **env)
 
     base->link = aCreateLink(env);
     base->window = aCreateWindow(base->link, (short[2]){800, 600});
-    base->window_close = 0;
-    base->rect = aCreateRectangle((aPosSize){200, 120, 300, 300}, (aColor){255, 255, 0});
-    base->text = aCreateText("Hello World!", (aPos){100, 100}, (aColor){0, 200, 255});
+    base->rect = aCreateRectangle((aPosSize){50, 120, 700, 10}, (aColor){255, 255, 0});
+    base->text = aCreateText("Raph est gay!", (aPos){100, 100}, (aColor){0, 200, 255});
     base->ts = malloc(sizeof(struct timespec));
     clock_gettime(CLOCK_REALTIME, base->ts);
     base->timer_base = base->ts->tv_sec * 1000000000 + base->ts->tv_nsec;
@@ -94,15 +98,14 @@ int main(int ac, char **av, char **env)
     // add
     // error case for mapwindow avec un get reply pour le message de mapping
     display(base->link, base->window, base->rect, base->text);
-    while (!base->window_close) {
+    while (aIsWindowOpen(base->window)) {
         while (aPollEvent(base->link, &base->event))
             analize_event(base->link, base->window, base->event, base);
         clock_gettime(CLOCK_REALTIME, base->ts);
         base->timer_diff = base->ts->tv_sec * 1000000000 + base->ts->tv_nsec;
         if (base->timer_diff - base->timer_base
         >= 1000000000 / aGetWindowFps(base->window)) {
-            printf("%.0f fps\n",
-            1000000000 / (double)(base->timer_diff - base->timer_base));
+            // printf("%.0f fps\n", 1000000000 / (double)(base->timer_diff - base->timer_base));
             base->timer_base = base->timer_diff;
             update(base->link, base->window);
             display(base->link, base->window, base->rect, base->text);
@@ -110,7 +113,7 @@ int main(int ac, char **av, char **env)
     }
     aDestroyText(base->text);
     aDestroyRectangle(base->rect);
-    aCloseWindow(base->link, base->window);
+    aDestroyWindow(base->link, base->window);
     aCloseLink(base->link);
     free(base->ts);
     free(base);

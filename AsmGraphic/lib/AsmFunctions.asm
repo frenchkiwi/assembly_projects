@@ -59,43 +59,23 @@ section .data
     free_error db 'f', 'r', 'e', 'e', '(', ')', ':', ' ', 'i', 'n', 'v', 'a', 'l', 'i', 'd', ' ', 'p', 'o', 'i', 'n', 't', 'e', 'r', 10
 
 section .text
-    global putchar
-    global putcharerror
-    global putnbr
-    global swap
-    global strlen
-    global putstr
-    global puterror
-    global revstr
-    global getnbr
-    global sort_int_array
-    global compute_factorial_it
-    global compute_factorial_rec
-    global compute_power_it
-    global compute_power_rec
-    global compute_square_root
-    global is_prime
-    global is_prime_sup
-    global strcpy
-    global strncpy
-    global strstr
-    global strcmp
-    global strncmp
-    global strupcase
-    global strdowncase
-    global strcapitalize
-    global str_isalpha
-    global str_isnum
-    global str_islower
-    global str_isupper
-    global str_isprintable
-    global putnbr_base
-    global getnbr_base
-    global showstr
-    global showmem
-    global strcat
-    global strncat
-    global strdup
+    global my_putchar
+    global my_putcharerror
+    global my_putnbr
+    global my_strlen
+    global my_putstr
+    global my_puterror
+    global my_getnbr
+    global my_factorial
+    global my_power
+    global my_strcpy
+    global my_strncpy
+    global my_strstr
+    global my_strcmp
+    global my_strncmp
+    global my_strcat
+    global my_strncat
+    global my_strdup
     global show_word_array
     global str_to_word_array
     global sort_word_array
@@ -111,13 +91,13 @@ section .text
     global get_ptr
     global add_in_sorted_list
     global merge
-    global malloc
-    global free
-    global calloc
-    global realloc
+    global my_malloc
+    global my_free
+    global my_calloc
+    global my_realloc
     global show_malloc
 
-putchar:
+my_putchar:
     mov dl, dil
     mov rax, 12
     mov rdi, 0
@@ -138,7 +118,7 @@ putchar:
     syscall
     ret
 
-putcharerror:
+my_putcharerror:
     push rax
     push rdi
     push rsi
@@ -173,29 +153,29 @@ putcharerror:
     pop rax
     ret
 
-putnbr:
+my_putnbr:
     cmp rdi, 0
-    jl .putnbr_neg
-    call .putnbr_pos
+    jl .my_putnbr_neg
+    call .my_putnbr_pos
     ret
 
-    .putnbr_neg:
-        CALL_ putchar, '-'
+    .my_putnbr_neg:
+        CALL_ my_putchar, '-'
 
         neg rdi
-        call .putnbr_pos
+        call .my_putnbr_pos
         ret
 
-    .putnbr_pos:
+    .my_putnbr_pos:
         mov r8, rdi
 
         mov r11, 0
-        .loop_putnbr_len:
+        .loop_my_putnbr_len:
             inc r11
 
             mov rdi, 10
             mov rsi, r11
-            call power
+            call my_power
 
             mov rbx, rax
             mov rax, r8
@@ -203,14 +183,14 @@ putnbr:
             div rbx
 
             cmp rax, 1
-            jge .loop_putnbr_len
+            jge .loop_my_putnbr_len
         
-        .loop_putnbr:
+        .loop_my_putnbr:
             dec r11
 
             mov rdi, 10
             mov rsi, r11
-            call power
+            call my_power
             mov rbx, rax
             mov rax, r8
             xor rdx, rdx
@@ -218,80 +198,55 @@ putnbr:
 
             mov r8, rdx
             add rax, '0'
-            CALL_ putchar, rax
+            CALL_ my_putchar, rax
 
             cmp r11, 0
-            jne .loop_putnbr
+            jne .loop_my_putnbr
         xor rax, rax
         ret
 
 
-strlen:
+my_strlen:
     mov rax, -1
-    .loop_strlen:
+    .loop_my_strlen:
         inc rax
         cmp byte [rdi + rax], 0
-        jne .loop_strlen
+        jne .loop_my_strlen
     ret
 
-putstr:
+my_putstr:
     cmp rdi, 0
-    je .bye_putstr
+    je .bye_my_putstr
     mov rsi, rdi
     mov rdx, -1
-    .loop_putstr:
+    .loop_my_putstr:
         inc rdx
         cmp byte [rsi + rdx], 0
-        jne .loop_putstr
+        jne .loop_my_putstr
     mov rax, 1
     mov rdi, 1
     syscall
-    .bye_putstr:
+    .bye_my_putstr:
         mov rax, 0
         ret
 
-puterror:
+my_puterror:
     cmp rdi, 0
-    je .bye_putstr
+    je .bye_my_putstr
     mov rsi, rdi
     mov rdx, -1
-    .loop_putstr:
+    .loop_my_putstr:
         inc rdx
         cmp byte [rsi + rdx], 0
-        jne .loop_putstr
+        jne .loop_my_putstr
     mov rax, 1
     mov rdi, 2
     syscall
-    .bye_putstr:
+    .bye_my_putstr:
         mov rax, 0
         ret
 
-revstr:
-    mov rcx, -1
-    .loop_revstr:
-        inc rcx
-        cmp byte [rdi + rcx], 0
-        jne .loop_revstr
-    
-    mov rax, rcx
-    xor rdx, rdx
-    mov rbx, 2
-    div rbx
-    xchg rax, rcx
-
-    mov rbx, 0
-    .loop_revstr2:
-        dec rax
-        mov r8b, byte [rdi + rbx]
-        mov r9b, byte [rdi + rax]
-        mov byte [rdi + rbx], r9b
-        mov byte [rdi + rax], r8b
-        inc rbx
-        loop .loop_revstr2
-    mov rax, rdi
-    ret
-
-getnbr:
+my_getnbr:
     mov r8, 1
     mov r9, 0
     mov rax, 0
@@ -342,34 +297,7 @@ getnbr:
         .bye_getnbr2:
             ret
 
-sort_int_array:
-    mov rcx, 0
-    .loop_sort_int_array:
-        cmp rcx, rsi
-        je .bye_sort_int_array
-        mov rdx, rcx
-        .loop_sort_int_array2:
-            inc rdx
-            mov r8d, dword [rdi + rdx * 4]
-            cmp dword [rdi + rcx * 4], r8d
-            jg .swap_sort_int_array
-            .back_up_sort_int_array:
-                cmp rdx, rsi
-                jne .loop_sort_int_array2
-        inc rcx
-        jmp .loop_sort_int_array
-    
-    .swap_sort_int_array:
-        mov r8d, dword [rdi + rcx * 4]
-        mov r9d, dword [rdi + rdx * 4]
-        mov dword [rdi + rcx * 4], r9d
-        mov dword [rdi + rdx * 4], r8d
-        jmp .back_up_sort_int_array
-    
-    .bye_sort_int_array:
-        ret
-
-factorial:
+my_factorial:
     mov rax, 1
     mov rcx, 0
     cmp rdi, 0
@@ -391,7 +319,7 @@ factorial:
         mov rax, -1
         ret
 
-power:
+my_power:
     cmp rsi, 0
     jl .neg_power_it
     cmp rsi, 0
@@ -415,80 +343,7 @@ power:
         mov rax, 0
         ret
 
-is_prime:
-    cmp rdi, 1
-    jle .zero_prime
-
-    mov rax, rdi
-    xor rdx, rdx
-    mov rbx, 2
-    div rbx
-
-    cmp rdi, 2
-    je .one_prime
-
-    cmp rdx, 0
-    je .zero_prime
-
-    mov r8, rax
-    .loop_prime:
-        inc rbx
-        cmp rbx, r8
-        jge .one_prime
-
-        mov rax, rdi
-        xor rdx, rdx
-        div rbx
-
-        cmp rdx, 0
-        je .zero_prime
-        jmp .loop_prime
-
-    .one_prime:
-        mov rax, 1
-        ret
-    .zero_prime:
-        mov rax, 0
-        ret
-
-find_prime_sup:
-    cmp rdi, 1
-    jle .zero_prime_sup
-
-    mov rax, rdi
-    xor rdx, rdx
-    mov rbx, 2
-    div rbx
-
-    cmp rdi, 2
-    je .one_prime_sup
-
-    cmp rdx, 0
-    je .zero_prime_sup
-
-    mov r8, rax
-    .loop_prime_sup:
-        inc rbx
-        cmp rbx, r8
-        jge .one_prime_sup
-
-        mov rax, rdi
-        xor rdx, rdx
-        div rbx
-
-        cmp rdx, 0
-        je .zero_prime_sup
-        jmp .loop_prime_sup
-
-    .one_prime_sup:
-        mov rax, rdi
-        ret
-    .zero_prime_sup:
-        inc rdi
-        call find_prime_sup
-        ret
-
-strcpy:
+my_strcpy:
     mov rcx, -1
     .loop_strcpy:
         inc rcx
@@ -499,7 +354,7 @@ strcpy:
     mov rax, rdi
     ret
 
-strncpy:
+my_strncpy:
     mov rcx, -1
     .loop_strncpy:
         inc rcx
@@ -513,12 +368,12 @@ strncpy:
         mov rax, rdi
         ret
 
-strstr:
+my_strstr:
     mov r8, -1
-    .loop_strstrlen:
+    .loop_strmy_strlen:
         inc r8
         cmp byte [rsi + r8], 0
-        jne .loop_strstrlen
+        jne .loop_strmy_strlen
     mov rdx, -1
     mov rcx, -1
     .loop_strstr:
@@ -544,7 +399,7 @@ strstr:
         lea rax, [rdi + rdx]
         ret
 
-strcmp:
+my_strcmp:
     mov rcx, -1
     .loop_strcmp:
         inc rcx
@@ -562,7 +417,7 @@ strcmp:
         sub rax, rbx
         ret
 
-strncmp:
+my_strncmp:
     mov rcx, -1
     .loop_strcmp:
         dec rdx
@@ -583,215 +438,13 @@ strncmp:
         movzx rbx, byte [rsi + rcx]
         sub rax, rbx
         ret
-
-strupcase:
-    mov rcx, -1
-    .loop_strupcase:
-        inc rcx
-        cmp byte [rdi + rcx], 'a'
-        jl .again_loop_strupcase
-        cmp byte [rdi + rcx], 'z'
-        jg .again_loop_strupcase
-        sub byte [rdi + rcx], 32
-        .again_loop_strupcase:
-            cmp byte [rdi + rcx], 0
-            jne .loop_strupcase
-    mov rax, rdi
-    ret
-
-strdowncase:
-    mov rcx, -1
-    .loop_strdowncase:
-        inc rcx
-        cmp byte [rdi + rcx], 'A'
-        jl .again_loop_strdowncase
-        cmp byte [rdi + rcx], 'Z'
-        jg .again_loop_strdowncase
-        add byte [rdi + rcx], 32
-        .again_loop_strdowncase:
-            cmp byte [rdi + rcx], 0
-            jne .loop_strdowncase
-    mov rax, rdi
-    ret
-
-strcapitalize:
-    mov rcx, -1
-    mov rdx, 1
-    .loop_strcapitalize:
-        inc rcx
-        call .down_strcapitalize
-        .again_loop_strcapitalize:
-            cmp byte [rdi + rcx], 0
-            jne .loop_strcapitalize
-    mov rax, rdi
-    ret
-
-    .down_strcapitalize:
-        cmp byte [rdi + rcx], 'A'
-        jl .up_strcapitalize
-        cmp byte [rdi + rcx], 'Z'
-        jg .up_strcapitalize
-        add byte [rdi + rcx], 32
-        jmp .up_strcapitalize
-
-    .up_strcapitalize:
-        cmp rdx, 0
-        je .check_strcapitalize
-        cmp byte [rdi + rcx], 'a'
-        jl .check_strcapitalize
-        cmp byte [rdi + rcx], 'z'
-        jg .check_strcapitalize
-        sub byte [rdi + rcx], 32
-        mov rdx, 0
-        jmp .check_strcapitalize
-
-    .check_strcapitalize:
-        cmp byte [rdi + rcx], 'A'
-        jl .is_capitalize
-        cmp byte [rdi + rcx], 'z'
-        jg .is_capitalize
-        jmp .check_strcapitalize2
-
-    .check_strcapitalize2:
-        cmp byte [rdi + rcx], 'Z'
-        jle .again_loop_strcapitalize
-        cmp byte [rdi + rcx], 'a'
-        jge .again_loop_strcapitalize
-        jmp .is_capitalize
-
-    .is_capitalize:
-        mov rdx, 1
-        jmp .again_loop_strcapitalize
-
-str_isalpha:
-    mov rcx, -1
-    .loop_isalpha:
-        inc rcx
-        cmp byte [rdi + rcx], 0
-        je .one_isalpha
-        jmp .check_isalpha
-
-    .check_isalpha:
-        cmp byte [rdi + rcx], 'A'
-        jl .zero_isalpha
-        cmp byte [rdi + rcx], 'z'
-        jg .zero_isalpha
-        jmp .check_isalpha2
-
-    .check_isalpha2:
-        cmp byte [rdi + rcx], 'Z'
-        jle .loop_isalpha
-        cmp byte [rdi + rcx], 'a'
-        jge .loop_isalpha
-        jmp .zero_isalpha
-
-    .zero_isalpha:
-        mov rax, 0 
-        ret
-    
-    .one_isalpha:
-        mov rax, 1
-        ret
-
-str_isnum:
-    mov rcx, -1
-    .loop_isnum:
-        inc rcx
-        cmp byte [rdi + rcx], 0
-        je .one_isnum
-        jmp .check_isnum
-
-    .check_isnum:
-        cmp byte [rdi + rcx], '0'
-        jl .zero_isnum
-        cmp byte [rdi + rcx], '9'
-        jg .zero_isnum
-        jmp .loop_isnum
-
-    .zero_isnum:
-        mov rax, 0 
-        ret
-    
-    .one_isnum:
-        mov rax, 1
-        ret
-
-str_islower:
-    mov rcx, -1
-    .loop_islower:
-        inc rcx
-        cmp byte [rdi + rcx], 0
-        je .one_islower
-        jmp .check_islower
-
-    .check_islower:
-        cmp byte [rdi + rcx], 'a'
-        jl .zero_islower
-        cmp byte [rdi + rcx], 'z'
-        jg .zero_islower
-        jmp .loop_islower
-
-    .zero_islower:
-        mov rax, 0 
-        ret
-    
-    .one_islower:
-        mov rax, 1
-        ret
-
-str_isupper:
-    mov rcx, -1
-    .loop_isupper:
-        inc rcx
-        cmp byte [rdi + rcx], 0
-        je .one_isupper
-        jmp .check_isupper
-
-    .check_isupper:
-        cmp byte [rdi + rcx], 'A'
-        jl .zero_isupper
-        cmp byte [rdi + rcx], 'Z'
-        jg .zero_isupper
-        jmp .loop_isupper
-
-    .zero_isupper:
-        mov rax, 0 
-        ret
-    
-    .one_isupper:
-        mov rax, 1
-        ret
-
-str_isprintable:
-    mov rcx, -1
-    .loop_isprintable:
-        inc rcx
-        cmp byte [rdi + rcx], 0
-        je .one_isprintable
-        jmp .check_isprintable
-
-    .check_isprintable:
-        cmp byte [rdi + rcx], ' '
-        jl .zero_isprintable
-        cmp byte [rdi + rcx], '~'
-        jg .zero_isprintable
-        jmp .loop_isprintable
-
-    .zero_isprintable:
-        mov rax, 0 
-        ret
-    
-    .one_isprintable:
-        mov rax, 1
-        ret
-
-putnbr_base:
+my_putnbr_base:
     cmp rdi, 0
-    jl .putnbr_base_neg
-    call .putnbr_base_pos
+    jl .my_putnbr_base_neg
+    call .my_putnbr_base_pos
     ret
 
-    .putnbr_base_neg:
+    .my_putnbr_base_neg:
         mov r9, rdi
         mov r8b, byte [rsi]
         mov byte [rsi], 45
@@ -804,26 +457,26 @@ putnbr_base:
         mov rdi, r9
 
         neg rdi
-        call .putnbr_base_pos
+        call .my_putnbr_base_pos
         ret
 
-    .putnbr_base_pos:
+    .my_putnbr_base_pos:
         mov r8, rdi
         mov r9, rsi
 
         mov r10, -1
-        .loop_putnbr_base_len2:
+        .loop_my_putnbr_base_len2:
             inc r10
             cmp byte [r9 + r10], 0
-            jne .loop_putnbr_base_len2
+            jne .loop_my_putnbr_base_len2
 
         mov r11, 0
-        .loop_putnbr_base_len:
+        .loop_my_putnbr_base_len:
             inc r11
 
             mov rdi, r10
             mov rsi, r11
-            call power
+            call my_power
 
             mov rbx, rax
             mov rax, r8
@@ -831,15 +484,15 @@ putnbr_base:
             div rbx
 
             cmp rax, 1
-            jge .loop_putnbr_base_len
+            jge .loop_my_putnbr_base_len
 
 
-        .loop_putnbr_base:
+        .loop_my_putnbr_base:
             dec r11
 
             mov rdi, r10
             mov rsi, r11
-            call power
+            call my_power
             mov rbx, rax
             mov rax, r8
             xor rdx, rdx
@@ -856,11 +509,11 @@ putnbr_base:
             pop r11
 
             cmp r11, 0
-            jne .loop_putnbr_base
+            jne .loop_my_putnbr_base
         mov rax, 0
         ret
 
-getnbr_base:
+my_getnbr_base:
     mov r8, 1
     mov r9, 0
     mov r10, -1
@@ -927,7 +580,7 @@ getnbr_base:
         .bye_getnbr_base2:
             ret
 
-showstr:
+my_showstr:
     mov r8, rdi
     mov r9, -1
     .loop_showstr:
@@ -1001,7 +654,7 @@ showstr:
             .bye_is_hexa_showstr:
                 ret
 
-showmem:
+my_showmem:
     mov r8, rdi
     mov r9, rsi
     mov r10, -1
@@ -1079,7 +732,7 @@ showmem:
 
         mov rdi, 16
         mov rsi, rcx
-        call power
+        call my_power
 
         mov rbx, rax
         mov rax, r10
@@ -1227,7 +880,7 @@ showmem:
             mov byte [r8], bl
             jmp .bye_print_showmem
 
-strcat:
+my_strcat:
     mov rcx, -1
     .loop_destlen_strcat:
         inc rcx
@@ -1245,7 +898,7 @@ strcat:
     mov rax, rdi
     ret
 
-strncat:
+my_strncat:
     mov r9, rdx
     mov rcx, -1
     .loop_destlen_strncat:
@@ -1270,15 +923,15 @@ strncat:
         mov rax, rdi
         ret
 
-strdup:
+my_strdup:
     push rdi
-    call strlen
+    call my_strlen
     inc rax
     mov rdi, rax
-    call malloc
+    call my_malloc
     mov rdi, rax
     pop rsi
-    call strcpy
+    call my_strcpy
     ret 
 
 show_word_array:
@@ -1291,7 +944,7 @@ show_word_array:
         je .bye_show_word_array
         push rsi
         push rcx
-        call putstr
+        call my_putstr
         pop rcx
         pop rsi
         push rsi
@@ -1471,7 +1124,7 @@ sort_word_array:
         .loop2:
             mov r8, [rdi + rcx * 8]
             mov r9, [rdi + rdx * 8]
-            CALL_ strcmp, r8, r9
+            CALL_ my_strcmp, r8, r9
             cmp rax, 0
             jg .swap
             .back_up_loop2:
@@ -1700,7 +1353,7 @@ sort_list:
 get_ptr:
     push rdi
     mov rdi, 8
-    call malloc
+    call my_malloc
     pop rdi
     mov qword [rax], rdi
     ret
@@ -1732,7 +1385,7 @@ merge:
     CALL_ sort_list, rdi, rdx
     ret
 
-malloc:
+my_malloc:
     cmp rdi, 0
     jle .malloc_error
     push rdi
@@ -1932,7 +1585,7 @@ malloc:
         mov rax, 0
         ret
 
-free:
+my_free:
     cmp rdi, 0
     je .bye
     mov r10, qword [rel malloc_base]
@@ -2152,10 +1805,10 @@ free:
         syscall
         ret
 
-calloc:
+my_calloc:
     push rdi
     push rsi
-    call malloc
+    call my_malloc
     pop rsi
     pop rdi
     mov rcx, 0
@@ -2166,7 +1819,7 @@ calloc:
         jne .loop_calloc
     ret
 
-realloc:
+my_realloc:
     push rsi
     cmp rdi, 0
     jne .free
@@ -2178,17 +1831,17 @@ realloc:
     ret
 
     .free:
-        call free
+        call my_free
         jmp .back_free
 
     .malloc:
-        call malloc
+        call my_malloc
         jmp .back_malloc
 
 show_malloc:
-    CALL_ putchar, 'g'
-    CALL_ putchar, 'o'
-    CALL_ putchar, 10
+    CALL_ my_putchar, 'g'
+    CALL_ my_putchar, 'o'
+    CALL_ my_putchar, 10
     mov r10, qword [rel malloc_base]
     cmp r10, -1
     je .bye
@@ -2214,22 +1867,22 @@ show_malloc:
         je .continue_find_space
         xor rdi, rdi
         mov rdi, qword[r10 + r11]
-        CALL_ putchar, 's'
-        CALL_ putchar, ':'
-        CALL_ putnbr, rdi
-        CALL_ putchar, 32
+        CALL_ my_putchar, 's'
+        CALL_ my_putchar, ':'
+        CALL_ my_putnbr, rdi
+        CALL_ my_putchar, 32
         xor rdi, rdi
         mov rdi, qword[r10 + r11 + 8]
-        CALL_ putchar, 'a'
-        CALL_ putchar, ':'
-        CALL_ putnbr, rdi
-        CALL_ putchar, 32
+        CALL_ my_putchar, 'a'
+        CALL_ my_putchar, ':'
+        CALL_ my_putnbr, rdi
+        CALL_ my_putchar, 32
         xor rdi, rdi
         movzx rdi, byte[r10 + r11 + 16]
-        CALL_ putchar, 'e'
-        CALL_ putchar, ':'
-        CALL_ putnbr, rdi
-        CALL_ putchar, 10
+        CALL_ my_putchar, 'e'
+        CALL_ my_putchar, ':'
+        CALL_ my_putnbr, rdi
+        CALL_ my_putchar, 10
         jmp .find_space
     .continue_find_space:
 
@@ -2252,9 +1905,9 @@ show_malloc:
     .go_next_malloc_page:
         cmp qword [r10], 0
         je .bye
-        CALL_ putchar, 'n'
-        CALL_ putchar, 'p'
-        CALL_ putchar, 10
+        CALL_ my_putchar, 'n'
+        CALL_ my_putchar, 'p'
+        CALL_ my_putchar, 10
         mov r10, qword [r10]
         mov r11, -1
         jmp .find_space

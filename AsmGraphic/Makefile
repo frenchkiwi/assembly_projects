@@ -7,7 +7,7 @@
 
 NAME = test
 
-SRC = main.c \
+SRC = src/main.c \
 
 OBJ = $(SRC:.c=.o)
 
@@ -25,14 +25,27 @@ run:
 	@$(MAKE) -s re
 	@echo > run
 	@echo "#! /bin/bash" >> run
-	@#echo "xhost + local: > /dev/null 2>&1" >> run
 	@echo export LD_LIBRARY_PATH='"./lib/:$$''LD_LIBRARY_PATH"' >> run
 	@echo export LD_PRELOAD='"./lib/libAsmGraphic.so:$$''LD_PRELOAD"' >> run
 	@echo ./$(NAME) >> run
 	@echo echo exit code: '$$''?' >> run
 	@echo "export LD_LIBRARY_PATH=" >> run
 	@echo "export LD_PRELOAD=" >> run
-	@#echo "xhost - local: > /dev/null 2>&1" >> run
+	@chmod +x run
+	@-./run
+	@rm -rf run
+	@$(MAKE) -s fclean
+
+debug:
+	@$(MAKE) -s re
+	@echo > run
+	@echo "#! /bin/bash" >> run
+	@echo export LD_LIBRARY_PATH='"./lib/:$$''LD_LIBRARY_PATH"' >> run
+	@echo export LD_PRELOAD='"./lib/libAsmGraphic.so:$$''LD_PRELOAD"' >> run
+	@echo valgrind  ./$(NAME) >> run
+	@echo echo exit code: '$$''?' >> run
+	@echo "export LD_LIBRARY_PATH=" >> run
+	@echo "export LD_PRELOAD=" >> run
 	@chmod +x run
 	@-./run
 	@rm -rf run
