@@ -48,9 +48,6 @@ void analize_event(aLink *link, aWindow *window, aEvent event, global_t *base)
         case aEventMouseButtonPressed:
             my_putstr("button_pressed\n");
             break;
-        case aEventExposure:
-            aDisplayWindow(base->link, base->window);
-            break;
         case aEventWindowMapped:
             my_putstr("window mapped successfully\n");
             break;
@@ -83,39 +80,34 @@ global_t *init(char **env)
     base->window = aCreateWindow(base->link, (short[2]){800, 600});
     base->rect = aCreateRectangle((aPosSize){50, 120, 700, 10}, (aColor){255, 255, 0});
     base->text = aCreateText("Raph est gay!", (aPos){100, 100}, (aColor){0, 200, 255});
-    base->ts = malloc(sizeof(struct timespec));
-    clock_gettime(CLOCK_REALTIME, base->ts);
-    base->timer_base = base->ts->tv_sec * 1000000000 + base->ts->tv_nsec;
     return base;
 }
 
 int main(int ac, char **av, char **env)
 {
     global_t *base = init(env);
+    struct timespec ts[2];
     
+    clock_gettime(CLOCK_REALTIME, ts);
+    ts[1] = ts[0];
     aOpenFont(base->link, "fixed");
     aMapWindow(base->link, base->window);
-    // add
+    aSetWindowFps(base->window, 60);
     // error case for mapwindow avec un get reply pour le message de mapping
-    display(base->link, base->window, base->rect, base->text);
     while (aIsWindowOpen(base->window)) {
         while (aPollEvent(base->link, &base->event))
             analize_event(base->link, base->window, base->event, base);
-        clock_gettime(CLOCK_REALTIME, base->ts);
-        base->timer_diff = base->ts->tv_sec * 1000000000 + base->ts->tv_nsec;
-        if (base->timer_diff - base->timer_base
-        >= 1000000000 / aGetWindowFps(base->window)) {
-            // printf("%.0f fps\n", 1000000000 / (double)(base->timer_diff - base->timer_base));
-            base->timer_base = base->timer_diff;
-            update(base->link, base->window);
-            display(base->link, base->window, base->rect, base->text);
-        }
+        update(base->link, base->window);
+        display(base->link, base->window, base->rect, base->text);
+        clock_gettime(CLOCK_REALTIME, ts);
+        printf("fps: %.2f\n\n", 1000000000 / (double)((ts[0].tv_sec * 1000000000 + ts[0].tv_nsec)
+        - (ts[1].tv_sec * 1000000000 + ts[1].tv_nsec)));
+        ts[1] = ts[0];
     }
     aDestroyText(base->text);
     aDestroyRectangle(base->rect);
     aDestroyWindow(base->link, base->window);
     aCloseLink(base->link);
-    free(base->ts);
     free(base);
     show_malloc();
     return 0;

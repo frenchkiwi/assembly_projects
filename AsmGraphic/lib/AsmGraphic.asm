@@ -1,11 +1,22 @@
 %include "AsmFunctions.asm"
 
+%ifndef ASMGRAPHIC_MACRO
+    %define LINK_SOCKET 0
+    %define LINK_EVENT_QUEUE 4
+    %define LINK_HEADER 12
+    %define LINK_BODY 20
+    %define LINK_ID 24
+    %define EVENT_NEXT 0
+    %define EVENT_TYPE 8
+%endif
+
 section .data
     generate_id dd 0
-    font_error dd "Font can't be load."
-    closed_atom dd "WM_DELETE_WINDOW", 0
-    xauthority dd "XAUTHORITY=", 0
-    xdisplay dd "DISPLAY=", 0
+    font_error db "Font can't be load."
+    closed_atom db "WM_DELETE_WINDOW", 0
+    xauthority db "XAUTHORITY=", 0
+    xdisplay db "DISPLAY=", 0
+    clock_display dq 0
 
 section .text
     global aCreateLink
@@ -24,6 +35,7 @@ section .text
     global aIsWindowResizing
     global aClearWindow
     global aDisplayWindow
+    global aSetWindowFps
     global aGetWindowFps
     global aGetWindowPosition
     global aGetWindowSize
@@ -77,7 +89,7 @@ aCreateLink:
     mov rsi, 1
     mov rdx, 0
     syscall
-    mov r8, rax
+    mov r8, rax ; set fd socket in r8
 
     pop r9
     pop r10
@@ -115,7 +127,7 @@ aCreateLink:
     mov rdi, r8
     mov rsi, r9
     mov rdx, 110
-    syscall
+    syscall ; connect to socket
 
     pop r10
     cmp rax, 0
@@ -128,7 +140,7 @@ aCreateLink:
     mov rax, 2
     mov rdi, r10
     mov rsi, 0
-    syscall
+    syscall ; open the xauth for get key auth
 
     cmp rax, -1
     je .bye_error
@@ -225,7 +237,7 @@ aCreateLink:
 
     mov rax, 3
     mov rdi, r8
-    syscall
+    syscall ; close the xauth file
 
     cmp rax, 0
     jne .bye_error_my_free
@@ -308,11 +320,11 @@ aCreateLink:
     mov rax, 1
     mov rdi, r8
     mov rsi, r10
-    syscall
+    syscall ; send the connection request
 
     CALL_ my_free, r10
     
-    CALL_ my_calloc, 8, 0
+    CALL_ my_calloc, 8, 0 ; alloc header
     mov r11, rax
 
     push r11
@@ -320,44 +332,40 @@ aCreateLink:
     mov rdi, r8
     mov rsi, r11
     mov rdx, 8
-    syscall
+    syscall ; read header
     pop r11
 
-    cmp byte[r11], 1
-    jne .bye_error
+    mov r9, r11
+    cmp byte[r11], 1 ; check if all good
+    jne .bye_error_my_free
 
     xor r10, r10
-    mov r10w, word[r11 + 6]
+    mov r10w, word[r11 + 6] ; get anwser length
 
     mov rax, r10
     mov rbx, 4
-    mul rbx
+    mul rbx ; get anwer real length 
 
     push rax
-    mov rdi, rax
-    add rdi, 20
-    CALL_ my_calloc, rdi, 0
+    mov rdi, rax ; size of anwser
+    add rdi, 20 ; size of header + event_queue
+    CALL_ my_calloc, rdi, 0 ; alloc the link
     mov r9, rax
     pop r10
 
-    mov dword[r9], r8d
+    mov dword[r9 + LINK_SOCKET], r8d ; set fd scoket in link
 
-    mov rcx, 11
-    .loop_copy_header:
-        inc rcx
-        mov dl, byte[r11 + rcx - 4]
-        mov byte[r9 + rcx], dl
-        cmp rcx, 12
-        jne .loop_copy_header
+    mov rdx, qword[r11]
+    mov qword[r9 + LINK_HEADER], rdx ; set header in link
 
     CALL_ my_free, r11
 
     mov rax, 0
     movzx rdi, byte[r9]
     mov rsi, r9
-    add rsi, 20
+    add rsi, LINK_BODY
     mov rdx, r10
-    syscall
+    syscall ; read the body into link
 
     cmp rax, 20
     jl .bye_error_my_free
@@ -372,11 +380,11 @@ aCreateLink:
     CALL_ my_malloc, 24 ; add basic need for this request
     mov r9, rax ; set my message
 
-    mov byte[r9], 55 ; code
+    mov byte[r9], 55 ; code create gc
     mov word[r9 + 2], 6 ; length of request
 
     mov r10d, dword[r8 + 24]
-    mov dword[r9 + 4], r10d
+    mov dword[r9 + 4], r10d ; set cid
     mov r10d, dword[rel generate_id]
     add dword[r9 + 4], r10d ; set context_id
     inc dword[rel generate_id]
@@ -425,6 +433,9 @@ aCreateLink:
         call my_free
         mov rax, 0
         ret
+
+aThreadEvent:
+    ret
 
 aCloseLink:
     cmp rdi, 0
@@ -572,7 +583,7 @@ aCreateWindow:
 
     mov dword[r9 + 32], 0; set first value at purple
 
-    mov dword[r9 + 36], 163845 ; key press | button press | structure_notify
+    mov dword[r9 + 36], 131077 ; key press | button press | structure_notify
 
     mov rax, 1
     xor rdi, rdi
@@ -1277,6 +1288,10 @@ aIsWindowResizing:
     mov rax, 1
     ret
 
+aSetWindowFps:
+    mov byte[rdi + 17], sil
+    ret
+
 aGetWindowFps:
     xor rax, rax
     mov al, byte[rdi + 17]
@@ -1317,6 +1332,70 @@ aClearWindow:
 aDisplayWindow:
     cmp byte[rsi + 18], 0
     je .bye
+
+    push rdi
+    push rsi
+    CALL_ my_malloc, 16
+    mov r9, rax
+
+    mov rax, 228
+    mov rdi, 0
+    lea rsi, [r9]
+    syscall
+
+    mov rax, qword[r9] ; get sec
+    mov rbx, 1000000000
+    mul rbx ; convert into sec
+    mov rbx, qword[r9 + 8] ; get nanosec
+    add rax, rbx ; add nanosec
+    sub rax, qword[rel clock_display] ; get the delay between frame
+
+    pop rsi
+    push rsi
+    push rax
+    mov rax, 1000000000
+    xor rdx, rdx
+    xor rbx, rbx
+    mov bl, byte[rsi + 17]
+    div rbx
+    mov r8, rax ; get the fps value for wanted delay
+    pop rax
+
+    sub r8, rax
+    cmp r8, 0 ; check if need to sleep
+    jle .bye_delay
+
+    mov rax, r8
+    xor rdx, rdx
+    mov rbx, 1000000000
+    div rbx ; get nanosec of sleep wanted
+
+    mov qword[r9], rax ; set sec
+    mul rbx
+    sub r8, rax
+    mov qword[r9 + 8], r8 ; set nanosec
+
+    mov rax, 35
+    lea rdi, [r9]
+    xor rsi, rsi
+    syscall ; nanosleep
+
+    .bye_delay:
+    mov rax, 228
+    mov rdi, 0
+    lea rsi, [r9]
+    syscall
+
+    mov rax, qword[r9] ; get sec
+    mov rbx, 1000000000
+    mul rbx ; convert into sec
+    mov rbx, qword[r9 + 8] ; get nanosec
+    add rax, rbx ; add nanosec
+    mov qword[rel clock_display], rax ; save the act time for next display
+
+    CALL_ my_free, r9
+    pop rsi
+    pop rdi
 
     CALL_ my_malloc, 28
     mov r9, rax

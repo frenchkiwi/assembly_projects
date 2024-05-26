@@ -96,6 +96,8 @@ section .text
     global my_calloc
     global my_realloc
     global show_malloc
+    global futex_lock
+    global futex_unlock
 
 my_putchar:
     mov dl, dil
@@ -1911,3 +1913,42 @@ show_malloc:
         mov r10, qword [r10]
         mov r11, -1
         jmp .find_space
+
+futex_lock:
+    mov rax, 1
+    lock xchg byte[rdi], al
+    cmp rax, 0
+    je .bye
+    .loop:
+        mov rax, 2
+        lock xchg byte[rdi], al
+        cmp rax, 0
+        je .bye
+        mov rax, 202
+        mov rdi, rdi
+        mov rsi, 0
+        mov rdx, 2
+        mov r10, 0
+        mov r8, 0
+        syscall
+        jmp .loop
+    .bye:
+        ret
+
+futex_unlock:
+    mov rax, rsi
+    neg rax
+    lock xadd byte[rdi], al
+    cmp rax, 1
+    je .bye
+    mov rax, 0
+    lock xchg byte[rdi], al
+    mov rax, 202
+    mov rdi, rdi
+    mov rsi, 1
+    mov rdx, 1
+    mov r10, 0
+    mov r8, 0
+    syscall
+    .bye:
+        ret

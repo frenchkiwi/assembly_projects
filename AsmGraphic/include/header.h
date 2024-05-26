@@ -16,9 +16,6 @@ typedef struct global_s {
     aEvent event;
     aRectangle *rect;
     aText *text;
-    struct timespec *ts;
-    long timer_base;
-    long timer_diff;
 } global_t;
 
 #endif

@@ -31,9 +31,10 @@
 
 #define aPURPLE (unsigned char[3]){200, 0, 255}
 
+// +0 4byte fd socket | +4 8byte event_queue | +12 8byte header | +20 request body
 typedef struct AsmLink aLink;
 
-// 4byte window_id | 4byte pixmap_id | 4byte window_pos | 4byte window_size | 1byte window_depth | 1byte window_fps | 1byte window_state | 1byte window_event (1 == move | 2 == resize)
+// +0 4byte window_id | +4 4byte pixmap_id | +8 4byte window_pos | +12 4byte window_size | +16 1byte window_depth | +17 1byte window_fps | +18 1byte window_state | +19 1byte window_event (1 == move | 2 == resize)
 typedef struct AsmWindow aWindow;
 
 typedef unsigned char aColor[3];
@@ -82,9 +83,11 @@ int aIsWindowMoving(aWindow *window);
 
 int aIsWindowResizing(aWindow *window);
 
-int aIsWindowClosing(aLink *lin, aWindow *window, aEvent *event);
+int aIsWindowClosing(aLink *link, aWindow *window, aEvent *event);
 
 int aIsWindowOpen(aWindow *window);
+
+aFps aSetWindowFps(aWindow *window, char fps);
 
 aFps aGetWindowFps(aWindow *window);
 

@@ -5,7 +5,7 @@
 ## Makefile
 ##
 
-NAME = libAsmGraphic.so
+NAME = libAsmGraphic.a
 
 SRC = AsmGraphic.asm
 
@@ -14,7 +14,7 @@ OBJ = $(SRC:.asm=.o)
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	gcc -shared -o $(NAME) $^ -z execstack
+	ar rc $(NAME) $(OBJ)
 
 %.o: %.asm
 	nasm -f elf64 $< -o $@
