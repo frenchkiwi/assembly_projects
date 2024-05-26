@@ -1335,7 +1335,7 @@ aDisplayWindow:
 
     push rdi
     push rsi
-    CALL_ my_malloc, 16
+    CALL_ my_malloc, 28
     mov r9, rax
 
     mov rax, 228
@@ -1393,12 +1393,8 @@ aDisplayWindow:
     add rax, rbx ; add nanosec
     mov qword[rel clock_display], rax ; save the act time for next display
 
-    CALL_ my_free, r9
     pop rsi
     pop rdi
-
-    CALL_ my_malloc, 28
-    mov r9, rax
 
     mov byte[r9], 62 ; code copy area
     mov word[r9 + 2], 7 ; length

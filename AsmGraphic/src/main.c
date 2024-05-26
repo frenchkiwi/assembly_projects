@@ -86,23 +86,16 @@ global_t *init(char **env)
 int main(int ac, char **av, char **env)
 {
     global_t *base = init(env);
-    struct timespec ts[2];
     
-    clock_gettime(CLOCK_REALTIME, ts);
-    ts[1] = ts[0];
     aOpenFont(base->link, "fixed");
     aMapWindow(base->link, base->window);
-    aSetWindowFps(base->window, 60);
+    aSetWindowFps(base->window, 244);
     // error case for mapwindow avec un get reply pour le message de mapping
     while (aIsWindowOpen(base->window)) {
         while (aPollEvent(base->link, &base->event))
             analize_event(base->link, base->window, base->event, base);
         update(base->link, base->window);
         display(base->link, base->window, base->rect, base->text);
-        clock_gettime(CLOCK_REALTIME, ts);
-        printf("fps: %.2f\n\n", 1000000000 / (double)((ts[0].tv_sec * 1000000000 + ts[0].tv_nsec)
-        - (ts[1].tv_sec * 1000000000 + ts[1].tv_nsec)));
-        ts[1] = ts[0];
     }
     aDestroyText(base->text);
     aDestroyRectangle(base->rect);
