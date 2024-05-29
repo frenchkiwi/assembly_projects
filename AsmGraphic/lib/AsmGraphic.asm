@@ -522,6 +522,32 @@ aThreadEvent:
 aCloseLink:
     cmp rdi, 0
     je .bye_error
+    
+    .clear_queue:
+        mov r9, qword[rdi + 4] ; get the thread_info
+        add r9, 14
+        cmp qword[r9], 0
+        je .close_thread
+        mov r10, r9
+        .go_to_next:
+            mov r9, qword[r9]
+            cmp qword[r9], 0
+            je .find_event
+            mov r10, qword[r10]
+            jmp .go_to_next
+        .find_event:
+            mov r11, qword[rdi + 4]
+            CALL_ futex_lock, r11
+            mov qword[r10], 0
+            CALL_ futex_unlock, r11
+            CALL_ my_free, r9
+            jmp .clear_queue
+
+    .close_thread:
+    mov r9, qword[rdi + 4] ; get the thread_info
+    mov r11, qword[r9 + 6]
+    CALL_ my_free, r11
+    CALL_ my_free, r9
 
     CALL_ my_malloc, 4
     mov r9, rax
@@ -547,7 +573,7 @@ aCloseLink:
     ret
     .bye_error:
         mov rax, -1
-        ret
+        ret       
 
 aCreateContext:
     xor r8, r8
