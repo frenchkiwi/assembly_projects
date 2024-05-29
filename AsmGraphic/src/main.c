@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 
 void display(aLink *link, aWindow *window, aRectangle *rect, aText *text)
 {

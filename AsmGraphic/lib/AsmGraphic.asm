@@ -427,11 +427,11 @@ aCreateLink:
 
     pop r10 ; get the link
     push r10
-    CALL_ my_calloc, 22
+    CALL_ my_calloc, 22, 0
     mov r9, rax ; create the thread_info struct
     mov qword[r10 + 4], r9 ; set the thread_info into link
 
-    CALL_ my_calloc, 1024 * 1024
+    CALL_ my_calloc, 1024 * 1024, 0
     mov r10, rax ; create stack for thread
     mov qword[r9 + 6], r10 ; set thread stack on the thread_info
 
@@ -440,11 +440,12 @@ aCreateLink:
     mov rsi, r10 ; load the stack pointer
     add rsi, 1024 * 1024 ; put stack pointer to base of stack
     lea rdx, [r9 + 2] ; set the tid store zone
+    pop r9
     xor r10, r10
     xor r8, r8
     syscall
 
-    pop r10
+    mov r10, r9
 
     cmp rax, 0
     je aThreadEvent
@@ -461,12 +462,13 @@ aCreateLink:
         mov rax, 0
         ret
 
-; r8 store the event
-; r9 store the thread_info
-; r10 store link
 aThreadEvent:
+    ; r8 store the event
+    ; r9 store the thread_info
+    ; r10 store link
+    mov r9, qword[r10 + 4]
     .loop:
-        CALL_ my_calloc, 40
+        CALL_ my_calloc, 40, 0
         mov r8, rax ; alloc the event
         mov rax, 0 ; code for read
         xor rdi, rdi
@@ -475,6 +477,8 @@ aThreadEvent:
         mov rdx, 32 ; read a basic 
         syscall
 
+        cmp byte[r8 + 0], 1
+        jne .add_to_queue
         cmp dword[r8 + 12], 0
         je .add_to_queue ; if no more data add the event to queue
 
@@ -485,7 +489,7 @@ aThreadEvent:
         push rax ; save the length of extra data
         add rax, 40 ; set the size of the new event
 
-        CALL_ my_calloc, rax ; alloc the right one event
+        CALL_ my_calloc, rax, 0; alloc the right one event
 
         mov r11, qword[r8 + 8]
         mov qword[rax + 8], r11
@@ -605,7 +609,7 @@ aCreateContext:
 
 aCreateWindow:
     xor r8, r8
-    mov r8, rdi ; get socket_fd
+    mov r8, rdi ; get link
     
     push rdi
     push r8
@@ -722,17 +726,16 @@ aCreateWindow:
 
     CALL_ my_free, r9
 
-    CALL_ my_malloc, 32
+    pop rsi
+    pop rdi
+    push rdi
+    push rsi
+
+    CALL_ wait_reply, rdi
     mov r9, rax
 
-    mov rax, 0
-    mov rdi, rdi
-    lea rsi, [r9]
-    mov rdx, 32
-    syscall
-
     xor r8, r8
-    mov r8d, dword[r9 + 8]
+    mov r8d, dword[r9 + 16]
 
     CALL_ my_free, r9
 
@@ -757,24 +760,24 @@ aCreateWindow:
     mov byte[r9 + 19], 'S'
 
     mov rax, 1
-    mov rdi, rdi
+    xor r10, r10
+    mov r10d, dword[rdi]
+    mov rdi, r10
     lea rsi, [r9]
     mov rdx, 20
     syscall
 
     CALL_ my_free, r9
 
-    CALL_ my_malloc, 32
+    pop rsi
+    pop rdi
+    push rdi
+    push rsi
+    CALL_ wait_reply, rdi
     mov r9, rax
 
-    mov rax, 0
-    mov rdi, rdi
-    lea rsi, [r9]
-    mov rdx, 32
-    syscall
-
     xor r10, r10
-    mov r10d, dword[r9 + 8]
+    mov r10d, dword[r9 + 16]
 
     CALL_ my_free, r9
 
@@ -794,7 +797,9 @@ aCreateWindow:
 
     push rsi
     mov rax, 1
-    mov rdi, rdi
+    xor r10, r10
+    mov r10d, dword[rdi]
+    mov rdi, r10
     lea rsi, [r9]
     mov rdx, 28
     syscall
@@ -830,14 +835,14 @@ aCreateWindow:
     CALL_ wait_reply, rdi
 
     pop r8
-    mov r10d, dword[rax + 12]
+    mov r10d, dword[rax + 20]
     mov dword[r8 + 8], r10d
-    mov r11d, dword[rax + 16]
+    mov r11d, dword[rax + 24]
     mov dword[r8 + 12], r11d
-    mov r10b, byte[rax + 1]
+    mov r10b, byte[rax + 9]
     mov byte[r8 + 16], r10b
     push r8
-    mov r8b, byte[rax + 1]
+    mov r8b, byte[rax + 9]
 
     CALL_ my_free, rax
 
@@ -1036,142 +1041,35 @@ aOpenFont:
         ret
 
 aPollEvent:
-    cmp qword[rdi + 4], 0
-    jne .read_queue
-
-    push rdi
-    push rsi
-    mov rax, 72
-    xor r10, r10
-    mov r10d, dword[rdi]
-    mov rdi, r10
-    mov rsi, 3
-    mov rdx, 0
-    syscall
-
-    mov rdx, rax
-    or rdx, 2048
-
-    mov rax, 72
-    mov rsi, 4
-    mov rdx, rdx
-    syscall
-    pop rsi
-    pop rdi
-
-    CALL_ my_malloc, 8
-    mov r9, rax
-
-    mov r10d, dword[rdi]
-    mov dword[r9], r10d
-    mov dword[r9 + 4], 1
-
-    push rdi
-    push rsi
-    mov rax, 7
-    lea rdi, [r9]
-    mov rsi, 1
-    mov rdx, 0
-    syscall
-    pop rsi
-    pop rdi
-
-    cmp rax, 0
-    je .bye_no_event
-
-    cmp word[r9 + 6], 8
-    je _exit
-
-    cmp word[r9 + 6], 16
-    je _exit
-
-    CALL_ my_free, r9
-
-    CALL_ my_calloc, 32, 0
-    mov r9, rax
-
-    push rdi
-    push rsi
-    mov rax, 0
-    xor r10, r10
-    mov r10d, dword[rdi]
-    mov rdi, r10
-    lea rsi, [r9]
-    mov rdx, 32
-    syscall
-    pop rsi
-    pop rdi
-
-    cmp rax, 1
-    jle _exit
-
-    mov r10, qword[r9]
-    mov qword[rsi], r10
-    mov r10, qword[r9 + 8]
-    mov qword[rsi + 8], r10
-    mov r10, qword[r9 + 16]
-    mov qword[rsi + 16], r10
-    mov r10, qword[r9 + 24]
-    mov qword[rsi + 24], r10
-
-    CALL_ my_free, r9
-
-    mov rax, 72
-    xor r10, r10
-    mov r10d, dword[rdi]
-    mov rdi, r10
-    mov rsi, 3
-    mov rdx, 0
-    syscall
-
-    mov rdx, rax
-    xor rdx, 2048
-
-    mov rax, 72
-    mov rsi, 4
-    mov rdx, rdx
-    syscall
-
-    mov rax, 1
-    ret
-    .bye_no_event:
+    mov r9, qword[rdi + 4] ; get the thread_info
+    add r9, 14
+    cmp qword[r9], 0
+    je .empty_queue
+    mov r10, r9
+    .go_to_next:
+        mov r9, qword[r9]
+        cmp qword[r9], 0
+        je .find_event
+        mov r10, qword[r10]
+        jmp .go_to_next
+    .find_event:
+        mov r11, qword[rdi + 4]
+        CALL_ futex_lock, r11
+        mov qword[r10], 0
+        CALL_ futex_unlock, r11
+        mov r11, qword[r9 + 8]
+        mov qword[rsi], r11
+        mov r11, qword[r9 + 16]
+        mov qword[rsi + 8], r11
+        mov r11, qword[r9 + 24]
+        mov qword[rsi + 16], r11
+        mov r11, qword[r9 + 32]
+        mov qword[rsi + 24], r11
         CALL_ my_free, r9
-
-        mov rax, 72
-        xor r10, r10
-        mov r10d, dword[rdi]
-        mov rdi, r10
-        mov rsi, 3
-        mov rdx, 0
-        syscall
-
-        mov rdx, rax
-        xor rdx, 2048
-
-        mov rax, 72
-        mov rsi, 4
-        mov rdx, rdx
-        syscall
-        mov rax, 0
-        ret
-
-    .read_queue:
-        mov r9, qword[rdi + 4]
-        mov r10, qword[r9 + 32]
-        mov qword[rdi + 4], r10
-
-        mov r10, qword[r9]
-        mov qword[rsi], r10
-        mov r10, qword[r9 + 8]
-        mov qword[rsi + 8], r10
-        mov r10, qword[r9 + 16]
-        mov qword[rsi + 16], r10
-        mov r10, qword[r9 + 24]
-        mov qword[rsi + 24], r10
-
-        CALL_ my_free, r9
-
         mov rax, 1
+        ret
+    .empty_queue:
+        mov rax, 0
         ret
 
 aWindowUpdate:
@@ -1311,7 +1209,7 @@ aIsWindowClosing:
     mov rdi, r10
 
     xor r10, r10
-    mov r10w, word[r9 + 8]
+    mov r10w, word[r9 + 16]
     cmp r10w, 16
     jne .bye_zero
 
@@ -1760,40 +1658,25 @@ _exit:
     syscall
 
 wait_reply:
+    mov r9, qword[rdi + 4] ; get the thread_info
+    mov r10, r9
+    add r10, 14 ; set the r8 to the event
     .loop:
-        CALL_ my_malloc, 40
-        mov r9, rax
-
-        mov qword[r9 + 32], 0
-
-        push rdi
-        mov rax, 0
-        xor r10, r10
-        mov r10d, dword[rdi]
-        mov rdi, r10
-        lea rsi, [r9]
-        mov rdx, 32
-        syscall
-        pop rdi
-
-        cmp byte[r9], 1
+        cmp qword[r10], 0
+        je wait_reply
+        mov r8, qword[r10]
+        cmp byte[r8 + 8], 1
         je .quit_loop
-
-        mov r8, rdi
-        sub r8, 28
-
-        .go_to_last:
-            cmp qword[r8 + 32], 0
-            je .save_data
-            mov r8, qword[r8 + 32]
-            jmp .go_to_last
-
-        .save_data:
-        mov qword[r8 + 32], r9
+        jmp _exit
+        mov r10, r8
+        mov r8, qword[r8]
         jmp .loop
-
     .quit_loop:
-    mov rax, r9
+    CALL_ futex_lock, r9
+    mov r11, qword[r8]
+    mov qword[r10], r11
+    CALL_ futex_unlock, r9
+    mov rax, r8
     ret
 
 test_truc:
