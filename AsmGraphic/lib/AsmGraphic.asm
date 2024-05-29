@@ -1,11 +1,14 @@
 %include "AsmFunctions.asm"
 
 %ifndef ASMGRAPHIC_MACRO
+    %define ASMGRAPHIC_MACRO
     %define LINK_SOCKET 0
     %define LINK_EVENT_QUEUE 4
     %define LINK_HEADER 12
     %define LINK_BODY 20
     %define LINK_ID 24
+    %define LINK_VENDOR_LENGTH 36
+    %define LINK_FORMAT_LENGTH 41
     %define EVENT_NEXT 0
     %define EVENT_TYPE 8
 %endif
@@ -383,7 +386,7 @@ aCreateLink:
     mov byte[r9], 55 ; code create gc
     mov word[r9 + 2], 6 ; length of request
 
-    mov r10d, dword[r8 + 24]
+    mov r10d, dword[r8 + LINK_ID]
     mov dword[r9 + 4], r10d ; set cid
     mov r10d, dword[rel generate_id]
     add dword[r9 + 4], r10d ; set context_id
@@ -393,10 +396,10 @@ aCreateLink:
     add r10, 20
     add r10, 32 ; set r10 at end of know info
     xor r11, r11
-    mov r11w, word[r8 + 36]
+    mov r11w, word[r8 + LINK_VENDOR_LENGTH]
     add r10, r11 ; add vendor length
     xor rax, rax
-    mov al, byte[r8 + 41]
+    mov al, byte[r8 + LINK_FORMAT_LENGTH]
     mov r11, 8
     mul r11
     add r10, rax ; add format length
@@ -404,11 +407,11 @@ aCreateLink:
     mov r11d, dword[r10]
     mov dword[r9 + 8], r11d ; set parent
 
-    mov dword[r9 + 12], 65540 ; set flag foreground
+    mov dword[r9 + 12], 0x00010004 ; set flag foreground
 
-    mov dword[r9 + 16], 13107455 ; set color foreground
+    mov dword[r9 + 16], 0x00C800FF ; set color foreground
 
-    mov dword[r9 + 20], 0 ; set color foreground
+    mov dword[r9 + 20], 0x00000000 ; set color foreground
 
     mov rax, 1
     xor rdi, rdi
@@ -422,7 +425,31 @@ aCreateLink:
     mov dword[rdi + 48], r10d
     CALL_ my_free, r9
 
-    pop rax
+    pop r10 ; get the link
+    push r10
+    CALL_ my_calloc, 22
+    mov r9, rax ; create the thread_info struct
+    mov qword[r10 + 4], r9 ; set the thread_info into link
+
+    CALL_ my_calloc, 1024 * 1024
+    mov r10, rax ; create stack for thread
+    mov qword[r9 + 6], r10 ; set thread stack on the thread_info
+
+    mov rax, 56 ; code for clone
+    mov rdi, 0x00110F00 ; flag : vm, fs, files, sighand, thread, parent tid
+    mov rsi, r10 ; load the stack pointer
+    add rsi, 1024 * 1024 ; put stack pointer to base of stack
+    lea rdx, [r9 + 2] ; set the tid store zone
+    xor r10, r10
+    xor r8, r8
+    syscall
+
+    pop r10
+
+    cmp rax, 0
+    je aThreadEvent
+
+    mov rax, r10
     .bye:
         ret
     .bye_error:
@@ -434,7 +461,58 @@ aCreateLink:
         mov rax, 0
         ret
 
+; r8 store the event
+; r9 store the thread_info
+; r10 store link
 aThreadEvent:
+    .loop:
+        CALL_ my_calloc, 40
+        mov r8, rax ; alloc the event
+        mov rax, 0 ; code for read
+        xor rdi, rdi
+        mov edi, dword[r10] ; read fd socket
+        lea rsi, [r8 + 8] ; link the event anwser space
+        mov rdx, 32 ; read a basic 
+        syscall
+
+        cmp dword[r8 + 12], 0
+        je .add_to_queue ; if no more data add the event to queue
+
+        xor rax, rax
+        mov eax, dword[r8 + 12] ; get the extra data length
+        mov rbx, 4
+        mul rbx ; extra data is each 4byte
+        push rax ; save the length of extra data
+        add rax, 40 ; set the size of the new event
+
+        CALL_ my_calloc, rax ; alloc the right one event
+
+        mov r11, qword[r8 + 8]
+        mov qword[rax + 8], r11
+        mov r11, qword[r8 + 16]
+        mov qword[rax + 16], r11
+        mov r11, qword[r8 + 24]
+        mov qword[rax + 24], r11
+        mov r11, qword[r8 + 32]
+        mov qword[rax + 32], r11 ; copy the data of old event into new event
+
+        xchg rax, r8 ; swap value for free
+        CALL_ my_free, rax ; free the old event
+
+        mov rax, 0 ; code for read
+        xor rdi, rdi
+        mov edi, dword[r10] ; read fd socket
+        lea rsi, [r8 + 40] ; link the event anwser space
+        pop rdx ; get back the extra data length
+        syscall
+
+        .add_to_queue:
+        CALL_ futex_lock, r9
+        mov r11, qword[r9 + 14]
+        mov qword[r8], r11
+        mov qword[r9 + 14], r8
+        CALL_ futex_unlock, r9
+        jmp .loop
     ret
 
 aCloseLink:

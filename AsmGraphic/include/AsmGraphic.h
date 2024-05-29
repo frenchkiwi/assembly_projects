@@ -31,7 +31,9 @@
 
 #define aPURPLE (unsigned char[3]){200, 0, 255}
 
-// +0 4byte fd socket | +4 8byte event_queue | +12 8byte header | +20 request body
+//link: +0 4byte fd socket | +4 8byte thread_info | +12 8byte header | +20 request body
+// thread_info: +0 1byte futex | +1 1byte conditionnal variable | +2 4byte thread id | +6 8byte thread_stack | +14 8byte event_queue
+// event_queue: +0 8byte next_event | +8 32byte event_body
 typedef struct AsmLink aLink;
 
 // +0 4byte window_id | +4 4byte pixmap_id | +8 4byte window_pos | +12 4byte window_size | +16 1byte window_depth | +17 1byte window_fps | +18 1byte window_state | +19 1byte window_event (1 == move | 2 == resize)
