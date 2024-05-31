@@ -466,15 +466,40 @@ aThreadEvent:
     ; r8 store the event
     ; r9 store the thread_info
     ; r10 store link
+
     mov r9, qword[r10 + 4]
+    CALL_ my_malloc, 8
+    mov r13, rax ; alloc the poll struct
     .loop:
+        cmp byte[r9 + 1], 1
+        je .bye
+
+        mov r11d, dword[r10]
+        mov dword[r13], r11d
+        mov dword[r13 + 4], 1
+
+        mov rax, 7
+        lea rdi, [r13]
+        mov rsi, 1
+        mov rdx, 0
+        syscall
+        
+        cmp rax, 0
+        je .loop
+
+        cmp word[r13 + 6], 8
+        je _exit
+
+        cmp word[r13 + 6], 16
+        je _exit
+
         CALL_ my_calloc, 40, 0
         mov r8, rax ; alloc the event
         mov rax, 0 ; code for read
         xor rdi, rdi
         mov edi, dword[r10] ; read fd socket
         lea rsi, [r8 + 8] ; link the event anwser space
-        mov rdx, 32 ; read a basic 
+        mov rdx, 32 ; read a basic
         syscall
 
         cmp byte[r8 + 0], 1
@@ -517,17 +542,26 @@ aThreadEvent:
         mov qword[r9 + 14], r8
         CALL_ futex_unlock, r9
         jmp .loop
-    ret
+
+    .bye:
+        CALL_ my_free, r13
+        mov byte[r9 + 1], 0
+        jmp _exit
 
 aCloseLink:
     cmp rdi, 0
     je .bye_error
     
+    mov r9, qword[rdi + 4] ; get the thread_info
+    mov byte[r9 + 1], 1
+    .wait_thread_close:
+        cmp byte[r9 + 1], 0
+        jne .wait_thread_close
     .clear_queue:
         mov r9, qword[rdi + 4] ; get the thread_info
         add r9, 14
         cmp qword[r9], 0
-        je .close_thread
+        je .delete_thread
         mov r10, r9
         .go_to_next:
             mov r9, qword[r9]
@@ -543,7 +577,7 @@ aCloseLink:
             CALL_ my_free, r9
             jmp .clear_queue
 
-    .close_thread:
+    .delete_thread:
     mov r9, qword[rdi + 4] ; get the thread_info
     mov r11, qword[r9 + 6]
     CALL_ my_free, r11
