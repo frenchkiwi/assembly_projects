@@ -12,21 +12,24 @@
 #include <time.h>
 #include <unistd.h>
 
-void display(aLink *link, aWindow *window, aRectangle *rect, aText *text)
+void display(void *arg)
 {
-    aClearWindow(link, window);
-    aDrawRectangle(link, window, rect);
-    aDrawText(link, window, text);
-    aDisplayWindow(link, window);
+    arg_display_t *args = arg;
+
+    aClearWindow(args->link, args->window);
+    aDrawRectangle(args->link, args->window, args->rect);
+    aDrawText(args->link, args->window, args->text);
+    aDisplayWindow(args->link, args->window);
 }
 
-void update(aLink *link, aWindow *window)
+void update(void *arg)
 {
+    arg_update_t *args = arg;
     aPos pos;
     aSize size;
 
-    pos = aGetWindowPosition(window);
-    size = aGetWindowSize(window);
+    pos = aGetWindowPosition(args->window);
+    size = aGetWindowSize(args->window);
 }
 
 void analize_event(aLink *link, aWindow *window, aEvent event, global_t *base)
@@ -75,34 +78,42 @@ void analize_event(aLink *link, aWindow *window, aEvent event, global_t *base)
 
 global_t *init(char **env)
 {
-    global_t *base = malloc(sizeof(global_t));
+    global_t *base = my_malloc(sizeof(global_t));
 
     base->link = aCreateLink(env);
     base->window = aCreateWindow(base->link, (short[2]){800, 600});
     base->rect = aCreateRectangle((aPosSize){50, 120, 700, 10}, (aColor){255, 255, 0});
     base->text = aCreateText("Raph est gay!", (aPos){100, 100}, (aColor){0, 200, 255});
+    base->arg_update = (arg_update_t){base->link, base->window};
+    base->arg_display =
+    (arg_display_t){base->link, base->window, base->rect, base->text};
     return base;
 }
 
 int main(int ac, char **av, char **env)
 {
     global_t *base = init(env);
+    aTask task_update;
+    aTask task_display;
     
+    aSetTask(task_update, &update, &base->arg_update, 2);
+    aSetTask(task_display, &display, &base->arg_display, 1.0 / 60.0);
     aOpenFont(base->link, "fixed");
     aMapWindow(base->link, base->window);
-    aSetWindowFps(base->window, 244);
     // error case for mapwindow avec un get reply pour le message de mapping
     while (aIsWindowOpen(base->window)) {
         while (aPollEvent(base->link, &base->event))
             analize_event(base->link, base->window, base->event, base);
-        update(base->link, base->window);
-        display(base->link, base->window, base->rect, base->text);
+        update(&base->arg_update);
+        display(&base->arg_display);
+        // aRunTask(&task_update);
+        // aRunTask(&task_display);
     }
     aDestroyText(base->text);
     aDestroyRectangle(base->rect);
     aDestroyWindow(base->link, base->window);
     aCloseLink(base->link);
-    free(base);
+    my_free(base);
     show_malloc();
     return 0;
 }

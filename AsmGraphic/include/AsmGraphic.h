@@ -31,6 +31,18 @@
 
 #define aPURPLE (unsigned char[3]){200, 0, 255}
 
+#define aSecond(time) (long)((double)(time))
+#define aNanoSecond(time) 
+
+#define aSetTask(name, function_addr, arg_addr, delay) \
+    do { \
+        name.function = function_addr; \
+        name.arg = arg_addr; \
+        name.interval[0] = (long)((double)delay); \
+        name.interval[1] = (long)((double)((double)(delay) - aSecond(delay)) * 1000000000); \
+        name.last_time = 0; \
+    } while (0)
+
 //link: +0 4byte fd socket | +4 8byte thread_info | +12 8byte header | +20 request body
 // thread_info: +0 1byte futex | +1 1byte conditionnal variable | +2 4byte thread id | +6 8byte thread_stack | +14 8byte event_queue
 // event_queue: +0 8byte next_event | +8 32byte event_body
@@ -64,12 +76,16 @@ typedef struct {
     char data[32];
 } aEvent;
 
+typedef struct {
+    void (*function)(void *);
+    void *arg;
+    long interval[2];
+    long last_time;
+} aTask;
+
 typedef struct AsmText aText;
 
 typedef struct AsmRectangle aRectangle;
-
-// void aCreateContext(aLink *);
-
 
 // Fonction Event
 
@@ -88,10 +104,6 @@ int aIsWindowResizing(aWindow *window);
 int aIsWindowClosing(aLink *link, aWindow *window, aEvent *event);
 
 int aIsWindowOpen(aWindow *window);
-
-aFps aSetWindowFps(aWindow *window, char fps);
-
-aFps aGetWindowFps(aWindow *window);
 
 aPos aGetWindowPosition(aWindow *window);
 
@@ -144,5 +156,7 @@ void aDestroyRectangle(aRectangle *rect);
 // Miscellaneous
 
 void aBell(aLink *link, char volume);
+
+void aRunTask(aTask *task);
 
 #endif

@@ -38,8 +38,6 @@ section .text
     global aIsWindowResizing
     global aClearWindow
     global aDisplayWindow
-    global aSetWindowFps
-    global aGetWindowFps
     global aGetWindowPosition
     global aGetWindowSize
     global aCreateText
@@ -49,6 +47,7 @@ section .text
     global aDrawRectangle
     global aDestroyRectangle
     global aBell
+    global aRunTask
     global test_truc
 
 aCreateLink:
@@ -484,14 +483,14 @@ aThreadEvent:
         mov rdx, 0
         syscall
         
-        cmp rax, 0
-        je .loop
-
         cmp word[r13 + 6], 8
         je _exit
 
         cmp word[r13 + 6], 16
         je _exit
+
+        cmp rax, 0
+        je .loop
 
         CALL_ my_calloc, 40, 0
         mov r8, rax ; alloc the event
@@ -541,6 +540,7 @@ aThreadEvent:
         mov qword[r8], r11
         mov qword[r9 + 14], r8
         CALL_ futex_unlock, r9
+
         jmp .loop
 
     .bye:
@@ -1324,15 +1324,6 @@ aIsWindowResizing:
     mov rax, 1
     ret
 
-aSetWindowFps:
-    mov byte[rdi + 17], sil
-    ret
-
-aGetWindowFps:
-    xor rax, rax
-    mov al, byte[rdi + 17]
-    ret
-
 aGetWindowPosition:
     xor rax, rax
     mov eax, dword[rdi + 8]
@@ -1756,4 +1747,61 @@ test_truc:
 
     CALL_ my_free, r9
 
+    ret
+
+aRunTask:
+    cmp rdi, 0
+    je .bye
+    cmp qword[rdi], 0
+    je .bye
+
+    CALL_ my_malloc, 28
+    mov r9, rax
+
+    push rdi
+    mov rax, 228
+    mov rdi, 0
+    lea rsi, [r9]
+    syscall
+    pop rdi
+
+    mov rax, qword[r9] ; get sec
+    mov rbx, 1000000000
+    mul rbx ; convert into sec
+    mov rbx, qword[r9 + 8] ; get nanosec
+    add rax, rbx ; add nanosec
+    sub rax, qword[rdi + 32] ; get the delay between frame
+
+    push rax
+    mov rax, qword[rdi + 16] ; get sec
+    mov rbx, 1000000000
+    mul rbx ; convert into sec
+    mov rbx, qword[rdi + 24] ; get nanosec
+    add rax, rbx ; add nanosec
+    mov r8, rax ; get the fps value for wanted delay
+    pop rax
+
+    sub r8, rax
+    cmp r8, 0 ; check if need to sleep
+    jg .bye
+
+    push rdi
+    mov rax, 228
+    mov rdi, 0
+    lea rsi, [r9]
+    syscall
+    pop rdi
+
+    mov rax, qword[r9] ; get sec
+    mov rbx, 1000000000
+    mul rbx ; convert into sec
+    mov rbx, qword[r9 + 8] ; get nanosec
+    add rax, rbx ; add nanosec
+    mov qword[rdi + 32], rax ; save the act time for next display
+
+    mov r10, qword[rdi]
+    mov r11, qword[rdi + 8]
+    CALL_ r10, r11
+    .bye:
+    CALL_ my_free, r9
     ret
