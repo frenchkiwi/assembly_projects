@@ -15,11 +15,11 @@
 
 section .data
     generate_id dd 0
-    font_error db "Font can't be load."
+    font_error db "Font can't be load.", 0
+    event_error db "Request contain an error", 0
     closed_atom db "WM_DELETE_WINDOW", 0
     xauthority db "XAUTHORITY=", 0
     xdisplay db "DISPLAY=", 0
-    clock_display dq 0
 
 section .text
     global aCreateLink
@@ -27,6 +27,7 @@ section .text
     global aCreateContext
     global aCreateWindow
     global aMapWindow
+    global aRenameWindow
     global aCloseWindow
     global aDestroyWindow
     global aOpenFont
@@ -48,7 +49,6 @@ section .text
     global aDestroyRectangle
     global aBell
     global aRunTask
-    global test_truc
 
 aCreateLink:
     mov rcx, 0
@@ -501,7 +501,9 @@ aThreadEvent:
         mov rdx, 32 ; read a basic
         syscall
 
-        cmp byte[r8 + 0], 1
+        cmp byte[r8 + 8], 0
+        je .error_detect
+        cmp byte[r8 + 8], 1
         jne .add_to_queue
         cmp dword[r8 + 12], 0
         je .add_to_queue ; if no more data add the event to queue
@@ -547,6 +549,16 @@ aThreadEvent:
         CALL_ my_free, r13
         mov byte[r9 + 1], 0
         jmp _exit
+    
+    .error_detect:
+        lea rax, [rel event_error]
+        CALL_ my_puterror, rax
+        CALL_ my_putchar, 32
+        xor rax, rax
+        mov al, byte[r8 + 9]
+        CALL_ my_putnbr, rax
+        CALL_ my_putchar, 10
+        jmp .add_to_queue
 
 aCloseLink:
     cmp rdi, 0
@@ -756,7 +768,7 @@ aCreateWindow:
     mov r9, rax
 
     mov byte[r9], 16 ; code
-    mov byte[r9 + 1], 1 ; only if exits
+    mov byte[r9 + 1], 1 ; only if exist
     mov word[r9 + 2], 6 ; 2 + 16 / 4
     mov word[r9 + 4], 16 ; my_strlen de l'atom
     mov byte[r9 + 8], 'W'
@@ -850,7 +862,7 @@ aCreateWindow:
     mov word[r9 + 2], 7 ; 6 + 1
     mov dword[r9 + 4], esi ; window_id
     mov dword[r9 + 8], r10d ; WM_PROTOCOLS atom
-    mov dword[r9 + 12], 4 ; blk du type
+    mov dword[r9 + 12], 4 ; type ATOM
     mov byte[r9 + 16], 32 ; format en 4octet
     mov dword[r9 + 20], 1 ; 1 atom
     mov dword[r9 + 24], r8d
@@ -961,6 +973,133 @@ aMapWindow:
 
     CALL_ my_free, r9
 
+    ret
+
+aRenameWindow:
+    CALL_ my_malloc, 16
+    mov r9, rax
+
+    mov byte[r9], 16 ; code
+    mov byte[r9 + 1], 1 ; only if exist
+    mov word[r9 + 2], 4 ; 2 + (7 + 1) / 4
+    mov word[r9 + 4], 7 ; my_strlen de l'atom
+    mov byte[r9 + 8], 'W'
+    mov byte[r9 + 9], 'M'
+    mov byte[r9 + 10], '_'
+    mov byte[r9 + 11], 'N'
+    mov byte[r9 + 12], 'A'
+    mov byte[r9 + 13], 'M'
+    mov byte[r9 + 14], 'E'
+
+    push rsi
+    push rdi
+    push rdx
+    mov rax, 1
+    xor r10, r10
+    mov r10d, dword[rdi]
+    mov rdi, r10
+    lea rsi, [r9]
+    mov rdx, 16
+    syscall
+    pop rdx
+    pop rdi
+    pop rsi
+
+    CALL_ my_free, r9
+    CALL_ wait_reply, rdi
+    mov r9, rax
+
+    xor r8, r8
+    mov r8d, dword[r9 + 16]
+
+    CALL_ my_free, r9
+    CALL_ my_malloc, 16
+    mov r9, rax
+
+    mov byte[r9], 16 ; code
+    mov byte[r9 + 1], 1 ; only if exist
+    mov word[r9 + 2], 4 ; 2 + (6 + 2) / 4
+    mov word[r9 + 4], 6 ; my_strlen de l'atom
+    mov byte[r9 + 8], 'S'
+    mov byte[r9 + 9], 'T'
+    mov byte[r9 + 10], 'R'
+    mov byte[r9 + 11], 'I'
+    mov byte[r9 + 12], 'N'
+    mov byte[r9 + 13], 'G'
+
+    push rsi
+    push rdi
+    push rdx
+    mov rax, 1
+    xor r10, r10
+    mov r10d, dword[rdi]
+    mov rdi, r10
+    lea rsi, [r9]
+    mov rdx, 16
+    syscall
+    pop rdx
+    pop rdi
+    pop rsi
+
+    CALL_ my_free, r9
+
+    CALL_ wait_reply, rdi
+    mov r9, rax
+
+    xor r10, r10
+    mov r10d, dword[r9 + 16]
+
+    CALL_ my_free, r9
+
+    CALL_ my_strlen, rdx
+    neg rax
+    and rax, -4
+    neg rax
+    add rax, 24
+    push rax
+    CALL_ my_malloc, rax
+    mov r9, rax
+
+    CALL_ my_strlen, rdx
+
+    mov byte[r9], 18 ; code
+    mov byte[r9 + 1], 0 ; replace
+    pop r11
+    push r11
+    push rax
+    push rdx
+    mov rax, r11
+    sub rax, 24
+    xor rdx, rdx
+    mov r11, 4
+    div r11
+    add rax, 6
+    mov word[r9 + 2], ax ; 6 + (strlen(name) + p) / 4
+    pop rdx
+    pop rax
+    mov r11d, dword[rsi]
+    mov dword[r9 + 4], r11d ; window_id
+    mov dword[r9 + 8], r8d ; WM_NAME atom
+    mov dword[r9 + 12], r10d ; type
+    mov byte[r9 + 16], 8 ; format en 1octet
+    mov dword[r9 + 20], eax ; strlen(name)
+    mov rcx, rax
+    .loop_copy:
+        dec rcx
+        mov r8b, byte [rdx + rcx]
+        mov byte [r9 + 24 + rcx], r8b
+        cmp rcx, 0
+        jne .loop_copy
+    
+    mov rax, 1
+    xor r10, r10
+    mov r10d, dword[rdi]
+    mov rdi, r10
+    lea rsi, [r9]
+    pop rdx
+    syscall
+
+    CALL_ my_free, r9
     ret
 
 aCloseWindow:
@@ -1273,15 +1412,11 @@ aIsWindowClosing:
     cmp r10w, 16
     jne .bye_zero
 
-    mov rax, 0
-    mov rdi, rdi
-    lea rsi, [r9]
-    mov rdx, 16
-    syscall
-
     xor r10, r10
     lea r10, [rel closed_atom]
-    CALL_ my_strncmp, r10, r9, 16
+    mov r11, r9
+    add r11, 40
+    CALL_ my_strncmp, r10, r11, 16
     cmp rax, 0
     jne .bye_zero
 
@@ -1360,68 +1495,8 @@ aDisplayWindow:
     cmp byte[rsi + 18], 0
     je .bye
 
-    push rdi
-    push rsi
     CALL_ my_malloc, 28
     mov r9, rax
-
-    mov rax, 228
-    mov rdi, 0
-    lea rsi, [r9]
-    syscall
-
-    mov rax, qword[r9] ; get sec
-    mov rbx, 1000000000
-    mul rbx ; convert into sec
-    mov rbx, qword[r9 + 8] ; get nanosec
-    add rax, rbx ; add nanosec
-    sub rax, qword[rel clock_display] ; get the delay between frame
-
-    pop rsi
-    push rsi
-    push rax
-    mov rax, 1000000000
-    xor rdx, rdx
-    xor rbx, rbx
-    mov bl, byte[rsi + 17]
-    div rbx
-    mov r8, rax ; get the fps value for wanted delay
-    pop rax
-
-    sub r8, rax
-    cmp r8, 0 ; check if need to sleep
-    jle .bye_delay
-
-    mov rax, r8
-    xor rdx, rdx
-    mov rbx, 1000000000
-    div rbx ; get nanosec of sleep wanted
-
-    mov qword[r9], rax ; set sec
-    mul rbx
-    sub r8, rax
-    mov qword[r9 + 8], r8 ; set nanosec
-
-    mov rax, 35
-    lea rdi, [r9]
-    xor rsi, rsi
-    syscall ; nanosleep
-
-    .bye_delay:
-    mov rax, 228
-    mov rdi, 0
-    lea rsi, [r9]
-    syscall
-
-    mov rax, qword[r9] ; get sec
-    mov rbx, 1000000000
-    mul rbx ; convert into sec
-    mov rbx, qword[r9 + 8] ; get nanosec
-    add rax, rbx ; add nanosec
-    mov qword[rel clock_display], rax ; save the act time for next display
-
-    pop rsi
-    pop rdi
 
     mov byte[r9], 62 ; code copy area
     mov word[r9 + 2], 7 ; length
@@ -1730,25 +1805,6 @@ wait_reply:
     mov rax, r8
     ret
 
-test_truc:
-    CALL_ my_malloc, 32
-    mov r9, rax
-
-    mov rax, 0
-    mov rdi, 3
-    lea rsi, [r9]
-    mov rdx, 32
-    syscall
-
-    xor r10, r10
-    mov r10b, byte[r9]
-    CALL_ my_putnbr, r10
-    CALL_ my_putchar, 10
-
-    CALL_ my_free, r9
-
-    ret
-
 aRunTask:
     cmp rdi, 0
     je .bye
@@ -1784,6 +1840,7 @@ aRunTask:
     sub r8, rax
     cmp r8, 0 ; check if need to sleep
     jg .bye
+
 
     push rdi
     mov rax, 228

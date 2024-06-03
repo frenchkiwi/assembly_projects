@@ -123,6 +123,8 @@ aWindow *aCreateWindow(aLink *link, short size[2]);
 
 void aMapWindow(aLink *link, aWindow *window);
 
+void aRenameWindow(aLink *link, aWindow *window, char *name);
+
 void aClearWindow(aLink *link, aWindow *window);
 
 void aDisplayWindow(aLink *link, aWindow *window);

@@ -100,14 +100,13 @@ int main(int ac, char **av, char **env)
     aSetTask(task_display, &display, &base->arg_display, 1.0 / 60.0);
     aOpenFont(base->link, "fixed");
     aMapWindow(base->link, base->window);
+    aRenameWindow(base->link, base->window, "AsmGraphic");
     // error case for mapwindow avec un get reply pour le message de mapping
     while (aIsWindowOpen(base->window)) {
         while (aPollEvent(base->link, &base->event))
             analize_event(base->link, base->window, base->event, base);
-        update(&base->arg_update);
-        display(&base->arg_display);
-        // aRunTask(&task_update);
-        // aRunTask(&task_display);
+        aRunTask(&task_update);
+        aRunTask(&task_display);
     }
     aDestroyText(base->text);
     aDestroyRectangle(base->rect);
