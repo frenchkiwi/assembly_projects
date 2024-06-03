@@ -119,7 +119,7 @@ int aCloseLink(aLink *link);
 
 // // AsmWindow
 
-aWindow *aCreateWindow(aLink *link, short size[2]);
+aWindow *aCreateWindow(aLink *link, short size[2], char *name);
 
 void aMapWindow(aLink *link, aWindow *window);
 

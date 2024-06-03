@@ -81,7 +81,7 @@ global_t *init(char **env)
     global_t *base = my_malloc(sizeof(global_t));
 
     base->link = aCreateLink(env);
-    base->window = aCreateWindow(base->link, (short[2]){800, 600});
+    base->window = aCreateWindow(base->link, (short[2]){800, 600}, "AsmGraphic");
     base->rect = aCreateRectangle((aPosSize){50, 120, 700, 10}, (aColor){255, 255, 0});
     base->text = aCreateText("Raph est gay!", (aPos){100, 100}, (aColor){0, 200, 255});
     base->arg_update = (arg_update_t){base->link, base->window};
@@ -100,7 +100,6 @@ int main(int ac, char **av, char **env)
     aSetTask(task_display, &display, &base->arg_display, 1.0 / 60.0);
     aOpenFont(base->link, "fixed");
     aMapWindow(base->link, base->window);
-    aRenameWindow(base->link, base->window, "AsmGraphic");
     // error case for mapwindow avec un get reply pour le message de mapping
     while (aIsWindowOpen(base->window)) {
         while (aPollEvent(base->link, &base->event))

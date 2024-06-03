@@ -683,6 +683,7 @@ aCreateWindow:
     xor r8, r8
     mov r8, rdi ; get link
     
+    push rdx
     push rdi
     push r8
     push rsi
@@ -932,6 +933,7 @@ aCreateWindow:
     mov dword[r9 + 8], esi ; set ref window id
     mov dword[r9 + 12], r11d ; set width and heigth
 
+    push rdi
     mov rax, 1
     xor r10, r10
     mov r10d, dword[rdi]
@@ -939,6 +941,7 @@ aCreateWindow:
     lea rsi, [r9]
     mov rdx, 16
     syscall
+    pop rdi
 
     pop r8
     mov r10d, dword[r9 + 4]
@@ -948,6 +951,9 @@ aCreateWindow:
     mov byte[r8 + 19], 0
 
     CALL_ my_free, r9
+
+    pop rdx
+    CALL_ aRenameWindow, rdi, r8, rdx
 
     mov rax, r8
 
@@ -1793,7 +1799,6 @@ wait_reply:
         mov r8, qword[r10]
         cmp byte[r8 + 8], 1
         je .quit_loop
-        jmp _exit
         mov r10, r8
         mov r8, qword[r8]
         jmp .loop
