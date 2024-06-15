@@ -83,7 +83,7 @@ global_t *init(char **env)
     base->link = aCreateLink(env);
     base->window = aCreateWindow(base->link, (short[2]){800, 600}, "AsmGraphic");
     base->rect = aCreateRectangle((aPosSize){50, 120, 700, 10}, (aColor){255, 255, 0});
-    base->text = aCreateText("Raph est gay!", (aPos){100, 100}, (aColor){0, 200, 255});
+    base->text = aCreateText("Message for test !", (aPos){100, 100}, (aColor){0, 200, 255});
     base->arg_update = (arg_update_t){base->link, base->window};
     base->arg_display =
     (arg_display_t){base->link, base->window, base->rect, base->text};

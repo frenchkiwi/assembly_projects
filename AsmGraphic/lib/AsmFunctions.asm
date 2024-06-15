@@ -1,62 +1,8 @@
-%ifndef MACRO_
-    %define MACRO_
-    %macro ABS 1
-        cmp %1, 0
-        jge %%bye_ABS
-        neg %1
-        %%bye_ABS:
-    %endmacro
-
-    %macro CALL_ 1-7
-        push rdi ; -prologue-
-        push rsi ;
-        push rdx ;
-        push rcx ;
-        push r8 ;
-        push r9 ;
-        push r10 ;
-        push r11 ; ----------
-        %if %0 >= 2 ; check if there is 1st param
-            mov rdi, %2 ; set 1st param
-            %if %0 >= 3 ; check if there is 2nd param
-                %rotate 1 ; move to 2nd param
-                mov rsi, %2 ; set 2nd param
-                %if %0 >= 4 ; check if there is 3rd param
-                    %rotate 1 ; move to 3rd param
-                    mov rdx, %2 ; set 3rd param
-                    %if %0 >= 5 ; check if there is 4th param
-                        %rotate 1 ; move to 4th param
-                        mov rcx, %2 ; set 4th param
-                        %if %0 >= 6 ; check if there is 5th param
-                            %rotate 1 ; move to 5th param
-                            mov r8, %2 ; set 5th param
-                            %if %0 == 7 ; check if there is 6th param
-                                %rotate 1 ; move to 6th param
-                                mov r9, %2 ; set 6th param
-                            %endif
-                        %endif
-                    %endif
-                %endif
-            %endif
-        %endif
-        %rotate 2 ; move to function
-
-        call %1 ; call function
-
-        pop r11 ; -epilogue-
-        pop r10 ;
-        pop r9 ;
-        pop r8 ;
-        pop rcx ;
-        pop rdx ;
-        pop rsi ;
-        pop rdi ; ----------
-    %endmacro
-%endif
-
 section .data
     malloc_base dq -1
-    free_error db 'f', 'r', 'e', 'e', '(', ')', ':', ' ', 'i', 'n', 'v', 'a', 'l', 'i', 'd', ' ', 'p', 'o', 'i', 'n', 't', 'e', 'r', 10
+    malloc_bug db "malloc(): memory allocation failed", 10
+    free_error db "free(): invalid pointer", 10
+    free_bug db "free(): bug memory release", 10
 
 section .text
     global my_putchar
@@ -98,6 +44,8 @@ section .text
     global show_malloc
     global futex_lock
     global futex_unlock
+
+%include "AsmFunctions.inc"
 
 my_putchar:
     mov dl, dil
@@ -1400,6 +1348,8 @@ my_malloc:
         mov rsi, 4096
         mov rdx, 3
         syscall
+        cmp rax, 0
+        jl .malloc_error2
         cmp qword [r10], 0
         je .alloc
         mov r10, qword [r10]
@@ -1436,6 +1386,8 @@ my_malloc:
             mov rsi, 4096
             mov rdx, 1
             syscall
+            cmp rax, 0
+            jl .malloc_error2
             mov r10, r8
             jmp .loop_protect
     .bye:
@@ -1451,6 +1403,8 @@ my_malloc:
         mov r8, -1
         mov r9, 0
         syscall
+        cmp rax, 0
+        jl .malloc_error2
 
         mov qword [rel malloc_base], rax
         mov qword [rax], 0
@@ -1474,6 +1428,8 @@ my_malloc:
         syscall
         pop r10
         pop r8
+        cmp rax, 0
+        jl .malloc_error
 
         mov qword [r10], rax
         mov r10, rax
@@ -1532,6 +1488,8 @@ my_malloc:
         syscall
         pop r10
         pop r8
+        cmp rax, 0
+        jl .malloc_error3
 
         mov qword [r10], rax
         mov r10, rax
@@ -1569,6 +1527,8 @@ my_malloc:
         pop r11
         pop r10
         pop r8
+        cmp rax, 0
+        jl .malloc_error
 
         mov rax, r8
         xor rdx, rdx
@@ -1584,8 +1544,21 @@ my_malloc:
         jmp .split_malloc
 
     .malloc_error:
+        mov rax, 1
+        mov rdi, 2
+        lea rsi, [rel free_bug]
+        mov rdx, 26
+        syscall
         mov rax, 0
         ret
+    
+    .malloc_error2:
+        pop rax
+        jmp .malloc_error
+    
+    .malloc_error3:
+        pop rax
+        jmp .malloc_error2
 
 my_free:
     cmp rdi, 0
@@ -1600,6 +1573,8 @@ my_free:
         mov rsi, 4096
         mov rdx, 3
         syscall
+        cmp rax, 0
+        jl .bug_free2
         cmp qword [r10], 0
         je .dalloc
         mov r10, qword [r10]
@@ -1690,6 +1665,8 @@ my_free:
             mov rsi, 4096
             mov rdx, 1
             syscall
+            cmp rax, 0
+            jl .bug_free
             mov r10, r8
             jmp .loop_protect
 
@@ -1806,6 +1783,24 @@ my_free:
         mov rax, 62
         syscall
         ret
+    
+    .bug_free:
+        mov rax, 1
+        mov rdi, 2
+        lea rsi, [rel free_bug]
+        mov rdx, 26
+        syscall
+        mov rax, 39
+        syscall
+        mov rdi, rax
+        mov rsi, 6
+        mov rax, 62
+        syscall
+        ret
+
+    .bug_free2:
+        pop rax
+        jmp .bug_free
 
 my_calloc:
     push rdi
@@ -1853,6 +1848,8 @@ show_malloc:
         mov rsi, 4096
         mov rdx, 3
         syscall
+        cmp rax, 0
+        jl .bye
         cmp qword [r10], 0
         je .alloc
         mov r10, qword [r10]
@@ -1899,6 +1896,8 @@ show_malloc:
             mov rsi, 4096
             mov rdx, 1
             syscall
+            cmp rax, 0
+            jl .bye
             mov r10, r8
             jmp .loop_protect
     .bye:
@@ -1916,12 +1915,12 @@ show_malloc:
 
 futex_lock:
     mov rax, 1
-    lock xchg byte[rdi], al
+    xchg byte[rdi], al
     cmp rax, 0
     je .bye
     .loop:
         mov rax, 2
-        lock xchg byte[rdi], al
+        xchg byte[rdi], al
         cmp rax, 0
         je .bye
         mov rax, 202
@@ -1942,7 +1941,7 @@ futex_unlock:
     cmp rax, 1
     je .bye
     mov rax, 0
-    lock xchg byte[rdi], al
+    xchg byte[rdi], al
     mov rax, 202
     mov rdi, rdi
     mov rsi, 1

@@ -7,9 +7,12 @@
 
 NAME = libAsmGraphic.a
 
-SRC = AsmGraphic.asm
+SRC = AsmFunctions.asm \
+	  AsmGraphic.asm
 
 OBJ = $(SRC:.asm=.o)
+
+CFLAGS = -I ../include
 
 all: $(NAME)
 
@@ -17,7 +20,7 @@ $(NAME): $(OBJ)
 	ar rc $(NAME) $(OBJ)
 
 %.o: %.asm
-	nasm -f elf64 $< -o $@
+	nasm -f elf64 $< -o $@ $(CFLAGS)
 
 clean:
 	rm -rf $(OBJ)

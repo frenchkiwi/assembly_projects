@@ -1,18 +1,3 @@
-%include "AsmFunctions.asm"
-
-%ifndef ASMGRAPHIC_MACRO
-    %define ASMGRAPHIC_MACRO
-    %define LINK_SOCKET 0
-    %define LINK_EVENT_QUEUE 4
-    %define LINK_HEADER 12
-    %define LINK_BODY 20
-    %define LINK_ID 24
-    %define LINK_VENDOR_LENGTH 36
-    %define LINK_FORMAT_LENGTH 41
-    %define EVENT_NEXT 0
-    %define EVENT_TYPE 8
-%endif
-
 section .data
     generate_id dd 0
     font_error db "Font can't be load.", 0
@@ -49,6 +34,8 @@ section .text
     global aDestroyRectangle
     global aBell
     global aRunTask
+
+%include "AsmGraphic.inc"
 
 aCreateLink:
     mov rcx, 0
@@ -1240,7 +1227,7 @@ aOpenFont:
     .error:
         mov rax, 1
         mov rdi, 2
-        lea rsi, [rel free_error]
+        lea rsi, [rel font_error]
         mov rdx, 19
         syscall
         ret
