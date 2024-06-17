@@ -2,6 +2,7 @@
     global AsmDalloc
     global AsmCalloc
     global AsmRealloc
+    global AsmStrdup
     global AsmShowMemory
     %include "AsmLibrary.inc"
 
@@ -504,6 +505,33 @@ AsmRealloc:
     je .no_malloc
     call AsmAlloc
     .no_malloc:
+    ret
+
+AsmStrdup:
+    xor rax, rax
+    cmp rdi, 0
+    je .bye
+    push r12
+    push r13
+    mov rcx, -1
+    .loop:
+        inc rcx
+        cmp byte[rdi + rcx], 0
+        jne .loop
+    inc rcx
+    mov r12, rdi
+    mov r13, rcx
+    mov rdi, rcx
+    call AsmAlloc
+    .copy:
+        dec r13
+        mov sil, byte[r12 + r13]
+        mov byte[rax + r13], sil
+        cmp r13, 0
+        jne .copy
+    pop r13
+    pop r12
+    .bye:
     ret
 
 AsmShowMemory:

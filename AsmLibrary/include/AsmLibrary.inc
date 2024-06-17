@@ -57,9 +57,11 @@
     extern AsmPutchar
     extern AsmPutstr
     extern AsmPutnbr
-    extern AsmStrdup
+    extern AsmStrlen
     extern AsmStrcpy
     extern AsmStrncpy
+    extern AsmStrcmp
+    extern AsmStrncmp
     extern AsmPrint
 
     ;AsmMath
@@ -70,5 +72,6 @@
     extern AsmDalloc
     extern AsmCalloc
     extern AsmRealloc
+    extern AsmStrdup
     extern AsmShowMemory
 %endif

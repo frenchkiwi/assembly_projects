@@ -17,21 +17,19 @@ void AsmPutstr(char *);
 
 void AsmPutnbr(long);
 
-char *AsmStrdup(char *);
+int AsmStrlen(char *);
 
 char *AsmStrcpy(char *, char const *);
 
-char *AsmStrncpy(char *, char const *, long);
+char *AsmStrncpy(char *, char const *, unsigned long);
+
+char AsmStrcmp(char const *, char const *);
+
+char AsmStrncmp(char const *, char const *, unsigned long);
 
 void AsmPrint(char *, ...);
 
 // void my_putcharerror(char);
-
-// void my_putnbr(long long);
-
-// unsigned long my_strlen(char const *);
-
-// void my_putstr(char const *);
 
 // void my_puterror(char const *);
 
@@ -42,15 +40,9 @@ void AsmPrint(char *, ...);
 // AsmMath
 long long AsmPower(long long, long long);
 
-// char *my_strdup(char const *);
-
 // char *my_strcat(char *, char const *);
 
 // char *my_strncat(char *, char const *, unsigned long);
-
-// int my_strcmp(char const *, char const *);
-
-// int my_strncmp(char const *, char const *, unsigned long);
 
 // char **my_str_to_word_array(char *, char *);
 
@@ -61,6 +53,8 @@ void AsmDalloc(void *);
 void *AsmCalloc(unsigned long, unsigned long);
 
 void *AsmRealloc(void *, unsigned long);
+
+char *AsmStrdup(char *);
 
 void AsmShowMemory(void);
 #endif

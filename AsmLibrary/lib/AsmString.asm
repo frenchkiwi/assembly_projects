@@ -1,9 +1,11 @@
     global AsmPutchar
     global AsmPutstr
     global AsmPutnbr
-    global AsmStrdup
+    global AsmStrlen
     global AsmStrcpy
     global AsmStrncpy
+    global AsmStrcmp
+    global AsmStrncmp
     global AsmPrint
     %include "AsmLibrary.inc"
 
@@ -94,31 +96,12 @@ AsmPutnbr:
     pop r12
     ret
 
-AsmStrdup:
-    xor rax, rax
-    cmp rdi, 0
-    je .bye
-    push r12
-    push r13
-    mov rcx, -1
+AsmStrlen:
+    mov rax, -1
     .loop:
-        inc rcx
-        cmp byte[rdi + rcx], 0
+        inc rax
+        cmp byte [rdi + rax], 0
         jne .loop
-    inc rcx
-    mov r12, rdi
-    mov r13, rcx
-    mov rdi, rcx
-    call AsmAlloc
-    .copy:
-        dec r13
-        mov sil, byte[r12 + r13]
-        mov byte[rax + r13], sil
-        cmp r13, 0
-        jne .copy
-    pop r13
-    pop r12
-    .bye:
     ret
 
 AsmStrcpy:
@@ -146,6 +129,43 @@ AsmStrncpy:
     mov byte [rdi + rcx], 0
     mov rax, rdi
     ret
+
+AsmStrcmp:
+    mov rcx, -1
+    .loop:
+        inc rcx
+        mov r8b, byte[rsi + rcx]
+        cmp byte[rdi + rcx], r8b
+        jne .not_equal
+        cmp byte[rdi + rcx], 0
+        jne .loop
+    xor rax, rax
+    ret
+    .not_equal:
+        movzx rax, byte[rdi + rcx]
+        movzx rdx, byte[rsi + rcx]
+        sub rax, rdx
+        ret
+
+AsmStrncmp:
+    mov rcx, -1
+    .loop:
+        inc rcx
+        cmp rdx, rcx
+        je .bye
+        mov r8b, byte[rsi + rcx]
+        cmp byte[rdi + rcx], r8b
+        jne .not_equal
+        cmp byte[rdi + rcx], 0
+        jne .loop
+    .bye:
+    xor rax, rax
+    ret
+    .not_equal:
+        movzx rax, byte[rdi + rcx]
+        movzx rdx, byte[rsi + rcx]
+        sub rax, rdx
+        ret
 
 AsmPrint:
     cmp rdi, 0

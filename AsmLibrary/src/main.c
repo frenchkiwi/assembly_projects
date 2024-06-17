@@ -1,24 +1,39 @@
 #include "AsmLibrary.h"
 
+void AsmString(void)
+{
+    char str[10] = {0};
+
+    AsmPutchar('c');
+    AsmPutstr("\ntest\n");
+    AsmPutnbr(4);
+    AsmPutchar('\n');
+    AsmPutnbr(AsmStrlen("test word"));
+    AsmPutchar('\n');
+    AsmStrcpy(str, "test");
+    AsmPutstr(str);
+    AsmPutchar('\n');
+    AsmStrncpy(str, "test", 2);
+    AsmPutstr(str);
+    AsmPutchar('\n');
+    AsmStrncpy(str, "test", 6);
+    AsmPutstr(str);
+    AsmPutchar('\n');
+    AsmPutnbr(AsmStrcmp("oui", "non"));
+    AsmPutchar('\n');
+    AsmPutnbr(AsmStrcmp("non", "non"));
+    AsmPutchar('\n');
+    AsmPutnbr(AsmStrncmp("non", "non", 7));
+    AsmPutchar('\n');
+    AsmPutnbr(AsmStrncmp("noa", "non", 2));
+    AsmPutchar('\n');
+    AsmPutnbr(AsmStrncmp("oui", "non", 2));
+    AsmPutchar('\n');
+    AsmPrint("test : int %d, char %c, string %s, percentage %%\n", 13, 'c', "test");
+}
+
 int main(void)
 {
-    char *str1 = (void *)(0);
-    char *str2 = (void *)(0);
-    char *str3 = (void *)(0);
-
-    str1 = AsmStrdup("caca2\n");
-    str2 = AsmAlloc(8000);
-    str3 = AsmAlloc(12000);
-    AsmPutchar('d');
-    AsmPutstr("caca\n");
-    AsmPutstr(str1);
-    AsmPutstr(AsmStrncpy(str2, "caca", 2));
-    AsmPutnbr(36);
-    AsmPutstr(str2);
-    AsmDalloc(str2);
-    AsmDalloc(str3);
-    AsmDalloc(str1);
-    AsmShowMemory();
-    AsmPrint("le goat %d %c %s %%\n", 24, 'c', "caca");
+    AsmString();
     return 0;
 }
