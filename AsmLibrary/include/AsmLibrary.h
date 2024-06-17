@@ -7,6 +7,8 @@
 
 #ifndef AsmLib_
     #define AsmLib_
+#include <stdarg.h>
+
 
 // AsmString
 char AsmPutchar(char);
@@ -20,6 +22,8 @@ char *AsmStrdup(char *);
 char *AsmStrcpy(char *, char const *);
 
 char *AsmStrncpy(char *, char const *, long);
+
+void AsmPrint(char *, ...);
 
 // void my_putcharerror(char);
 

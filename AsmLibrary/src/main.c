@@ -19,5 +19,6 @@ int main(void)
     AsmDalloc(str3);
     AsmDalloc(str1);
     AsmShowMemory();
+    AsmPrint("le goat %h\n", 0, 35);
     return 0;
 }

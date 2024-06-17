@@ -60,6 +60,7 @@
     extern AsmStrdup
     extern AsmStrcpy
     extern AsmStrncpy
+    extern AsmPrint
 
     ;AsmMath
     extern AsmPower
