@@ -1,8 +1,8 @@
 section .data
     malloc_base dq -1
-    malloc_bug db "malloc(): memory allocation failed", 10
-    free_error db "free(): invalid pointer", 10
-    free_bug db "free(): bug memory release", 10
+    malloc_bug db "my_malloc(): memory allocation failed", 10
+    free_error db "my_free(): invalid pointer", 10
+    free_bug db "my_free(): bug memory release", 10
 
 section .text
     global my_putchar
@@ -1546,7 +1546,7 @@ my_malloc:
     .malloc_error:
         mov rax, 1
         mov rdi, 2
-        lea rsi, [rel free_bug]
+        lea rsi, [rel malloc_bug]
         mov rdx, 26
         syscall
         mov rax, 0

@@ -84,10 +84,12 @@ aCreateLink:
     pop r10
     cmp r8, 0
     jl .bye_error
-    push r10
-    push r9
 
     CALL_ my_calloc, 110, 0
+    cmp rax, 0
+    je .bye_error
+    push r10
+    push r9
     mov r9, rax
 
     mov word[r9], 1

@@ -102,10 +102,14 @@ int main(int ac, char **av, char **env)
     aMapWindow(base->link, base->window);
     // error case for mapwindow avec un get reply pour le message de mapping
     while (aIsWindowOpen(base->window)) {
+        puts("loop");
         while (aPollEvent(base->link, &base->event))
             analize_event(base->link, base->window, base->event, base);
+        puts("analyze done");
         aRunTask(&task_update);
+        puts("update done");
         aRunTask(&task_display);
+        puts("display done");
     }
     aDestroyText(base->text);
     aDestroyRectangle(base->rect);
