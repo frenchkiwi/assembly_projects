@@ -29,6 +29,12 @@ void AsmString(void)
     AsmPutchar('\n');
     AsmPutnbr(AsmStrncmp("oui", "non", 2));
     AsmPutchar('\n');
+    AsmStrcpy(str, "test");
+    AsmStrcat(str, "next\n");
+    AsmPutstr(str);
+    AsmStrcpy(str, "test");
+    AsmStrncat(str, "next\n", 2);
+    AsmPutstr(str);
     AsmPrint("test : int %d, char %c, string %s, percentage %%\n", 13, 'c', "test");
 }
 

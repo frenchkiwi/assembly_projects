@@ -62,6 +62,8 @@
     extern AsmStrncpy
     extern AsmStrcmp
     extern AsmStrncmp
+    extern AsmStrcat
+    extern AsmStrncat
     extern AsmPrint
 
     ;AsmMath

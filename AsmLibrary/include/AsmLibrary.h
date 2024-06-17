@@ -27,6 +27,10 @@ char AsmStrcmp(char const *, char const *);
 
 char AsmStrncmp(char const *, char const *, unsigned long);
 
+char *AsmStrcat(char *, char const *);
+
+char *AsmStrncat(char *, char const *, unsigned long);
+
 void AsmPrint(char *, ...);
 
 // void my_putcharerror(char);
@@ -39,10 +43,6 @@ void AsmPrint(char *, ...);
 
 // AsmMath
 long long AsmPower(long long, long long);
-
-// char *my_strcat(char *, char const *);
-
-// char *my_strncat(char *, char const *, unsigned long);
 
 // char **my_str_to_word_array(char *, char *);
 

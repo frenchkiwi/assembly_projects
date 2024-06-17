@@ -6,6 +6,8 @@
     global AsmStrncpy
     global AsmStrcmp
     global AsmStrncmp
+    global AsmStrcat
+    global AsmStrncat
     global AsmPrint
     %include "AsmLibrary.inc"
 
@@ -166,6 +168,44 @@ AsmStrncmp:
         movzx rdx, byte[rsi + rcx]
         sub rax, rdx
         ret
+
+AsmStrcat:
+    .goto_end:
+        cmp byte[rdi], 0
+        je .leave_goto_end
+        inc rdi
+        jmp .goto_end
+    .leave_goto_end:
+    mov rcx, -1
+    .loop:
+        inc rcx
+        mov r8b, byte[rsi + rcx]
+        mov byte[rdi + rcx], r8b
+        cmp r8b, 0
+        jne .loop
+    mov rax, rdi
+    ret
+
+AsmStrncat:
+    .goto_end:
+        cmp byte[rdi], 0
+        je .leave_goto_end
+        inc rdi
+        jmp .goto_end
+    .leave_goto_end:
+    mov rcx, -1
+    .loop:
+        inc rcx
+        cmp rdx, rcx
+        je .bye
+        mov r8b, byte[rsi + rcx]
+        mov byte[rdi + rcx], r8b
+        cmp r8b, 0
+        jne .loop
+    .bye:
+    mov byte[rdi + rcx], 0
+    mov rax, rdi
+    ret
 
 AsmPrint:
     cmp rdi, 0
