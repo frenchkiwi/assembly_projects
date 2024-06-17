@@ -150,11 +150,11 @@ AsmStrncpy:
 AsmPrint:
     cmp rdi, 0
     je .bye
-    mov rdi, qword[rsp + 8]
-    call AsmPutnbr
-    mov rax, 60
-    mov rdi, 0
-    syscall
+    push r9
+    push r8
+    push rcx
+    push rdx
+    push rsi
     push rbp
     mov rbp, rsp
     push rbx
@@ -165,7 +165,7 @@ AsmPrint:
 
     mov r12, rdi
     mov r13, -1
-    mov r14, 16
+    mov r14, 8
     .loop:
         inc r13
         movzx rdi, byte[r12 + r13]
@@ -181,11 +181,50 @@ AsmPrint:
     pop r12
     pop rbx
     pop rbp
+    pop rsi
+    pop rdx
+    pop rcx
+    pop r8
+    pop r9
     .bye:
     ret
 
     .analyze_flag:
-        mov rdi, qword[rbp + 8]
-        mov rdi, qword[rdi]
-        call AsmPutnbr
+        cmp byte[r12 + r13 + 1], 'c'
+        je .c_flag
+        cmp byte[r12 + r13 + 1], 'd'
+        je .d_flag
+        cmp byte[r12 + r13 + 1], 's'
+        je .s_flag
+        cmp byte[r12 + r13 + 1], '%'
+        je .p_flag
+        call AsmPutchar
         jmp .back_analyze_flag
+        
+    .next_param:
+        add r14, 8
+        cmp r14, 48
+        je .next_param
+        jmp .back_analyze_flag
+
+    .c_flag:
+        mov rdi, qword[rbp + r14]
+        call AsmPutchar
+        inc r13
+        jmp .next_param
+
+    .d_flag:
+        mov rdi, qword[rbp + r14]
+        call AsmPutnbr
+        inc r13
+        jmp .next_param
+    
+    .s_flag:
+        mov rdi, qword[rbp + r14]
+        call AsmPutstr
+        inc r13
+        jmp .next_param
+    .p_flag:
+        call AsmPutchar
+        inc r13
+        jmp .next_param
