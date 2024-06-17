@@ -3,6 +3,7 @@
 void AsmString(void)
 {
     char str[10] = {0};
+    char **array = (void *)(0);
 
     AsmPutchar('c');
     AsmPutstr("\ntest\n");
@@ -35,7 +36,9 @@ void AsmString(void)
     AsmStrcpy(str, "test");
     AsmStrncat(str, "next\n", 2);
     AsmPutstr(str);
+    AsmPutchar('\n');
     AsmPrint("test : int %d, char %c, string %s, percentage %%\n", 13, 'c', "test");
+    array = AsmStrcut(" complex test for know if the  function work", " ");
 }
 
 int main(void)

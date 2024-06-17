@@ -65,6 +65,7 @@
     extern AsmStrcat
     extern AsmStrncat
     extern AsmPrint
+    extern AsmStrcut
 
     ;AsmMath
     extern AsmPower

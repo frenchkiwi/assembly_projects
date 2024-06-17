@@ -9,52 +9,44 @@
     #define AsmLib_
 #include <stdarg.h>
 
-
 // AsmString
-char AsmPutchar(char);
+char AsmPutchar(char c);
 
-void AsmPutstr(char *);
+void AsmPutstr(char *str);
 
-void AsmPutnbr(long);
+void AsmPutnbr(long n);
 
-int AsmStrlen(char *);
+int AsmStrlen(char *str);
 
-char *AsmStrcpy(char *, char const *);
+char *AsmStrcpy(char *dest, char const *src);
 
-char *AsmStrncpy(char *, char const *, unsigned long);
+char *AsmStrncpy(char *dest, char const *src, unsigned long n);
 
-char AsmStrcmp(char const *, char const *);
+char AsmStrcmp(char const *str1, char const *str2);
 
-char AsmStrncmp(char const *, char const *, unsigned long);
+char AsmStrncmp(char const *str1, char const *str2, unsigned long n);
 
-char *AsmStrcat(char *, char const *);
+char *AsmStrcat(char *dest, char const *src);
 
-char *AsmStrncat(char *, char const *, unsigned long);
+char *AsmStrncat(char *dest, char const *src, unsigned long n);
 
-void AsmPrint(char *, ...);
+void AsmPrint(char *format, ...);
 
-// void my_putcharerror(char);
-
-// void my_puterror(char const *);
-
-// void my_revstr(char *);
-
-// int my_getnbr(char *);
+char **AsmStrcut(char *str, char *delimiters);
 
 // AsmMath
-long long AsmPower(long long, long long);
+long long AsmPower(long long nb, long long power);
 
-// char **my_str_to_word_array(char *, char *);
+// AsmAlloc
+void *AsmAlloc(unsigned long size);
 
-void *AsmAlloc(unsigned long);
+void AsmDalloc(void *addr);
 
-void AsmDalloc(void *);
+void *AsmCalloc(unsigned long size, char c);
 
-void *AsmCalloc(unsigned long, unsigned long);
+void *AsmRealloc(void *addr, unsigned long size);
 
-void *AsmRealloc(void *, unsigned long);
-
-char *AsmStrdup(char *);
+char *AsmStrdup(char *str);
 
 void AsmShowMemory(void);
 #endif
