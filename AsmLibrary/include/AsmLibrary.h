@@ -14,7 +14,11 @@ char AsmPutchar(char c);
 
 void AsmPutstr(char *str);
 
+void AsmPutstrL(char *str);
+
 void AsmPutnbr(long n);
+
+void AsmPutnbrL(long n);
 
 int AsmStrlen(char *str);
 
