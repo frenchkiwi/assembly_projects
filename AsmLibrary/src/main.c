@@ -32,8 +32,15 @@ void AsmString(void)
         AsmPutstrL(array[i]);
 }
 
+void AsmAllocation(void)
+{
+    AsmAlloc(sizeof(char) * 5);
+
+}
+
 int main(void)
 {
     AsmString();
+    AsmAllocation();
     return 0;
 }
