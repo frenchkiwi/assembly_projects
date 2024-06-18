@@ -48,5 +48,7 @@ void *AsmRealloc(void *addr, unsigned long size);
 
 char *AsmStrdup(char *str);
 
+void *AsmGetptr(void *addr);
+
 void AsmShowMemory(void);
 #endif

@@ -227,6 +227,8 @@ AsmPrint:
     mov r12, rdi
     mov r13, -1
     mov r14, 8
+    cmp byte[r12], 0
+    je .leave_loop
     .loop:
         inc r13
         movzx rdi, byte[r12 + r13]
@@ -234,8 +236,9 @@ AsmPrint:
         je .analyze_flag
         call AsmPutchar
         .back_analyze_flag:
-        cmp byte[r12 + r13], 0
+        cmp byte[r12 + r13 + 1], 0
         jne .loop
+    .leave_loop:
     pop r15
     pop r14
     pop r13
@@ -295,6 +298,11 @@ AsmStrcut:
     push r13 ; word counter
     push r14 ; index
     push r15 ; state
+    xor r12, r12
+    cmp rdi, 0
+    je .bye
+    cmp rsi, 0
+    je .bye
     mov r13, 1 ; set word counter at 1 for the NULL word
     mov r14, -1 ; set index
     mov r15, 0 ; set state
@@ -344,11 +352,27 @@ AsmStrcut:
             je .add_word ; if actual char is a delimiter than go add word
             cmp byte[rsi + r8], 0 ; loop if delimiter str '\0' not reach
             jne .loop
-        mov r15, 1 ; if not a delimiter set state
+        inc r15 ; if not a delimiter set state
         jmp .go_next ; go next char
         .add_word:
-            cmp r15, 1 ; check if its a new word
-            jne .go_next ; if no go next char
+            cmp r15, 0 ; check if its a new word
+            je .go_next ; if no go next char
+            push rsi ; save rsi
+            push rdi ; save rdi
+            mov rdi, r15 ; set the length for allocate the word
+            inc rdi ; +1 for the '\0'
+            call AsmAlloc ; allocate the word
+            mov qword[r12 + r13 * 8], rax ; set the allocate memory in the array
+            mov rdi, rax ; set the dest for AsmStrncpy
+            pop rsi ; get the string
+            push rsi
+            add rsi, r14 ; go to the end of the word
+            sub rsi, r15 ; go to the start of the word
+            mov rdx, r15 ; set the copy length
+            call AsmStrncpy ; copy the word in the allocate memory
+            pop rdi ; restore rdi
+            pop rsi ; restore rsi
+            inc r13 ; increase word index
             mov r15, 0 ; if new word set state
         .go_next:
         cmp byte[rdi + r14], 0 ; loop if str '\0' not reach 

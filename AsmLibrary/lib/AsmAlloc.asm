@@ -3,6 +3,7 @@
     global AsmCalloc
     global AsmRealloc
     global AsmStrdup
+    global AsmGetptr
     global AsmShowMemory
     %include "AsmLibrary.inc"
 
@@ -532,6 +533,14 @@ AsmStrdup:
     pop r13
     pop r12
     .bye:
+    ret
+
+AsmGetptr:
+    push rdi
+    mov rdi, 8
+    call AsmAlloc
+    pop rdi
+    mov qword[rax], rdi
     ret
 
 AsmShowMemory:

@@ -76,5 +76,6 @@
     extern AsmCalloc
     extern AsmRealloc
     extern AsmStrdup
+    extern AsmGetptr
     extern AsmShowMemory
 %endif

@@ -38,7 +38,11 @@ void AsmString(void)
     AsmPutstr(str);
     AsmPutchar('\n');
     AsmPrint("test : int %d, char %c, string %s, percentage %%\n", 13, 'c', "test");
-    array = AsmStrcut(" complex test for know if the  function work", " ");
+    array = AsmStrcut(" complex test for know if the     function   work", " \t");
+    for (int i = 0; array[i]; i++) {
+        AsmPutstr(array[i]);
+        AsmPutchar('\n');
+    }
 }
 
 int main(void)
