@@ -487,12 +487,15 @@ AsmCalloc:
     call AsmAlloc
     pop rsi
     pop rdi
+    cmp rax, 0
+    je .bye
     xor rcx, rcx
     .loop_calloc:
         mov byte [rax + rcx], sil
         inc rcx
         cmp rcx, rdi
         jne .loop_calloc
+    .bye:
     ret
 
 AsmRealloc:
@@ -524,12 +527,15 @@ AsmStrdup:
     mov r13, rcx
     mov rdi, rcx
     call AsmAlloc
+    cmp rax, 0
+    je .leave_copy
     .copy:
         dec r13
         mov sil, byte[r12 + r13]
         mov byte[rax + r13], sil
         cmp r13, 0
         jne .copy
+    .leave_copy:
     pop r13
     pop r12
     .bye:
@@ -540,7 +546,10 @@ AsmGetptr:
     mov rdi, 8
     call AsmAlloc
     pop rdi
+    cmp rax, 0
+    je .bye
     mov qword[rax], rdi
+    .bye:
     ret
 
 AsmShowMemory:

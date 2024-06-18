@@ -407,11 +407,11 @@ AsmStrcut:
     push rsi
     mov rdi, rax
     call AsmAlloc ; allocate the word
-    cmp rax, 0
-    je .bye
     mov r12, rax ; save addr
     pop rsi
     pop rdi
+    cmp rax, 0
+    je .bye
     mov qword[r12 + r13], 0 ; set NULL word
     mov r13, 0 ; r13 is now the index word
     mov r14, -1 ; set index
@@ -439,7 +439,11 @@ AsmStrcut:
             mov qword[r12 + r13 * 8], rax ; set the allocate memory in the array
             mov rdi, rax ; set the dest for AsmStrncpy
             pop rsi ; get the string
-            push rsi
+            pop rdx ; get element on stack for check error
+            cmp rax, 0
+            je .bye
+            push rdx ; replace the element
+            push rsi ; replace the string on stack
             add rsi, r14 ; go to the end of the word
             sub rsi, r15 ; go to the start of the word
             mov rdx, r15 ; set the copy length
