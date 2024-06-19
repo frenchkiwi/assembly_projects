@@ -34,6 +34,7 @@ SRC = AsmPutchar.asm \
 	  AsmMemset.asm \
 	  AsmMemcpy.asm \
 	  AsmMemmove.asm \
+	  AsmCoreMemory.asm \
 	  AsmAlloc.asm \
 	  AsmDalloc.asm \
 	  AsmCalloc.asm \
