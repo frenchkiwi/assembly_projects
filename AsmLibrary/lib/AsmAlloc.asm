@@ -9,7 +9,7 @@ AsmAlloc:
     cmp rdi, 0
     je .bug ; check if size wanted is null
     push rdi
-    cmp qword[rel malloc_base], -1
+    cmp qword[rel AsmCoreMemory], -1
     jne .unprotect ; if page exist unprotect it
 
     .init_page:
@@ -24,14 +24,14 @@ AsmAlloc:
         cmp rax, 0
         jl .bug_1
 
-        mov qword[rel malloc_base], rax ; set the page in malloc_base
+        mov qword[rel AsmCoreMemory], rax ; set the page in AsmCoreMemory
         mov rcx, 512
         .init_zero_page:
             mov qword[rax - 8 + rcx * 8], 0
             loop .init_zero_page
         jmp .alloc
     .unprotect:
-        mov r10, qword[rel malloc_base] ; get page
+        mov r10, qword[rel AsmCoreMemory] ; get page
         mov rsi, 4096 ; set page size
         mov rdx, 3 ; set unprotect mode
         .loop_unprotect:
@@ -45,7 +45,7 @@ AsmAlloc:
             jne .loop_unprotect ; go next page if there is one
     .alloc:
     pop r8 ; get size wanted
-    mov r10, qword[rel malloc_base] ; get page
+    mov r10, qword[rel AsmCoreMemory] ; get page
     mov r11, -1 ; set offset
     .find_space:
         add r11, 17 ; go to next alloc
@@ -111,7 +111,7 @@ AsmAlloc:
         mov byte[r10 + r11 + 16], 0 ; set state at free
 
     .protect:
-        mov r10, qword[rel malloc_base] ; get page
+        mov r10, qword[rel AsmCoreMemory] ; get page
         mov rsi, 4096 ; set page size
         mov rdx, 1 ; set protect mode
         .loop_protect:

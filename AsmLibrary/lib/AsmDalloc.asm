@@ -8,7 +8,7 @@ section .text
 AsmDalloc:
     cmp rdi, 0
     je .bye
-    cmp qword[rel malloc_base], -1
+    cmp qword[rel AsmCoreMemory], -1
     je .error
     push r12
     push r13
@@ -16,7 +16,7 @@ AsmDalloc:
     push r15
     push rdi
     .unprotect:
-        mov r10, qword[rel malloc_base] ; get page
+        mov r10, qword[rel AsmCoreMemory] ; get page
         mov rsi, 4096 ; set page size
         mov rdx, 3 ; set unprotect mode
         .loop_unprotect:
@@ -34,7 +34,7 @@ AsmDalloc:
     xor r12, r12
     xor r13, r13
     xor r14, r14
-    mov r10, qword[rel malloc_base] ; set index
+    mov r10, qword[rel AsmCoreMemory] ; set index
     mov r11, r10
     add r11, 4096 ; set page limit
     add r10, -1
@@ -64,7 +64,7 @@ AsmDalloc:
     cmp byte[r12 + 16], 0
     je .error ; check if alloc is owned
     mov byte[r12 + 16], 0 ; set alloc to free
-    mov r10, qword[rel malloc_base] ; set to first alloc
+    mov r10, qword[rel AsmCoreMemory] ; set to first alloc
     mov r11, -1
     .find_prev:
         add r11, 17 ; increase to next alloc
@@ -106,7 +106,7 @@ AsmDalloc:
             mov r14, r13 ; set last last save to last save
 
     .leave_find_prev:
-    mov r10, qword[rel malloc_base] ; set to first alloc
+    mov r10, qword[rel AsmCoreMemory] ; set to first alloc
     mov r11, -1
     mov rdi, qword[r12 + 8]
     add rdi, qword[r12] ; set the cmp for see if its next
@@ -142,7 +142,7 @@ AsmDalloc:
 
     .leave_find_next:
     .protect:
-        mov r10, qword[rel malloc_base] ; get page
+        mov r10, qword[rel AsmCoreMemory] ; get page
         mov rsi, 4096 ; set page size
         mov rdx, 1 ; set protect mode
         .loop_protect:

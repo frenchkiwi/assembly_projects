@@ -13,10 +13,10 @@ AsmShowMemory:
     call AsmPutchar
     mov rdi, 10
     call AsmPutchar
-    cmp qword [rel malloc_base], -1
+    cmp qword [rel AsmCoreMemory], -1
     je .bye
     .unprotect:
-        mov r12, qword [rel malloc_base] ; get page
+        mov r12, qword [rel AsmCoreMemory] ; get page
         mov rsi, 4096 ; set page size
         mov rdx, 3 ; set unprotect mode
         .loop_unprotect:
@@ -28,7 +28,7 @@ AsmShowMemory:
             mov r12, qword [r12] ; set next page
             cmp r12, 0
             jne .loop_unprotect ; go next page if there is one
-    mov r12, qword [rel malloc_base]
+    mov r12, qword [rel AsmCoreMemory]
     mov r13, -1
     .find_space:
         add r13, 17
@@ -62,7 +62,7 @@ AsmShowMemory:
         call AsmPutchar
         jmp .find_space
     .protect:
-        mov r12, qword [rel malloc_base] ; get page
+        mov r12, qword [rel AsmCoreMemory] ; get page
         mov rsi, 4096 ; set page size
         mov rdx, 1 ; set protect mode
         .loop_protect:
