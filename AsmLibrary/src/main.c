@@ -1,11 +1,9 @@
 #include "AsmLibrary.h"
-#include <stdio.h>
-#include <string.h>
 
 void AsmString(void)
 {
     char str[10] = {0};
-    char *test = NULL;
+    char *test = (void *)(0);
     char **array = (void *)(0);
 
     AsmPutchar('c');

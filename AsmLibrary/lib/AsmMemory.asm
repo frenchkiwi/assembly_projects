@@ -8,6 +8,7 @@
     global AsmStrdup
     global AsmGetptr
     global AsmShowMemory
+    global AsmClearMemory
     %include "AsmLibrary.inc"
 
 section .data
@@ -607,4 +608,6 @@ AsmShowMemory:
         mov r12, qword [r12]
         mov r13, -1
         jmp .find_space
-    
+
+AsmClearMemory:
+    ret

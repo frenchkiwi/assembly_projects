@@ -7,7 +7,6 @@
 
 #ifndef AsmLib_
     #define AsmLib_
-#include <stdarg.h>
 
 // AsmString
 char AsmPutchar(char c);
@@ -79,4 +78,7 @@ char *AsmStrdup(char const *str);
 void *AsmGetptr(void *addr);
 
 void AsmShowMemory(void);
+
+void AsmClearMemory(void);
+
 #endif

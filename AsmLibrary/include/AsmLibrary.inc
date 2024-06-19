@@ -1,5 +1,6 @@
 %ifndef AsmLib_
     %define AsmLib_
+
     %macro ABS 1
         cmp %1, 0
         jge %%bye_ABS
@@ -92,4 +93,6 @@
     extern AsmStrdup
     extern AsmGetptr
     extern AsmShowMemory
+    extern AsmClearMemory
+
 %endif
