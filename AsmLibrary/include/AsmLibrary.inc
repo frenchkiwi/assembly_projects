@@ -64,10 +64,13 @@
     extern AsmStrncpy
     extern AsmStrcmp
     extern AsmStrncmp
+    extern AsmStrcasecmp
     extern AsmStrcat
     extern AsmStrncat
     extern AsmStrchr
     extern AsmStrrchr
+    extern AsmStrpbrk
+    extern AsmStrcspn
     extern AsmStrstr
     extern AsmPrint
     extern AsmStrcut

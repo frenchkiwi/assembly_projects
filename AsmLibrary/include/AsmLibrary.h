@@ -30,6 +30,8 @@ char AsmStrcmp(char const *str1, char const *str2);
 
 char AsmStrncmp(char const *str1, char const *str2, unsigned long n);
 
+char AsmStrcasecmp(char const *str1, char const *str2);
+
 char *AsmStrcat(char *dest, char const *src);
 
 char *AsmStrncat(char *dest, char const *src, unsigned long n);
@@ -37,6 +39,10 @@ char *AsmStrncat(char *dest, char const *src, unsigned long n);
 char *AsmStrchr(char const *str, char c);
 
 char *AsmStrrchr(char const *str, char c);
+
+char *AsmStrpbrk(char const *str, char const *find);
+
+long AsmStrcspn(char const *str, char const *find);
 
 char *AsmStrstr(char const *str, char const *find);
 

@@ -8,10 +8,13 @@
     global AsmStrncpy
     global AsmStrcmp
     global AsmStrncmp
+    global AsmStrcasecmp
     global AsmStrcat
     global AsmStrncat
     global AsmStrchr
     global AsmStrrchr
+    global AsmStrpbrk
+    global AsmStrcspn
     global AsmStrstr
     global AsmPrint
     global AsmStrcut
@@ -252,6 +255,37 @@ AsmStrncmp:
         sub rax, rdx
         ret
 
+AsmStrcasecmp:
+    mov rcx, -1
+    .loop:
+        inc rcx
+        movzx r8, byte[rdi + rcx]
+        .check_case:
+            cmp r8, 'A'
+            jl .leave_check_case
+            cmp r8, 'Z'
+            jg .leave_check_case
+            add r8, 32
+        .leave_check_case:
+        movzx r9, byte[rsi + rcx]
+        .check_case2:
+            cmp r9, 'A'
+            jl .leave_check_case2
+            cmp r9, 'Z'
+            jg .leave_check_case2
+            add r9, 32
+        .leave_check_case2:
+        cmp r8, r9
+        jne .not_equal
+        cmp r8, 0
+        jne .loop
+    xor rax, rax
+    ret
+    .not_equal:
+        mov rax, r8
+        sub rax, r9 
+        ret
+
 AsmStrcat:
     .goto_end:
         cmp byte[rdi], 0
@@ -315,6 +349,48 @@ AsmStrrchr:
         cmp byte[rdi], 0
         jne .loop
     ret
+
+AsmStrpbrk:
+    dec rdi
+    .loop:
+        inc rdi
+        mov rcx, -1
+        .in_list:
+            inc rcx
+            mov r8b, byte[rsi + rcx]
+            cmp byte[rdi], r8b
+            je .return_here
+            cmp r8b, 0
+            jne .in_list
+        cmp byte[rdi], 0
+        jne .loop
+    xor rax, rax
+    ret
+
+    .return_here:
+        mov rax, rdi
+        ret
+
+AsmStrcspn:
+    mov rdx, -1
+    .loop:
+        inc rdx
+        mov rcx, -1
+        .in_list:
+            inc rcx
+            mov r8b, byte[rsi + rcx]
+            cmp byte[rdi + rdx], r8b
+            je .return_here
+            cmp r8b, 0
+            jne .in_list
+        cmp byte[rdi + rdx], 0
+        jne .loop
+    xor rax, rax
+    ret
+
+    .return_here:
+        mov rax, rdx
+        ret
 
 AsmStrstr:
     dec rdi

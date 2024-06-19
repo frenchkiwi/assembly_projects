@@ -22,6 +22,7 @@ void AsmString(void)
     AsmPutlnbr(AsmStrncmp("non", "non", 7));
     AsmPutlnbr(AsmStrncmp("noa", "non", 2));
     AsmPutlnbr(AsmStrncmp("oui", "non", 2));
+    AsmPutlnbr(AsmStrcasecmp("non", "nON"));
     AsmStrcpy(str, "test");
     AsmStrcat(str, "next");
     AsmPutlstr(str);
@@ -30,6 +31,8 @@ void AsmString(void)
     AsmPutlstr(str);
     AsmPutlstr(AsmStrchr("the complex strategie", 'e'));
     AsmPutlstr(AsmStrrchr("the complex strategie", 't'));
+    AsmPutlstr(AsmStrpbrk("the complex strategie", "eh"));
+    AsmPutlnbr(AsmStrcspn("the complex strategie", "eh"));
     AsmPutlstr(AsmStrstr("yes iiiits a test", "its"));
     AsmPrint("test : int %d, char %c, string %s, percentage %%\n", 13, 'c', "test");
     array = AsmStrcut(" complex test for know if the     function   work", " \t");
