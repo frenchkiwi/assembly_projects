@@ -1,9 +1,7 @@
+section .text
     global AsmPower
     %include "AsmLibrary.inc"
 
-section .data
-
-section .text
 AsmPower:
     cmp rsi, 0
     jl .neg

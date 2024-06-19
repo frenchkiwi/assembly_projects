@@ -83,6 +83,7 @@
     extern AsmPower
 
     ;AsmMemory
+    extern malloc_base
     extern AsmMemset
     extern AsmMemcpy
     extern AsmMemmove
