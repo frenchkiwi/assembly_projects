@@ -57,6 +57,7 @@
     extern AsmPutchar
     extern AsmPutstr
     extern AsmPutstrL
+    extern AsmGetnbr
     extern AsmPutnbr
     extern AsmPutnbrL
     extern AsmStrlen

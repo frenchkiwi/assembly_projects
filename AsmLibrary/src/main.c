@@ -9,6 +9,7 @@ void AsmString(void)
 
     AsmPutchar('c');
     AsmPutstr("\ntest\n");
+    AsmPutlnbr(AsmGetnbr("-45test"));
     AsmPutlnbr(4);
     AsmPutlnbr(AsmStrlen("test word"));
     AsmStrcpy(str, "test");

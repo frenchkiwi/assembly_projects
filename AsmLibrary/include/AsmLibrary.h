@@ -16,6 +16,8 @@ void AsmPutstr(char const *str);
 
 void AsmPutlstr(char const *str);
 
+long AsmGetnbr(char const *str);
+
 void AsmPutnbr(long n);
 
 void AsmPutlnbr(long n);
