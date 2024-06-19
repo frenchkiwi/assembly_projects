@@ -30,6 +30,7 @@ void AsmString(void)
     AsmPutlstr(str);
     AsmPutlstr(AsmStrchr("the complex strategie", 'e'));
     AsmPutlstr(AsmStrrchr("the complex strategie", 't'));
+    AsmPutlstr(AsmStrstr("yes iiiits a test", "its"));
     AsmPrint("test : int %d, char %c, string %s, percentage %%\n", 13, 'c', "test");
     array = AsmStrcut(" complex test for know if the     function   work", " \t");
     for (int i = 0; array[i]; i++) {
