@@ -1,3 +1,5 @@
+    global AsmMemset
+    global AsmMemcpy
     global AsmAlloc
     global AsmDalloc
     global AsmCalloc
@@ -14,6 +16,33 @@ section .data
     free_bug db "AsmDalloc(): memory release failed", 10
 
 section .text
+
+AsmMemset:
+    cmp rdx, 0
+    je .bye
+    mov rcx, 0
+    .loop:
+        mov byte[rdi + rcx], sil
+        inc rcx
+        cmp rcx, rdx
+        jne .loop
+    .bye:
+    mov rax, rdi
+    ret
+
+AsmMemcpy:
+     mov rcx, -1
+    .loop:
+        inc rcx
+        cmp rdx, rcx
+        je .bye
+        mov r8b, byte[rsi + rcx]
+        mov byte[rdi + rcx], r8b
+        jmp .loop
+    .bye:
+    mov rax, rdi
+    ret
+
 AsmAlloc:
     cmp rdi, 0
     je .bug ; check if size wanted is null

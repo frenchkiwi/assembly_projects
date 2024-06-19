@@ -72,7 +72,6 @@
     extern AsmStrpbrk
     extern AsmStrcspn
     extern AsmStrstr
-    extern AsmMemset
     extern AsmPrint
     extern AsmStrcut
 
@@ -80,6 +79,8 @@
     extern AsmPower
 
     ;AsmMemory
+    extern AsmMemset
+    extern AsmMemcpy
     extern AsmAlloc
     extern AsmDalloc
     extern AsmCalloc

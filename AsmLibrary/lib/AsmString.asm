@@ -16,7 +16,6 @@
     global AsmStrpbrk
     global AsmStrcspn
     global AsmStrstr
-    global AsmMemset
     global AsmPrint
     global AsmStrcut
     %include "AsmLibrary.inc"
@@ -416,19 +415,6 @@ AsmStrstr:
         jne .loop
     xor rax, rax
     .bye:
-    ret
-
-AsmMemset:
-    cmp rdx, 0
-    je .bye
-    mov rcx, 0
-    .loop:
-        mov byte[rdi + rcx], sil
-        inc rcx
-        cmp rcx, rdx
-        jne .loop
-    .bye:
-    mov rax, rdi
     ret
 
 AsmPrint:

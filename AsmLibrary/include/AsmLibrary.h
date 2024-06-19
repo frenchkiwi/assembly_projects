@@ -48,6 +48,8 @@ char *AsmStrstr(char const *str, char const *find);
 
 void *AsmMemset(void *ptr, char c, long n);
 
+void *AsmMemcpy(void *dest, void const *src, long n);
+
 void AsmPrint(char const *format, ...);
 
 char **AsmStrcut(char *str, char *delimiters);
