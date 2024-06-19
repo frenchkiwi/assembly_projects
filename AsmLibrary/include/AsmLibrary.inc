@@ -72,6 +72,7 @@
     extern AsmStrpbrk
     extern AsmStrcspn
     extern AsmStrstr
+    extern AsmMemset
     extern AsmPrint
     extern AsmStrcut
 

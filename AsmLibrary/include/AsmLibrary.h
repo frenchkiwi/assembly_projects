@@ -46,6 +46,8 @@ long AsmStrcspn(char const *str, char const *find);
 
 char *AsmStrstr(char const *str, char const *find);
 
+void *AsmMemset(void *ptr, char c, long n);
+
 void AsmPrint(char const *format, ...);
 
 char **AsmStrcut(char *str, char *delimiters);
