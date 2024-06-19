@@ -81,6 +81,7 @@
     ;AsmMemory
     extern AsmMemset
     extern AsmMemcpy
+    extern AsmMemmove
     extern AsmAlloc
     extern AsmDalloc
     extern AsmCalloc

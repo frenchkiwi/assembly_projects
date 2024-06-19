@@ -36,6 +36,8 @@ void AsmString(void)
     AsmPutlstr(AsmStrstr("yes iiiits a test", "its"));
     AsmPutlstr(AsmMemset(str, 'c', 9));
     AsmPutlstr(AsmMemcpy(str, "test", 4));
+    AsmStrcpy(str, "this is N");
+    AsmPutlstr(AsmMemmove(str + 1, str, 5));
     AsmPrint("test : int %d, char %c, string %s, percentage %%\n", 13, 'c', "test");
     array = AsmStrcut(" complex test for know if the     function   work", " \t");
     for (int i = 0; array[i]; i++) {
