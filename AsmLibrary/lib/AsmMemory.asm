@@ -67,7 +67,7 @@ AsmMemmove:
         cmp rcx, rdx
         jne .paste
     add rsp, r8
-    .bye
+    .bye:
     ret
 
 AsmAlloc:

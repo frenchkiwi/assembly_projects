@@ -5,11 +5,17 @@
 void AsmString(void)
 {
     char str[10] = {0};
+    char *test = NULL;
     char **array = (void *)(0);
 
     AsmPutchar('c');
     AsmPutstr("\ntest\n");
+    AsmPutlnbr(AsmIsNum("568t"));
+    AsmPutlnbr(AsmIsNum("568"));
     AsmPutlnbr(AsmGetnbr("-45test"));
+    test = AsmGetstr(56);
+    AsmPutlstr(test);
+    AsmDalloc(test);
     AsmPutlnbr(4);
     AsmPutlnbr(AsmStrlen("test word"));
     AsmStrcpy(str, "test");

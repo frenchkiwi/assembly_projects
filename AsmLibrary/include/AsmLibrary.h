@@ -16,7 +16,11 @@ void AsmPutstr(char const *str);
 
 void AsmPutlstr(char const *str);
 
+char AsmIsNum(char const *str);
+
 long AsmGetnbr(char const *str);
+
+char *AsmGetstr(long n);
 
 void AsmPutnbr(long n);
 

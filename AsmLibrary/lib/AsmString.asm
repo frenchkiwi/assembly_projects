@@ -1,7 +1,9 @@
     global AsmPutchar
     global AsmPutstr
     global AsmPutlstr
+    global AsmIsNum
     global AsmGetnbr
+    global AsmGetstr
     global AsmPutnbr
     global AsmPutlnbr
     global AsmStrlen
@@ -73,6 +75,36 @@ AsmPutlstr:
     .bye:
     ret
 
+AsmIsNum:
+    xor rax, rax
+    cmp rdi, 0
+    je .bye
+    xor r8, r8
+    mov rcx, -1
+    mov r9, 1
+    .loop:
+        inc rcx
+        cmp byte[rdi + rcx], 0
+        cmove rax, r9
+        je .bye
+        cmp byte[rdi + rcx], '-'
+        je .sign
+        cmp byte[rdi + rcx], '+'
+        je .sign
+        cmp byte[rdi + rcx], '0'
+        jl .bye
+        cmp byte[rdi + rcx], '9'
+        jg .bye
+        jmp .loop
+
+        .sign:
+            cmp r8, 0
+            jne .bye
+            mov r8, 1
+            jmp .loop
+    .bye:
+    ret
+
 AsmGetnbr:
     xor rax, rax
     cmp rdi, 0
@@ -107,6 +139,69 @@ AsmGetnbr:
     jne .return
     neg rax
     .return:
+    ret
+
+AsmGetstr:
+    push rbx
+    push r12
+    push r13
+    push r14
+    mov r13, rdi
+    mov r12, rdi
+    xor rdi, rdi
+    cmp r12, 0
+    jge .setup
+    inc rdi
+    neg r12
+    .setup:
+    mov r14, 1
+    mov rbx, 10
+    .loop_len:
+        inc rdi
+
+        mov rax, r14
+        mul rbx
+
+        mov r14, rax
+        mov rax, r12
+        xor rdx, rdx
+        div r14
+
+        cmp rax, 1
+        jge .loop_len
+    inc rdi
+    call AsmAlloc
+    mov r12, rax
+    mov rcx, -1
+    cmp r13, 0
+    jge .loop
+    mov byte[r12], '-'
+    inc rcx
+    neg r13
+    .loop:
+        inc rcx
+
+        mov rax, r14
+        xor rdx, rdx
+        div rbx
+        mov r14, rax
+
+        mov rax, r13
+        xor rdx, rdx
+        div r14
+
+        mov r13, rdx
+        add rax, '0'
+        mov byte[r12 + rcx], al
+
+        cmp r13, 0
+        jne .loop
+    mov byte[r12 + rcx + 1], 0
+    mov rax, r12
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
     ret
 
 AsmPutnbr:
