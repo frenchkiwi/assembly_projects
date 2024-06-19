@@ -62,10 +62,11 @@ AsmAlloc:
         je .next_page ; if page end go next page
         cmp byte [r10 + r11 + 16], 1
         je .find_space ; if alloc is owned go next alloc
+        cmp qword [r10 + r11], 0
+        je .new_alloc ; if alloc is empty go create alloc
         cmp qword [r10 + r11], r8
         jl .find_space ; if alloc free is to small go next alloc
-    cmp qword [r10 + r11], 0
-    jne .split_alloc ; if the alloc is not a new one
+        jmp .split_alloc
     .new_alloc:
         push r8
         push r10
@@ -460,11 +461,11 @@ AsmCalloc:
     cmp rax, 0
     je .bye
     xor rcx, rcx
-    .loop_calloc:
+    .loop:
         mov byte [rax + rcx], sil
         inc rcx
         cmp rcx, rdi
-        jne .loop_calloc
+        jne .loop
     .bye:
     ret
 
@@ -523,80 +524,90 @@ AsmGetptr:
     ret
 
 AsmShowMemory:
-    CALL_ AsmPutchar, 'g'
-    CALL_ AsmPutchar, 'o'
-    CALL_ AsmPutchar, 10
-    mov r10, qword [rel malloc_base]
-    cmp r10, -1
+    push r12
+    push r13
+    mov rdi, 'g'
+    call AsmPutchar
+    mov rdi, 'o'
+    call AsmPutchar
+    mov rdi, 10
+    call AsmPutchar
+    cmp qword [rel malloc_base], -1
     je .bye
     .unprotect:
-        mov rax, 10
-        mov rdi, r10
-        mov rsi, 4096
-        mov rdx, 3
-        syscall
-        cmp rax, 0
-        jl .bye
-        cmp qword [r10], 0
-        je .alloc
-        mov r10, qword [r10]
-        jmp .unprotect
-    .alloc:
-
-    mov r10, qword [rel malloc_base]
-    mov r11, -1
-    .find_space:
-        add r11, 17
-        cmp r11, 4096
-        jge .go_next_malloc_page
-        cmp qword[r10 + r11], 0
-        je .continue_find_space
-        xor rdi, rdi
-        mov rdi, qword[r10 + r11]
-        CALL_ AsmPutchar, 's'
-        CALL_ AsmPutchar, ':'
-        CALL_ AsmPutnbr, rdi
-        CALL_ AsmPutchar, 32
-        xor rdi, rdi
-        mov rdi, qword[r10 + r11 + 8]
-        CALL_ AsmPutchar, 'a'
-        CALL_ AsmPutchar, ':'
-        CALL_ AsmPutnbr, rdi
-        CALL_ AsmPutchar, 32
-        xor rdi, rdi
-        movzx rdi, byte[r10 + r11 + 16]
-        CALL_ AsmPutchar, 'e'
-        CALL_ AsmPutchar, ':'
-        CALL_ AsmPutnbr, rdi
-        CALL_ AsmPutchar, 10
-        jmp .find_space
-    .continue_find_space:
-
-    .protect:
-        mov r10, qword [rel malloc_base]
-        .loop_protect:
-            cmp r10, 0
-            je .bye
-            mov r8, qword [r10]
-            mov rax, 10
-            mov rdi, r10
-            mov rsi, 4096
-            mov rdx, 1
+        mov r12, qword [rel malloc_base] ; get page
+        mov rsi, 4096 ; set page size
+        mov rdx, 3 ; set unprotect mode
+        .loop_unprotect:
+            mov rax, 10 ; mprotect
+            mov rdi, r12 ; page
             syscall
             cmp rax, 0
             jl .bye
-            mov r10, r8
-            jmp .loop_protect
+            mov r12, qword [r12] ; set next page
+            cmp r12, 0
+            jne .loop_unprotect ; go next page if there is one
+    mov r12, qword [rel malloc_base]
+    mov r13, -1
+    .find_space:
+        add r13, 17
+        cmp r13, 4096
+        jge .next_page
+        cmp qword[r12 + r13], 0
+        je .protect
+        mov rdi, 's'
+        call AsmPutchar
+        mov rdi, ':'
+        call AsmPutchar
+        mov rdi, qword[r12 + r13]
+        call AsmPutnbr
+        mov rdi, 32
+        call AsmPutchar
+        mov rdi, 'a'
+        call AsmPutchar
+        mov rdi, ':'
+        call AsmPutchar
+        mov rdi, qword[r12 + r13 + 8]
+        call AsmPutnbr
+        mov rdi, 32
+        call AsmPutchar
+        mov rdi, 'e'
+        call AsmPutchar
+        mov rdi, ':'
+        call AsmPutchar
+        movzx rdi, byte[r12 + r13 + 16]
+        call AsmPutnbr
+        mov rdi, 10
+        call AsmPutchar
+        jmp .find_space
+    .protect:
+        mov r12, qword [rel malloc_base] ; get page
+        mov rsi, 4096 ; set page size
+        mov rdx, 1 ; set protect mode
+        .loop_protect:
+            mov rax, 10 ; mprotect
+            mov rdi, r12 ; page
+            syscall
+            cmp rax, 0
+            jl .bye
+            mov r12, qword [r12] ; set next page
+            cmp r12, 0
+            jne .loop_protect ; go next page if there is one
     .bye:
+    pop r13
+    pop r12
     ret
 
-    .go_next_malloc_page:
-        cmp qword [r10], 0
-        je .bye
-        CALL_ AsmPutchar, 'n'
-        CALL_ AsmPutchar, 'p'
-        CALL_ AsmPutchar, 10
-        mov r10, qword [r10]
-        mov r11, -1
+    .next_page:
+        cmp qword [r12], 0
+        je .protect
+        mov rdi, 'n'
+        call AsmPutchar
+        mov rdi, 'p'
+        call AsmPutchar
+        mov rdi, 10
+        call AsmPutchar
+        mov r12, qword [r12]
+        mov r13, -1
         jmp .find_space
     

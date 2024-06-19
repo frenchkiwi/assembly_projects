@@ -28,14 +28,17 @@ void AsmString(void)
     AsmPutstrL(str);
     AsmPrint("test : int %d, char %c, string %s, percentage %%\n", 13, 'c', "test");
     array = AsmStrcut(" complex test for know if the     function   work", " \t");
-    for (int i = 0; array[i]; i++)
+    for (int i = 0; array[i]; i++) {
         AsmPutstrL(array[i]);
+        AsmDalloc(array[i]);
+    }
+    AsmDalloc(array);
 }
 
 void AsmAllocation(void)
 {
     AsmAlloc(sizeof(char) * 5);
-
+    AsmShowMemory();
 }
 
 int main(void)
