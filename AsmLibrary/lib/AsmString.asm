@@ -66,6 +66,7 @@ AsmPutstrL:
     ret
 
 AsmPutnbr:
+    push rbx
     push r12
     push r13
     push r14
@@ -116,9 +117,11 @@ AsmPutnbr:
     pop r14
     pop r13
     pop r12
+    pop rbx
     ret
 
 AsmPutnbrL:
+    push rbx
     push r12
     push r13
     push r14
@@ -169,6 +172,7 @@ AsmPutnbrL:
     pop r14
     pop r13
     pop r12
+    pop rbx
     mov rdi, 10
     call AsmPutchar
     ret
@@ -292,11 +296,9 @@ AsmPrint:
     push rsi
     push rbp
     mov rbp, rsp
-    push rbx
     push r12 ; String adress
     push r13 ; Counter
     push r14 ; Param counter
-    push r15
 
     mov r12, rdi
     mov r13, -1
@@ -313,11 +315,9 @@ AsmPrint:
         cmp byte[r12 + r13 + 1], 0
         jne .loop
     .leave_loop:
-    pop r15
     pop r14
     pop r13
     pop r12
-    pop rbx
     pop rbp
     pop rsi
     pop rdx

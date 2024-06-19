@@ -37,7 +37,14 @@ void AsmString(void)
 
 void AsmAllocation(void)
 {
-    AsmAlloc(sizeof(char) * 5);
+    char *str[3];
+
+    str[0] = AsmAlloc(sizeof(char) * 5);
+    str[1] = AsmAlloc(sizeof(char) * 7);
+    str[2] = AsmAlloc(sizeof(char) * 2);
+    AsmDalloc(str[2]);
+    AsmDalloc(str[1]);
+    AsmDalloc(str[0]);
     AsmShowMemory();
 }
 

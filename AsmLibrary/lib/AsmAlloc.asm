@@ -16,9 +16,9 @@ section .data
 section .text
 AsmAlloc:
     cmp rdi, 0
-    je .error ; check if size wanted is null
+    je .bug ; check if size wanted is null
     push rdi
-    cmp qword [rel malloc_base], -1
+    cmp qword[rel malloc_base], -1
     jne .unprotect ; if page exist unprotect it
 
     .init_page:
@@ -31,16 +31,16 @@ AsmAlloc:
         mov r9, 0 ; no offset
         syscall ; create the initial page
         cmp rax, 0
-        jl .error_1
+        jl .bug_1
 
-        mov qword [rel malloc_base], rax ; set the page in malloc_base
+        mov qword[rel malloc_base], rax ; set the page in malloc_base
         mov rcx, 512
         .init_zero_page:
-            mov qword [rax - 8 + rcx * 8], 0
+            mov qword[rax - 8 + rcx * 8], 0
             loop .init_zero_page
         jmp .alloc
     .unprotect:
-        mov r10, qword [rel malloc_base] ; get page
+        mov r10, qword[rel malloc_base] ; get page
         mov rsi, 4096 ; set page size
         mov rdx, 3 ; set unprotect mode
         .loop_unprotect:
@@ -48,23 +48,23 @@ AsmAlloc:
             mov rdi, r10 ; page
             syscall
             cmp rax, 0
-            jl .error_1
-            mov r10, qword [r10] ; set next page
+            jl .bug_1
+            mov r10, qword[r10] ; set next page
             cmp r10, 0
             jne .loop_unprotect ; go next page if there is one
     .alloc:
     pop r8 ; get size wanted
-    mov r10, qword [rel malloc_base] ; get page
+    mov r10, qword[rel malloc_base] ; get page
     mov r11, -1 ; set offset
     .find_space:
         add r11, 17 ; go to next alloc
         cmp r11, 4096
         je .next_page ; if page end go next page
-        cmp byte [r10 + r11 + 16], 1
+        cmp byte[r10 + r11 + 16], 1
         je .find_space ; if alloc is owned go next alloc
-        cmp qword [r10 + r11], 0
+        cmp qword[r10 + r11], 0
         je .new_alloc ; if alloc is empty go create alloc
-        cmp qword [r10 + r11], r8
+        cmp qword[r10 + r11], r8
         jl .find_space ; if alloc free is to small go next alloc
         jmp .split_alloc
     .new_alloc:
@@ -83,7 +83,7 @@ AsmAlloc:
         pop r10
         pop r8
         cmp rax, 0
-        jl .error
+        jl .bug
 
         mov r9, rax ; set alloc addr
         mov rax, r8 ; round r8 to nearest 4096 multiple
@@ -91,36 +91,36 @@ AsmAlloc:
         and rax, -4096
         neg rax
 
-        mov qword [r10 + r11], rax ; set alloc length
-        mov qword [r10 + r11 + 8], r9 ; set alloc addr
+        mov qword[r10 + r11], rax ; set alloc length
+        mov qword[r10 + r11 + 8], r9 ; set alloc addr
     
     .split_alloc:
-        mov byte [r10 + r11 + 16], 1 ;  set alloc state at owned
-        mov rdi, qword [r10 + r11 + 8]
+        mov byte[r10 + r11 + 16], 1 ;  set alloc state at owned
+        mov rdi, qword[r10 + r11 + 8]
         push rdi ; save alloc for return
-        cmp qword [r10 + r11], r8
+        cmp qword[r10 + r11], r8
         je .protect ; if alloc wanted = alloc free leave the function
-        mov rsi, qword [r10 + r11]
+        mov rsi, qword[r10 + r11]
         sub rsi, r8
         mov qword[r10 + r11], r8 ; set new alloc size
         push rsi ; save split length
         .find_last_space:
             add r11, 17
             cmp r11, 4096
-            jge .next_page2
-            cmp qword [r10 + r11], 0
+            je .next_page2
+            cmp qword[r10 + r11], 0
             jne .find_last_space
         .leave_find_last_space:
         pop rsi ; restore split length
         pop rdi ; restore alloc addr
         push rdi
         add rdi, r8 ; go to split addr
-        mov qword [r10 + r11], rsi ; set split length
-        mov qword [r10 + r11 + 8], rdi ; set split addr
-        mov byte [r10 + r11 + 16], 0 ; set state at free
+        mov qword[r10 + r11], rsi ; set split length
+        mov qword[r10 + r11 + 8], rdi ; set split addr
+        mov byte[r10 + r11 + 16], 0 ; set state at free
 
     .protect:
-        mov r10, qword [rel malloc_base] ; get page
+        mov r10, qword[rel malloc_base] ; get page
         mov rsi, 4096 ; set page size
         mov rdx, 1 ; set protect mode
         .loop_protect:
@@ -128,18 +128,17 @@ AsmAlloc:
             mov rdi, r10 ; page
             syscall
             cmp rax, 0
-            jl .error_1
-            mov r10, qword [r10] ; set next page
+            jl .bug_1
+            mov r10, qword[r10] ; set next page
             cmp r10, 0
             jne .loop_protect ; go next page if there is one
     .bye:
     pop rax ; get alloc addr
     ret
 
-    .error_1:
+    .bug_1:
         pop rdi
-
-    .error:
+    .bug:
         mov rax, 1
         mov rdi, 2
         lea rsi, [rel malloc_bug]
@@ -149,9 +148,9 @@ AsmAlloc:
         ret
 
     .next_page:
-        cmp qword [r10], 0
+        cmp qword[r10], 0
         je .create_page
-        mov r10, qword [r10]
+        mov r10, qword[r10]
         mov r11, -1
         jmp .find_space
     .create_page:
@@ -168,21 +167,21 @@ AsmAlloc:
         pop r10
         pop r8
         cmp rax, 0
-        jl .error
+        jl .bug
 
-        mov qword [r10], rax
+        mov qword[r10], rax
         mov r10, rax
         mov rcx, 512
         .zero_page:
-            mov qword [r10 - 8 + rcx * 8], 0
+            mov qword[r10 - 8 + rcx * 8], 0
             loop .zero_page
         mov r11, 16
         jmp .new_alloc
 
     .next_page2:
-        cmp qword [r10], 0
+        cmp qword[r10], 0
         je .create_page2
-        mov r10, qword [r10]
+        mov r10, qword[r10]
         mov r11, -1
         jmp .find_last_space
     .create_page2:
@@ -199,13 +198,13 @@ AsmAlloc:
         pop r10
         pop r8
         cmp rax, 0
-        jl .error_1
+        jl .bug_1
 
-        mov qword [r10], rax
+        mov qword[r10], rax
         mov r10, rax
         mov rcx, 512
         .zero_page2:
-            mov qword [r10 - 8 + rcx * 8], 0
+            mov qword[r10 - 8 + rcx * 8], 0
             loop .zero_page2
         mov r11, 16
         jmp .leave_find_last_space
@@ -213,232 +212,164 @@ AsmAlloc:
 AsmDalloc:
     cmp rdi, 0
     je .bye
-    mov r10, qword [rel malloc_base]
-    cmp r10, -1
-    je .error_free
+    cmp qword[rel malloc_base], -1
+    je .error
+    push r12
+    push r13
+    push r14
+    push r15
     push rdi
     .unprotect:
-        mov rax, 10
-        mov rdi, r10
-        mov rsi, 4096
-        mov rdx, 3
-        syscall
-        cmp rax, 0
-        jl .bug_free2
-        cmp qword [r10], 0
-        je .dalloc
-        mov r10, qword [r10]
-        jmp .unprotect
-        
-    .dalloc:
-    pop rdi
-
-    mov r10, qword [rel malloc_base]
-    mov r11, -1
-    .find_malloc:
-        add r11, 17
-        cmp r11, 4096
-        jge .go_next_malloc_page
-        cmp qword [r10 + r11], 0
-        je .error_free
-        cmp qword [r10 + r11 + 8], rdi
-        jne .find_malloc
-    
-    cmp byte [r10 + r11 + 16], 0
-    je .error_free
-    mov byte [r10 + r11 + 16], 0
-
-    mov r8, r10
-    add r8, r11
-    mov r10, qword [rel malloc_base]
-    mov r11, -1
-    .find_free_prev:
-        add r11, 17
-        cmp r11, 4096
-        jge .go_next_malloc_page_prev
-        cmp qword [r10 + r11], 0
-        je .leave_find_free_prev
-        cmp byte [r10 + r11 + 16], 1
-        je .find_free_prev
-        mov r9, qword [r10 + r11 + 8]
-        add r9, qword [r10 + r11]
-        cmp qword [r8 + 8], r9
-        jne .find_free_prev
-        mov r9, qword [r8]
-        add qword [r10 + r11], r9
-        jmp .swap_prev
-
-         .go_next_malloc_page_prev:
-            cmp qword [r10], 0
-            je .leave_find_free_prev
-            mov r10, qword [r10]
-            mov r11, -1
-            jmp .find_free_prev
-
-    .leave_find_free_prev:
-
-    mov r10, qword [rel malloc_base]
-    mov r11, -1
-    mov r9, qword [r8 + 8]
-    add r9, qword [r8]
-    .find_free_next:
-        add r11, 17
-        cmp r11, 4096
-        jge .go_next_malloc_page_next
-        cmp qword [r10 + r11], 0
-        je .leave_find_free_next
-        cmp byte [r10 + r11 + 16], 1
-        je .find_free_next
-        cmp qword [r10 + r11 + 8], r9
-        jne .find_free_next
-        mov r9, qword [r10 + r11]
-        add qword [r8], r9
-        jmp .swap_next
-
-         .go_next_malloc_page_next:
-            cmp qword [r10], 0
-            je .leave_find_free_next
-            mov r10, qword [r10]
-            mov r11, -1
-            jmp .find_free_next
-
-    .leave_find_free_next:
-
-    .protect:
-        mov r10, qword [rel malloc_base]
-        .loop_protect:
-            cmp r10, 0
-            je .bye
-            mov r8, qword [r10]
-            mov rax, 10
-            mov rdi, r10
-            mov rsi, 4096
-            mov rdx, 1
+        mov r10, qword[rel malloc_base] ; get page
+        mov rsi, 4096 ; set page size
+        mov rdx, 3 ; set unprotect mode
+        .loop_unprotect:
+            mov rax, 10 ; mprotect
+            mov rdi, r10 ; page
             syscall
             cmp rax, 0
-            jl .bug_free
-            mov r10, r8
-            jmp .loop_protect
+            jl .bug
+            mov r10, qword[r10] ; set next page
+            cmp r10, 0
+            jne .loop_unprotect ; go next page if there is one
 
+    .dalloc:
+    pop rdi ; restore addr to free
+    xor r12, r12
+    xor r13, r13
+    xor r14, r14
+    mov r10, qword[rel malloc_base] ; set index
+    mov r11, r10
+    add r11, 4096 ; set page limit
+    add r10, -1
+    .find_alloc:
+        add r10, 17 ; increase to next alloc
+        cmp r10, r11
+        je .next_page ; if limit reach go next page
+        cmp qword [r10], 0
+        je .leave_find_alloc ; if last alloc go free
+        cmp qword [r10 + 8], rdi
+        cmove r12, r10 ; if its the alloc to free save it
+        mov r13, r14 ; last last alloc save
+        mov r14, r10 ; last alloc save
+        jmp .find_alloc
+        .next_page:
+            cmp qword [r10 - 4096], 0
+            je .leave_find_alloc ; if last alloc go free
+            mov r10, qword [r10 - 4096] ; set index
+            mov r11, r10
+            add r11, 4096 ; set page limit
+            add r10, -1
+            jmp .find_alloc ; go find last alloc
+
+    .leave_find_alloc:
+    cmp r12, 0
+    je .error ; check if alloc find
+    cmp byte[r12 + 16], 0
+    je .error ; check if alloc is owned
+    mov byte[r12 + 16], 0 ; set alloc to free
+    mov r10, qword[rel malloc_base] ; set to first alloc
+    mov r11, -1
+    .find_prev:
+        add r11, 17 ; increase to next alloc
+        cmp r11, 4096
+        je .next_page_prev ; if limit reach go next page
+        cmp qword[r10 + r11], 0
+        je .leave_find_prev ; if last alloc go find next
+        cmp byte[r10 + r11 + 16], 1
+        je .find_prev ; if owned go next alloc
+        mov rdi, qword[r10 + r11 + 8]
+        add rdi, qword[r10 + r11]
+        cmp qword[r12 + 8], rdi
+        jne .find_prev ; check if this alloc is the prev
+        mov rdi, qword[r12]
+        add qword[r10 + r11], rdi ; set the new length of prev
+        jmp .swap_prev ; go push alloc to end of list
+        .next_page_prev:
+            cmp qword[r10], 0
+            je .leave_find_prev ; if last alloc go find next
+            mov r10, qword[r10]
+            mov r11, -1 ; set index
+            jmp .find_prev ; go find prev
+        .swap_prev:
+            push qword[r14 + 8] ; save last addr
+            mov rdi, qword[r14]
+            mov qword[r12], rdi
+            mov rdi, qword[r14 + 8]
+            mov qword[r12 + 8], rdi
+            movzx rdi, byte[r14 + 16]
+            mov byte[r12 + 16], dil
+            mov qword[r14], 0
+            mov qword[r14 + 8], 0
+            mov byte[r14 + 16], 0 ; swap last and alloc
+            pop rdi ; restore last addr
+            mov rsi, r10
+            add rsi, r11 ; get prev addr
+            cmp rdi, qword[r10 + r11 + 8]
+            cmovne r12, rsi ; if prev is not last set alloc to prev
+            mov r14, r13 ; set last last save to last save
+
+    .leave_find_prev:
+    mov r10, qword[rel malloc_base] ; set to first alloc
+    mov r11, -1
+    mov rdi, qword[r12 + 8]
+    add rdi, qword[r12] ; set the cmp for see if its next
+    .find_next:
+        add r11, 17 ; increase to next alloc
+        cmp r11, 4096
+        je .next_page_next ; if limit reach go next page
+        cmp qword[r10 + r11], 0
+        je .leave_find_next ; if last alloc go find next
+        cmp byte[r10 + r11 + 16], 1
+        je .find_next ; if owned go next alloc
+        cmp qword[r10 + r11 + 8], rdi
+        jne .find_next ; check if this alloc is the next
+        mov rdi, qword[r10 + r11]
+        add qword[r12], rdi ; set the new length of alloc
+        jmp .swap_next ; go push alloc to end of list
+        .next_page_next:
+            cmp qword[r10], 0
+            je .leave_find_next ; if last alloc go find next
+            mov r10, qword[r10]
+            mov r11, -1 ; set index
+            jmp .find_next ; go find next
+        .swap_next:
+            mov rdi, qword[r14]
+            mov qword[r10 + r11], rdi
+            mov rdi, qword[r14 + 8]
+            mov qword[r10 + r11 + 8], rdi
+            movzx rdi, byte[r14 + 16]
+            mov byte[r10 + r11 + 16], dil
+            mov qword[r14], 0
+            mov qword[r14 + 8], 0
+            mov byte[r14 + 16], 0 ; swap last and next
+
+    .leave_find_next:
+    .protect:
+        mov r10, qword[rel malloc_base] ; get page
+        mov rsi, 4096 ; set page size
+        mov rdx, 1 ; set protect mode
+        .loop_protect:
+            mov rax, 10 ; mprotect
+            mov rdi, r10 ; page
+            syscall
+            cmp rax, 0
+            jl .bug
+            mov r10, qword[r10] ; set next page
+            cmp r10, 0
+            jne .loop_protect ; go next page if there is one
     .bye:
+    pop r15
+    pop r14
+    pop r13
+    pop r12
     ret
 
-    .go_next_malloc_page:
-        cmp qword [r10], 0
-        je .error_free
-        mov r10, qword [r10]
-        mov r11, -1
-        jmp .find_malloc
-
-    .swap_prev:
-        mov r9, r10
-        add r9, r11
-        push r9
-        mov r10, qword [rel malloc_base]
-        mov r11, -1
-        mov r9, 0
-        .find_last_prev:
-            add r11, 17
-            cmp r11, 4096
-            jge .go_next_malloc_page_last_prev
-            cmp qword [r10 + r11], 0
-            je .leave_find_last_prev
-            mov r9, r10
-            add r9, r11
-            jmp .find_last_prev
-        .leave_find_last_prev:
-        mov r10, r9
-        pop r9
-        mov rdx, qword [r10 + 8]
-        cmp qword [r9 + 8], rdx
-        je .prev_is_last
-        mov rdx, qword [r10]
-        mov qword [r8], rdx
-        mov rdx, qword [r10 + 8]
-        mov qword [r8 + 8], rdx
-        mov dl, byte [r10 + 16]
-        mov byte [r8 + 16], dl
-        mov qword [r10], 0
-        mov qword [r10 + 8], 0
-        mov byte [r10 + 16], 0
-        mov r8, r9
-        jmp .leave_find_free_prev
-
-        .go_next_malloc_page_last_prev:
-            cmp qword [r10], 0
-            je .leave_find_last_prev
-            mov r10, qword [r10]
-            mov r11, -1
-            jmp .find_last_prev
-
-        .prev_is_last:
-            mov rdx, qword [r10]
-            mov qword [r8], rdx
-            mov rdx, qword [r10 + 8]
-            mov qword [r8 + 8], rdx
-            mov dl, byte [r10 + 16]
-            mov byte [r8 + 16], dl
-            mov qword [r10], 0
-            mov qword [r10 + 8], 0
-            mov byte [r10 + 16], 0
-            jmp .leave_find_free_prev
-        
-    .swap_next:
-        mov r9, r10
-        add r9, r11
-        push r9
-        mov r10, qword [rel malloc_base]
-        mov r11, -1
-        mov r9, 0
-        .find_last_next:
-            add r11, 17
-            cmp r11, 4096
-            jge .go_next_malloc_page_last_next
-            cmp qword [r10 + r11], 0
-            je .leave_find_last_next
-            mov r9, r10
-            add r9, r11
-            jmp .find_last_next
-        .leave_find_last_next:
-        mov r10, r9
-        pop r9
-        mov rdx, qword [r10]
-        mov qword [r9], rdx
-        mov rdx, qword [r10 + 8]
-        mov qword [r9 + 8], rdx
-        mov dl, byte [r10 + 16]
-        mov byte [r9 + 16], dl
-        mov qword [r10], 0
-        mov qword [r10 + 8], 0
-        mov byte [r10 + 16], 0
-        jmp .leave_find_free_next
-
-        .go_next_malloc_page_last_next:
-            cmp qword [r10], 0
-            je .leave_find_last_next
-            mov r10, qword [r10]
-            mov r11, -1
-            jmp .find_last_next
-
-    .error_free:
+    .error:
         mov rax, 1
         mov rdi, 2
         lea rsi, [rel free_error]
-        mov rdx, 24
-        syscall
-        mov rax, 39
-        syscall
-        mov rdi, rax
-        mov rsi, 6
-        mov rax, 62
-        syscall
-        ret
-    
-    .bug_free:
-        mov rax, 1
-        mov rdi, 2
-        lea rsi, [rel free_bug]
-        mov rdx, 26
+        mov rdx, 29
         syscall
         mov rax, 39
         syscall
@@ -448,9 +379,19 @@ AsmDalloc:
         syscall
         ret
 
-    .bug_free2:
-        pop rax
-        jmp .bug_free
+    .bug:
+        mov rax, 1
+        mov rdi, 2
+        lea rsi, [rel free_bug]
+        mov rdx, 35
+        syscall
+        mov rax, 39
+        syscall
+        mov rdi, rax
+        mov rsi, 6
+        mov rax, 62
+        syscall
+        ret
 
 AsmCalloc:
     push rdi
