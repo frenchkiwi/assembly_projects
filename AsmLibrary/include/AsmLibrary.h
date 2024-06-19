@@ -12,13 +12,13 @@
 // AsmString
 char AsmPutchar(char c);
 
-void AsmPutstr(char *str);
+void AsmPutstr(char const *str);
 
-void AsmPutstrL(char *str);
+void AsmPutlstr(char const *str);
 
 void AsmPutnbr(long n);
 
-void AsmPutnbrL(long n);
+void AsmPutlnbr(long n);
 
 int AsmStrlen(char *str);
 
@@ -34,7 +34,13 @@ char *AsmStrcat(char *dest, char const *src);
 
 char *AsmStrncat(char *dest, char const *src, unsigned long n);
 
-void AsmPrint(char *format, ...);
+char *AsmStrchr(char const *str, char c);
+
+char *AsmStrrchr(char const *str, char c);
+
+char *AsmStrstr(char const *str, char const *find);
+
+void AsmPrint(char const *format, ...);
 
 char **AsmStrcut(char *str, char *delimiters);
 
@@ -50,7 +56,7 @@ void *AsmCalloc(unsigned long size, char c);
 
 void *AsmRealloc(void *addr, unsigned long size);
 
-char *AsmStrdup(char *str);
+char *AsmStrdup(char const *str);
 
 void *AsmGetptr(void *addr);
 

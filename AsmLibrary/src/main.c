@@ -1,4 +1,6 @@
 #include "AsmLibrary.h"
+#include <stdio.h>
+#include <string.h>
 
 void AsmString(void)
 {
@@ -7,29 +9,31 @@ void AsmString(void)
 
     AsmPutchar('c');
     AsmPutstr("\ntest\n");
-    AsmPutnbrL(4);
-    AsmPutnbrL(AsmStrlen("test word"));
+    AsmPutlnbr(4);
+    AsmPutlnbr(AsmStrlen("test word"));
     AsmStrcpy(str, "test");
-    AsmPutstrL(str);
+    AsmPutlstr(str);
     AsmStrncpy(str, "test", 2);
-    AsmPutstrL(str);
+    AsmPutlstr(str);
     AsmStrncpy(str, "test", 6);
-    AsmPutstrL(str);
-    AsmPutnbrL(AsmStrcmp("oui", "non"));
-    AsmPutnbrL(AsmStrcmp("non", "non"));
-    AsmPutnbrL(AsmStrncmp("non", "non", 7));
-    AsmPutnbrL(AsmStrncmp("noa", "non", 2));
-    AsmPutnbrL(AsmStrncmp("oui", "non", 2));
+    AsmPutlstr(str);
+    AsmPutlnbr(AsmStrcmp("oui", "non"));
+    AsmPutlnbr(AsmStrcmp("non", "non"));
+    AsmPutlnbr(AsmStrncmp("non", "non", 7));
+    AsmPutlnbr(AsmStrncmp("noa", "non", 2));
+    AsmPutlnbr(AsmStrncmp("oui", "non", 2));
     AsmStrcpy(str, "test");
     AsmStrcat(str, "next");
-    AsmPutstrL(str);
+    AsmPutlstr(str);
     AsmStrcpy(str, "test");
     AsmStrncat(str, "next", 2);
-    AsmPutstrL(str);
+    AsmPutlstr(str);
+    AsmPutlstr(AsmStrchr("the complex strategie", 'e'));
+    AsmPutlstr(AsmStrrchr("the complex strategie", 't'));
     AsmPrint("test : int %d, char %c, string %s, percentage %%\n", 13, 'c', "test");
     array = AsmStrcut(" complex test for know if the     function   work", " \t");
     for (int i = 0; array[i]; i++) {
-        AsmPutstrL(array[i]);
+        AsmPutlstr(array[i]);
         AsmDalloc(array[i]);
     }
     AsmDalloc(array);
@@ -37,7 +41,7 @@ void AsmString(void)
 
 void AsmMath(void)
 {
-    AsmPutnbrL(AsmPower(4, 2));
+    AsmPutlnbr(AsmPower(4, 2));
 }
 
 void AsmMemory(void)

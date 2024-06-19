@@ -1,8 +1,8 @@
     global AsmPutchar
     global AsmPutstr
-    global AsmPutstrL
+    global AsmPutlstr
     global AsmPutnbr
-    global AsmPutnbrL
+    global AsmPutlnbr
     global AsmStrlen
     global AsmStrcpy
     global AsmStrncpy
@@ -10,6 +10,9 @@
     global AsmStrncmp
     global AsmStrcat
     global AsmStrncat
+    global AsmStrchr
+    global AsmStrrchr
+    global AsmStrstr
     global AsmPrint
     global AsmStrcut
     %include "AsmLibrary.inc"
@@ -36,7 +39,7 @@ AsmPutchar:
 AsmPutstr:
     cmp rdi, 0
     je .bye
-    lea rsi, [rdi]
+    mov rsi, rdi
     mov rdx, -1
     .loop:
         inc rdx
@@ -48,20 +51,21 @@ AsmPutstr:
     .bye:
     ret
 
-AsmPutstrL:
+AsmPutlstr:
     cmp rdi, 0
     je .bye
-    lea rsi, [rdi]
+    mov rsi, rdi
     mov rdx, -1
     .loop:
         inc rdx
         cmp byte[rsi + rdx], 0
         jne .loop
-    mov byte[rsi + rdx], 10
     inc rdx
     mov rax, 1
     mov rdi, 1
     syscall
+    mov rdi, 10
+    call AsmPutchar
     .bye:
     ret
 
@@ -120,7 +124,7 @@ AsmPutnbr:
     pop rbx
     ret
 
-AsmPutnbrL:
+AsmPutlnbr:
     push rbx
     push r12
     push r13
@@ -284,6 +288,35 @@ AsmStrncat:
     .bye:
     mov byte[rdi + rcx], 0
     mov rax, rdi
+    ret
+
+AsmStrchr:
+    dec rdi
+    .loop:
+        inc rdi
+        cmp byte[rdi], sil
+        je .return_here
+        cmp byte[rdi], 0
+        jne .loop
+    xor rax, rax
+    ret
+
+    .return_here:
+        mov rax, rdi
+        ret
+
+AsmStrrchr:
+    dec rdi
+    xor rax, rax
+    .loop:
+        inc rdi
+        cmp byte[rdi], sil
+        cmove rax, rdi
+        cmp byte[rdi], 0
+        jne .loop
+    ret
+
+AsmStrstr:
     ret
 
 AsmPrint:

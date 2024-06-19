@@ -66,6 +66,9 @@
     extern AsmStrncmp
     extern AsmStrcat
     extern AsmStrncat
+    extern AsmStrchr
+    extern AsmStrrchr
+    extern AsmStrstr
     extern AsmPrint
     extern AsmStrcut
 
