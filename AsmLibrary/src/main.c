@@ -35,7 +35,12 @@ void AsmString(void)
     AsmDalloc(array);
 }
 
-void AsmAllocation(void)
+void AsmMath(void)
+{
+    AsmPutnbrL(AsmPower(4, 2));
+}
+
+void AsmMemory(void)
 {
     char *str[3];
 
@@ -51,6 +56,7 @@ void AsmAllocation(void)
 int main(void)
 {
     AsmString();
-    AsmAllocation();
+    AsmMath();
+    AsmMemory();
     return 0;
 }

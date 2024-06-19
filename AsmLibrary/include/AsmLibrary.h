@@ -41,7 +41,7 @@ char **AsmStrcut(char *str, char *delimiters);
 // AsmMath
 long long AsmPower(long long nb, long long power);
 
-// AsmAlloc
+// AsmMemory
 void *AsmAlloc(unsigned long size);
 
 void AsmDalloc(void *addr);

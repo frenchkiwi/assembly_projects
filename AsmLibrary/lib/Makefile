@@ -7,7 +7,7 @@
 
 NAME = libAsm.a
 
-SRC = AsmAlloc.asm \
+SRC = AsmMemory.asm \
 	  AsmMath.asm \
 	  AsmString.asm \
 

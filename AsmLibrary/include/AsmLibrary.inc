@@ -72,7 +72,7 @@
     ;AsmMath
     extern AsmPower
 
-    ;AsmAlloc
+    ;AsmMemory
     extern AsmAlloc
     extern AsmDalloc
     extern AsmCalloc
