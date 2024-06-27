@@ -81,4 +81,10 @@ void AsmShowMemory(void);
 
 void AsmClearMemory(void);
 
+// AsmFutex
+
+void AsmLock(char *padlock);
+
+void AsmUnlock(char *padlock);
+
 #endif

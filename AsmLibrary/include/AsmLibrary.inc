@@ -96,4 +96,8 @@
     extern AsmShowMemory
     extern AsmClearMemory
 
+    ;AsmFutex
+    extern AsmLock
+    extern AsmUnlock
+
 %endif
