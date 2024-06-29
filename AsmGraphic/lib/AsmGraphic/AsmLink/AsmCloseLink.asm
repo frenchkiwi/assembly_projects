@@ -10,13 +10,13 @@ AsmCloseLink:
     je .bye_error
     
     mov r9, qword[rdi + 4] ; get the thread_info
-    mov byte[r9 + 1], 1
+    mov byte[r9 + 1], 1 ; set the thread exit value
     .wait_thread_close:
-        cmp byte[r9 + 1], 0
+        cmp byte[r9 + 1], 0 ; wait for thread to close
         jne .wait_thread_close
     .clear_queue:
         mov r9, qword[rdi + 4] ; get the thread_info
-        add r9, 14
+        add r9, 14 ; go to event_queue
         cmp qword[r9], 0
         je .delete_thread
         mov r10, r9
@@ -28,9 +28,7 @@ AsmCloseLink:
             jmp .go_to_next
         .find_event:
             mov r11, qword[rdi + 4]
-            CALL_ AsmLock, r11
             mov qword[r10], 0
-            CALL_ AsmUnlock, r11
             CALL_ AsmDalloc, r9
             jmp .clear_queue
 
@@ -59,8 +57,16 @@ AsmCloseLink:
 
     CALL_ AsmDalloc, r9
 
+    push rdi
+    mov rax, 3
+    xor r10, r10
+    mov r10d, dword[rdi]
+    syscall
+    pop rdi
+
     CALL_ AsmDalloc, rdi
 
+    xor rax, rax
     ret
     .bye_error:
         mov rax, -1

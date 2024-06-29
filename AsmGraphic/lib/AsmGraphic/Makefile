@@ -8,6 +8,7 @@
 NAME = libAsmGraphic.a
 
 SRC = AsmLink/AsmCreateLink.asm \
+	  AsmLink/AsmThreadEvent.asm \
 	  AsmLink/AsmCloseLink.asm \
 
 OBJ = $(SRC:.asm=.o)

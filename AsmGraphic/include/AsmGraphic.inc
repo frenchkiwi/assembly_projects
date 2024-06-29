@@ -12,6 +12,7 @@
     %define EVENT_TYPE 8
 
     extern AsmCreateLink
+    extern AsmThreadEvent
     extern AsmCloseLink
 
 %endif
