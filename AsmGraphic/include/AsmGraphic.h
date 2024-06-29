@@ -93,6 +93,6 @@ typedef struct AsmRectangle AsmRectangle;
 
 AsmLink *AsmCreateLink(char **env);
 
-int AsmCloseLink(AsmLink *link);
+char AsmCloseLink(AsmLink *link);
 
 #endif

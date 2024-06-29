@@ -2,8 +2,8 @@
     %define AsmGraphic_
 
     %define LINK_SOCKET r12 + 0
-    %define LINK_ID_GENERATOR r12 + 6
-    %define LINK_FUTEX r12 + 10
+    %define LINK_ID_GENERATOR r12 + 8
+    %define LINK_FUTEX r12 + 12
     %define LINK_THREAD_VAR r12 + 13
     %define LINK_THREAD_ID r12 + 14
     %define LINK_THREAD_STACK r12 + 18
