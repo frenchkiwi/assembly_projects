@@ -5,6 +5,7 @@ int main(int ac, char **av, char **envp)
 {
     AsmLink *link = AsmCreateLink(envp);
 
-    AsmCloseLink(link);
+    AsmPrint("%d\n", link);
+    // AsmCloseLink(link);
     return 0;
 }

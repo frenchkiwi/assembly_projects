@@ -10,7 +10,7 @@ AsmThreadEvent:
     ; r8 store the event
     ; r9 store the thread_info
     ; r10 store link
-
+    mov r10, r12
     mov r9, qword[r10 + 4]
     CALL_ AsmAlloc, 8
     mov r13, rax ; alloc the poll struct

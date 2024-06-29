@@ -1,5 +1,4 @@
 section .data
-    generate_id dd 0
     xauthority db "XAUTHORITY=", 0
     xdisplay db "DISPLAY=", 0
 
@@ -9,414 +8,337 @@ section .text
     %include "AsmGraphic.inc"
 
 AsmCreateLink:
-    mov rcx, 0
-    mov rdx, 0
-    .loop:
-        cmp rdx, 3
-        je .quit_loop
-        cmp qword[rdi + rcx * 8], 0
+    cmp rdi, 0
+    je .bye_error0
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+    mov r12, rdi ; the env table
+    xor r13, r13 ; index
+    xor r14, r14 ; counter of value find
+    .check_env:
+        cmp qword[r12 + r13 * 8], 0
         je .bye_error
-        cmp rdx, 1
+        cmp r14, 1
         je .is_xauthority
         .is_display:
-            lea r11, [rel xdisplay]
-            CALL_ AsmStrncmp, qword[rdi + rcx * 8], r11, 8
+            mov rdi, qword[r12 + r13 * 8]
+            lea rsi, [rel xdisplay]
+            mov rdx, 8
+            call AsmStrncmp
             cmp rax, 0
             jne .is_xauthority
-            add rdx, 1
-            mov r9, qword[rdi + rcx * 8]
-            add r9, 9
-            jmp .reloop
+            add r14, 1
+            mov rbx, qword[r12 + r13 * 8] ; set display= in rbx
+            add rbx, 9
+            jmp .next_env_var
         .is_xauthority:
-            cmp rdx, 2
-            je .reloop
-            lea r11, [rel xauthority]
-            CALL_ AsmStrncmp, qword[rdi + rcx * 8], r11, 11
+            cmp r14, 2
+            je .next_env_var
+            mov rdi, qword[r12 + r13 * 8]
+            lea rsi, [rel xauthority]
+            mov rdx, 11
+            call AsmStrncmp
             cmp rax, 0
-            jne .reloop
-            add rdx, 2
-            mov r10, qword[rdi + rcx * 8]
-            add r10, 11
-        .reloop:
-        inc rcx
-        jmp .loop
-    .quit_loop:
-    push r10
-    push r9
+            jne .next_env_var
+            add r14, 2
+            mov r15, qword[r12 + r13 * 8] ; set xauthority= in r15
+            add r15, 11
+        .next_env_var:
+        inc r13
+        cmp r14, 3 ; check if all find
+        jne .check_env
 
     mov rax, 41
     mov rdi, 1
     mov rsi, 1
     mov rdx, 0
     syscall
-    mov r8, rax ; set fd socket in r8
-
-    pop r9
-    pop r10
-    cmp r8, 0
+    cmp rax, 0
     jl .bye_error
 
-    CALL_ AsmCalloc, 110, 0
-    cmp rax, 0
-    je .bye_error
-    push r10
-    push r9
-    mov r9, rax
+    mov r12, rax ; set fd socket in r12
 
-    mov word[r9], 1
-    mov byte[r9 + 2], '/'
-    mov byte[r9 + 3], 't'
-    mov byte[r9 + 4], 'm'
-    mov byte[r9 + 5], 'p'
-    mov byte[r9 + 6], '/'
-    mov byte[r9 + 7], '.'
-    mov byte[r9 + 8], 'X'
-    mov byte[r9 + 9], '1'
-    mov byte[r9 + 10], '1'
-    mov byte[r9 + 11], '-'
-    mov byte[r9 + 12], 'u'
-    mov byte[r9 + 13], 'n'
-    mov byte[r9 + 14], 'i'
-    mov byte[r9 + 15], 'x'
-    mov byte[r9 + 16], '/'
-    mov byte[r9 + 17], 'X'
-    pop r10
-    mov r11, r9
-    add r11, 18
-    CALL_ AsmStrcpy, r11, r10
-
-    mov rax, 42
-    mov rdi, r8
-    mov rsi, r9
-    mov rdx, 110
-    syscall ; connect to socket
-
-    pop r10
-    cmp rax, 0
-    jne .bye_error_AsmDalloc
-
-    CALL_ AsmDalloc, r9
-
-    push r8
-
-    mov rax, 2
-    mov rdi, r10
+    mov rdi, 110
     mov rsi, 0
-    syscall ; open the xauth for get key auth
-
-    cmp rax, -1
+    call AsmCalloc
+    cmp rax, 0
     je .bye_error
 
     mov r8, rax
-    CALL_ AsmAlloc, 1024
-    mov r9, rax
+    mov word[r8], 1
+    mov byte[r8 + 2], '/'
+    mov byte[r8 + 3], 't'
+    mov byte[r8 + 4], 'm'
+    mov byte[r8 + 5], 'p'
+    mov byte[r8 + 6], '/'
+    mov byte[r8 + 7], '.'
+    mov byte[r8 + 8], 'X'
+    mov byte[r8 + 9], '1'
+    mov byte[r8 + 10], '1'
+    mov byte[r8 + 11], '-'
+    mov byte[r8 + 12], 'u'
+    mov byte[r8 + 13], 'n'
+    mov byte[r8 + 14], 'i'
+    mov byte[r8 + 15], 'x'
+    mov byte[r8 + 16], '/'
+    mov byte[r8 + 17], 'X'
+    mov rdi, r8
+    add rdi, 18
+    mov rsi, rbx
+    call AsmStrcpy
+    mov rsi, rax
+    sub rsi, 18
 
-    .loop_len_r10:
-        xor r10, r10
+    mov rax, 42
+    mov rdi, r12
+    ; rsi already set
+    mov rdx, 110
+    syscall ; connect to socket
+    push rax
+    mov rdi, rsi
+    call AsmDalloc
+    pop rax
+    cmp rax, 0
+    jne .bye_error
+
+    mov rax, 2
+    mov rdi, r15
+    mov rsi, 0
+    syscall ; open the xauth for get key auth
+    cmp rax, 0
+    jl .bye_error
+
+    mov r15, rax
+
+    mov rdi, 256 * 4 + 2 * 5 ; 4 string of max 256 byte and 5 word
+    call AsmAlloc
+    cmp rax, 0
+    je .bye_error
+    mov r8, rax ; save the fd of the xauth file in r8
+
+    .get_auth_protocol:
+        xor r9, r9
         mov rax, 0
-        mov rdi, r8
-        lea rsi, [r9]
-        mov rdx, 2
-        syscall ; read the family of the auth
+        mov rdi, r15
+        lea rsi, [r8]
+        mov rdx, 4
+        syscall ; read the family of the auth and the adress size
+        cmp rax, rdx
+        jne .bye_errorD
 
-        cmp rax, 2
-        jne .bye_error_AsmDalloc
-    
-        cmp word[r9], 1 ; check if its unix family
+        cmp word[r8], 1 ; check if its unix family
         jne .not_auth
-        mov r10, 1 ; set the mark for know if its the right family
+        mov r9,  1 ; set the mark for know if its the right family
         .not_auth:
 
         mov rax, 0
-        mov rdi, r8
-        lea rsi, [r9 + 2]
-        mov rdx, 2
-        syscall ; read adress size
-
-        cmp rax, rdx
-        jne .bye_error_AsmDalloc
-
-        mov rax, 0
-        mov rdi, r8
-        lea rsi, [r9 + 4]
-        xor rdx, rdx
-        mov dl, byte[r9 + 2]
+        mov rdi, r15
+        lea rsi, [r8 + 4]
+        movzx rdx, byte[r8 + 2]
         shl rdx, 8
-        mov dl, byte[r9 + 3] ; read adress
+        mov dl, byte[r8 + 3] ; read adress
         add rdx, 2 ; and read seat number size too
         syscall
-
         cmp rax, rdx
-        jne .bye_error_AsmDalloc
+        jne .bye_errorD
 
-        mov rbx, rax
-        add rbx, 4
+        mov r9, rdx ; set the index in r9
+        add r9, 4 ; add family and addr size bytes
 
         mov rax, 0
-        mov rdi, r8
-        lea rsi, [r9 + rbx]
-        xor rdx, rdx
-        mov dl, byte[r9 + rbx - 2]
+        mov rdi, r15
+        lea rsi, [r8 + r9]
+        movzx rdx, byte[r8 + r9 - 2]
         shl rdx, 8
-        mov dl, byte[r9 + rbx - 1] ; read seat numnber
+        mov dl, byte[r8 + r9 - 1] ; read seat numnber
         add rdx, 2 ; and read name protocol size too
         syscall
-
         cmp rax, rdx
-        jne .bye_error_AsmDalloc
+        jne .bye_errorD
 
-        add rbx, rax
+        add r9, rdx ; add seat number and name protocol size bytes
+        mov r13, r8
+        add r13, r9
+        sub r13, 2 ; set name protocol info in r13
 
         mov rax, 0
-        mov rdi, r8
-        lea rsi, [r9 + rbx]
-        xor rdx, rdx
-        mov dl, byte[r9 + rbx - 2]
+        mov rdi, r15
+        lea rsi, [r8 + r9]
+        movzx rdx, byte[r8 + r9 - 2]
         shl rdx, 8
-        mov dl, byte[r9 + rbx - 1] ; read name protocol
+        mov dl, byte[r8 + r9 - 1] ; read name protocol
         add rdx, 2 ; and read key protocol size too
         syscall
-
         cmp rax, rdx
-        jne .bye_error_AsmDalloc
+        jne .bye_errorD
 
-        add rbx, rax
+        add r9, rdx ; add name protocol and key protocol size bytes
+        mov r14, r8
+        add r14, r9
+        sub r14, 2 ; set key protocol info in r14
 
         mov rax, 0
-        mov rdi, r8
-        lea rsi, [r9 + rbx]
-        xor rdx, rdx
-        mov dl, byte[r9 + rbx - 2]
+        mov rdi, r15
+        lea rsi, [r8 + r9]
+        movzx rdx, byte[r8 + r9 - 2]
         shl rdx, 8
-        mov dl, byte[r9 + rbx - 1] ; read key protocol
+        mov dl, byte[r8 + r9 - 1] ; read key protocol
         syscall
-
         cmp rax, rdx
-        jne .bye_error_AsmDalloc
+        jne .bye_errorD
 
-        cmp r10, 0
-        je .loop_len_r10
+        cmp r9, 0
+        je .get_auth_protocol
 
     mov rax, 3
-    mov rdi, r8
+    mov rdi, r15
     syscall ; close the xauth file
-
     cmp rax, 0
-    jne .bye_error_AsmDalloc
-    
-    mov rbx, 12 ; set empty request size
-    mov r8, 4 ; add family and size adress
-    xor r11, r11
-    mov r11b, byte[r9 + 2]
-    shl r11, 8
-    mov r11b, byte[r9 + 3]
-    add r8, r11 ; add adress
-    add r8 , 2 ; add size seat number
-    xor r11, r11
-    mov r11b, byte[r9 + r8 - 2]
-    shl r11, 8
-    mov r11b, byte[r9 + r8 - 1]
-    add r8, r11 ; add seat number
-    add r8 , 2 ; add size name protocol
-    xor r11, r11
-    mov r11b, byte[r9 + r8 - 2]
-    shl r11, 8
-    mov r11b, byte[r9 + r8 - 1]
-    push r11 ; save name protocol size
-    add rbx, r11
-    add r8, r11 ; add name protocol
-    add r8 , 2 ; add size key protocol
-    xor r11, r11
-    mov r11b, byte[r9 + r8 - 2]
-    shl r11, 8
-    mov r11b, byte[r9 + r8 - 1]
-    push r11 ; save name protocol size
-    add rbx, r11 ; add key protocol size
-    add r8, r11 ; add key protocol
+    jl .bye_errorD
 
-    add rbx, 6 ; for padding
-
-    CALL_ AsmCalloc, rbx, 0
-    mov r10, rax
-
-    mov byte[r10], 'l' ; set order byte
-    mov word[r10 + 2], 11 ; set version
-    pop r11
-    mov word[r10 + 8], r11w ; set size of key protocol
-    pop r11
-    mov word[r10 + 6], r11w ; set size of name protocol
-    mov rdi, r10
-    add rdi, 12
-    mov rsi, r9
-    add rsi, r8
-    xor r11, r11
-    mov r11w, word[r10 + 8]
-    sub rsi, r11
-    sub rsi, 2
-    xor r11, r11
-    mov r11w, word[r10 + 6]
-    sub rsi, r11
-    CALL_ AsmStrncpy, rdi, rsi, r11
-    neg r11
-    and r11, -4
-    neg r11
-
-    add rdi, r11
-    mov rsi, r9
-    add rsi, r8
-    xor r11, r11
-    mov r11w, word[r10 + 8]
-    sub rsi, r11
-    CALL_ AsmStrncpy, rdi, rsi, r11
-    neg r11
-    and r11, -4
-    neg r11
-
-    add rdi, r11
-    sub rdi, r10
-
-    CALL_ AsmDalloc, r9
-    
+    mov rdi, 12
+    movzx r9, byte[r13]
+    shl r9, 8
+    mov r9b, byte[r13 + 1]
+    neg r9
+    and r9, -4
+    neg r9
+    add rdi, r9
+    movzx r9, byte[r14]
+    shl r9, 8
+    mov r9b, byte[r14 + 1]
+    neg r9
+    and r9, -4
+    neg r9
+    add rdi, r9
+    mov rbx, rdi
+    push r8
+    call AsmAlloc ; alloc the handshake
     pop r8
-    mov rdx, rdi
+    cmp rax, 0
+    je .bye_errorD
+
+    push r8
+    mov r15, rax
+    mov byte[r15], 'l' ; set order byte
+    mov word[r15 + 2], 11 ; set version major
+    mov word[r15 + 4], 0 ; set version minor
+    movzx r9, byte[r13]
+    shl r9, 8
+    mov r9b, byte[r13 + 1]
+    mov word[r15 + 6], r9w
+    movzx r9, byte[r14]
+    shl r9, 8
+    mov r9b, byte[r14 + 1]
+    mov word[r15 + 8], r9w
+    mov rdi, r15
+    add rdi, 12
+    mov rsi, r13
+    add rsi, 2
+    movzx rdx, word[r15 + 6]
+    call AsmStrncpy
+    mov rdi, r15
+    add rdi, 12
+    movzx r9, word[r15 + 6]
+    neg r9
+    and r9, -4
+    neg r9
+    add rdi, r9
+    mov rsi, r14
+    add rsi, 2
+    movzx rdx, word[r15 + 8]
+    call AsmStrncpy
+    pop rdi
+    call AsmDalloc
+
+    mov r8, r15
+
     mov rax, 1
-    mov rdi, r8
-    mov rsi, r10
-    syscall ; send the connection request
+    mov rdi, r12
+    lea rsi, [r8]
+    mov rdx, rbx
+    syscall ; send the handshake
+    cmp rax, rdx
+    jne .bye_errorD
 
-    CALL_ AsmDalloc, r10
-    
-    CALL_ AsmCalloc, 8, 0 ; alloc header
-    mov r11, rax
-
-    push r11
     mov rax, 0
-    mov rdi, r8
-    mov rsi, r11
+    mov rdi, r12
+    lea rsi, [r8]
     mov rdx, 8
     syscall ; read header
-    pop r11
+    cmp rax, rdx
+    jne .bye_errorD
 
-    mov r9, r11
-    cmp byte[r11], 1 ; check if all good
-    jne .bye_error_AsmDalloc
+    cmp byte[r8], 1
+    jne .bye_errorD
 
-    xor r10, r10
-    mov r10w, word[r11 + 6] ; get anwser length
-
-    mov rax, r10
+    movzx rax, word[r8 + 6]
     mov rbx, 4
-    mul rbx ; get anwer real length 
+    mul rbx ; get anwser length
+    mov r13, rax ; save anwser size in r13
 
-    push rax
-    mov rdi, rax ; size of anwser
-    add rdi, 20 ; size of header + event_queue
-    CALL_ AsmCalloc, rdi, 0 ; alloc the link
-    mov r9, rax
-    pop r10
+    mov rdi, rax
+    add rdi, 8 + 4 + 1 + 1 + 4 + 8 + 8 + 8; add fd + generator id + futex + thread variable + thread_id + thread_stack + event_queue + header
+    push r8
+    call AsmAlloc
+    pop r8
+    cmp rax, 0
+    je .bye_errorD
 
-    mov dword[r9 + LINK_SOCKET], r8d ; set fd scoket in link
+    xchg r12, rax
+    mov qword[LINK_SOCKET], rax
+    mov dword[LINK_ID_GENERATOR], 0 ; clear generator id
+    mov qword[LINK_ID_GENERATOR + 2], 0 ; clear futex + thread_var + thread_id
+    mov qword[LINK_THREAD_STACK], 0 ; clear thread_stack
+    mov qword[LINK_EVENT_QUEUE], 0 ; clear event_queue
+    mov rax, qword[r8]
+    mov qword[LINK_HEADER], rax ; copy header
 
-    mov rdx, qword[r11]
-    mov qword[r9 + LINK_HEADER], rdx ; set header in link
-
-    CALL_ AsmDalloc, r11
+    mov rdi, r8
+    call AsmDalloc
 
     mov rax, 0
-    movzx rdi, byte[r9]
-    mov rsi, r9
-    add rsi, LINK_BODY
-    mov rdx, r10
-    syscall ; read the body into link
+    mov rdi, qword[LINK_SOCKET]
+    lea rsi, [LINK_BODY]
+    mov rdx, r13
+    syscall ; read header
+    cmp rax, rdx
+    jne .bye_errorD
 
-    cmp rax, 20
-    jl .bye_error_AsmDalloc
-
-    mov rdi, r9
-    push r9
-
-    xor r8, r8
-    mov r8, rdi ; get socket_fd
-
-    push rdi
-    CALL_ AsmAlloc, 24 ; add basic need for this request
-    mov r9, rax ; set my message
-
-    mov byte[r9], 55 ; code create gc
-    mov word[r9 + 2], 6 ; length of request
-
-    mov r10d, dword[r8 + LINK_ID]
-    mov dword[r9 + 4], r10d ; set cid
-    mov r10d, dword[rel generate_id]
-    add dword[r9 + 4], r10d ; set context_id
-    inc dword[rel generate_id]
-
-    mov r10, r8
-    add r10, 20
-    add r10, 32 ; set r10 at end of know info
-    xor r11, r11
-    mov r11w, word[r8 + LINK_VENDOR_LENGTH]
-    add r10, r11 ; add vendor length
-    xor rax, rax
-    mov al, byte[r8 + LINK_FORMAT_LENGTH]
-    mov r11, 8
-    mul r11
-    add r10, rax ; add format length
-
-    mov r11d, dword[r10]
-    mov dword[r9 + 8], r11d ; set parent
-
-    mov dword[r9 + 12], 0x00010004 ; set flag foreground
-
-    mov dword[r9 + 16], 0x00C800FF ; set color foreground
-
-    mov dword[r9 + 20], 0x00000000 ; set color foreground
-
-    mov rax, 1
-    xor rdi, rdi
-    mov edi, dword [r8]
-    lea rsi, [r9]
-    mov rdx, 24
-    syscall ; send my message
-
-    pop rdi
-    mov r10d, dword[r9 + 4]
-    mov dword[rdi + 48], r10d
-    CALL_ AsmDalloc, r9
-
-    pop r10 ; get the link
-    push r10
-    CALL_ AsmCalloc, 22, 0
-    mov r9, rax ; create the thread_info struct
-    mov qword[r10 + 4], r9 ; set the thread_info into link
-
-    CALL_ AsmCalloc, 1024 * 1024, 0
-    mov r10, rax ; create stack for thread
-    mov qword[r9 + 6], r10 ; set thread stack on the thread_info
+    CALL_ AsmCalloc, 4096 * 2, 0
+    mov r8, rax ; create stack for thread
+    mov qword[LINK_THREAD_STACK], r8 ; set thread stack on the thread_info
 
     mov rax, 56 ; code for clone
     mov rdi, 0x00110F00 ; flag : vm, fs, files, sighand, thread, parent tid
-    mov rsi, r10 ; load the stack pointer
-    add rsi, 1024 * 1024 ; put stack pointer to base of stack
-    lea rdx, [r9 + 2] ; set the tid store zone
-    pop r9
-    xor r10, r10
-    xor r8, r8
+    lea rsi, [r8] ; load the stack pointer
+    add rsi, 4096 * 2 ; put stack pointer to base of stack
+    lea rdx, [LINK_THREAD_ID] ; set the thread_id store zone
     syscall
-
-    mov r10, r9
 
     cmp rax, 0
     je AsmThreadEvent
 
-    mov rax, r10
-    .bye:
-        ret
-    .bye_error:
-        mov rax, 0
-        ret
-    .bye_error_AsmDalloc:
-        mov rdi, r9
+    mov rax, r12
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    ret
+
+    .bye_errorD:
+        mov rdi, r8
         call AsmDalloc
-        mov rax, 0
+    .bye_error:
+        pop r15
+        pop r14
+        pop r13
+        pop r12
+        pop rbx
+    .bye_error0:
+        xor rax, rax
         ret
