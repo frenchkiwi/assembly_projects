@@ -6,6 +6,10 @@ section .text
     %include "AsmLibrary.inc"
 
 AsmDalloc:
+    push rdi
+    lea rdi, [rel AsmFutexMemory]
+    call AsmLock
+    pop rdi
     cmp rdi, 0
     je .bye
     cmp qword[rel AsmCoreMemory], -1
@@ -159,6 +163,8 @@ AsmDalloc:
     pop r14
     pop r13
     pop r12
+    lea rdi, [rel AsmFutexMemory]
+    call AsmUnlock
     ret
 
     .error:
@@ -169,6 +175,8 @@ AsmDalloc:
         syscall
         mov rax, 39
         syscall
+        lea rdi, [rel AsmFutexMemory]
+        call AsmUnlock
         mov rdi, rax
         mov rsi, 6
         mov rax, 62
@@ -183,6 +191,8 @@ AsmDalloc:
         syscall
         mov rax, 39
         syscall
+        lea rdi, [rel AsmFutexMemory]
+        call AsmUnlock
         mov rdi, rax
         mov rsi, 6
         mov rax, 62

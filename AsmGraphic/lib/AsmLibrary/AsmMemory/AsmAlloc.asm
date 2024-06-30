@@ -6,6 +6,10 @@ section .text
     %include "AsmLibrary.inc"
 
 AsmAlloc:
+    push rdi
+    lea rdi, [rel AsmFutexMemory]
+    call AsmLock
+    pop rdi
     cmp rdi, 0
     je .bug ; check if size wanted is null
     push rdi
@@ -124,6 +128,8 @@ AsmAlloc:
             cmp r10, 0
             jne .loop_protect ; go next page if there is one
     .bye:
+    lea rdi, [rel AsmFutexMemory]
+    call AsmUnlock
     pop rax ; get alloc addr
     ret
 
@@ -135,6 +141,8 @@ AsmAlloc:
         lea rsi, [rel malloc_bug]
         mov rdx, 37
         syscall
+        lea rdi, [rel AsmFutexMemory]
+        call AsmUnlock
         xor rax, rax
         ret
 

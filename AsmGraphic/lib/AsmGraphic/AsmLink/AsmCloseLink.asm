@@ -18,7 +18,7 @@ AsmCloseLink:
     .wait_thread_close:
         cmp byte[LINK_THREAD_VAR], 0 ; wait for thread to close
         jne .wait_thread_close
-        
+
     mov r13, qword[LINK_EVENT_QUEUE]
     .clear_queue:
         cmp r13, 0
@@ -30,14 +30,14 @@ AsmCloseLink:
         jmp .clear_queue
 
     .delete_thread:
-    mov rdi, qword[LINK_THREAD_STACK]
-    call AsmDalloc
-
     mov rax, 3
     mov rdi, qword[LINK_SOCKET]
     syscall
     cmp rax, 0
     jl .bye_error
+
+    mov rdi, qword[LINK_THREAD_STACK]
+    call AsmDalloc
 
     mov rdi, r12
     call AsmDalloc

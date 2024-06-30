@@ -5,8 +5,7 @@ section .text
     %include "AsmLibrary.inc"
 
 AsmUnlock:
-    mov rax, rsi
-    neg rax
+    mov rax, -1
     lock xadd byte[rdi], al
     cmp rax, 1
     je .bye

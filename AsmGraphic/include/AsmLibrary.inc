@@ -84,6 +84,8 @@
 
     ;AsmMemory
     extern AsmCoreMemory
+    extern AsmFutexMemory
+
     extern AsmMemset
     extern AsmMemcpy
     extern AsmMemmove
