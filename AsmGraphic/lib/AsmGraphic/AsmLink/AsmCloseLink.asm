@@ -38,7 +38,7 @@ AsmCloseLink:
 
     mov rdi, qword[LINK_THREAD_STACK]
     call AsmDalloc
-
+        
     mov rdi, r12
     call AsmDalloc
 

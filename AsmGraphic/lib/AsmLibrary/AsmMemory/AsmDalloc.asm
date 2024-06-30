@@ -92,7 +92,6 @@ AsmDalloc:
             mov r11, -1 ; set index
             jmp .find_prev ; go find prev
         .swap_prev:
-            push qword[r14 + 8] ; save last addr
             mov rdi, qword[r14]
             mov qword[r12], rdi
             mov rdi, qword[r14 + 8]
@@ -102,10 +101,9 @@ AsmDalloc:
             mov qword[r14], 0
             mov qword[r14 + 8], 0
             mov byte[r14 + 16], 0 ; swap last and alloc
-            pop rdi ; restore last addr
             mov rsi, r10
             add rsi, r11 ; get prev addr
-            cmp rdi, qword[r10 + r11 + 8]
+            cmp r14, rsi
             cmovne r12, rsi ; if prev is not last set alloc to prev
             mov r14, r13 ; set last last save to last save
 
