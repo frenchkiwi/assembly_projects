@@ -49,7 +49,7 @@ AsmThreadEvent:
         je .add_to_queue ; if no more data add the event to queue
 
         xor rax, rax
-        mov eax, dword[r8 + 12] ; get the extra data length
+        mov eax, dword[r13 + 12] ; get the extra data length
         mov rbx, 4
         mul rbx ; extra data is each 4byte
         push rax ; save the length of extra data
@@ -58,13 +58,13 @@ AsmThreadEvent:
         mov rdi, rax
         call AsmAlloc; alloc the right one event
 
-        mov r8, qword[r8 + 8]
+        mov r8, qword[r13 + 8]
         mov qword[rax + 8], r8
-        mov r8, qword[r8 + 16]
+        mov r8, qword[r13 + 16]
         mov qword[rax + 16], r8
-        mov r8, qword[r8 + 24]
+        mov r8, qword[r13 + 24]
         mov qword[rax + 24], r8
-        mov r8, qword[r8 + 32]
+        mov r8, qword[r13 + 32]
         mov qword[rax + 32], r8 ; copy the data of old event into new event
 
         xchg rax, r13 ; swap value for free
@@ -96,11 +96,13 @@ AsmThreadEvent:
         syscall
     
     .error_detect:
+        push r8
         lea rdi, [rel event_error]
         call AsmPutstr
         mov rdi, ' '
         call AsmPutchar
-        movzx rdi, byte[r8 + 9]
+        pop r8
+        movzx rdi, byte[r13 + 9]
         call AsmPutlnbr
         jmp .add_to_queue
     

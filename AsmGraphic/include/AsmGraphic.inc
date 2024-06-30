@@ -13,6 +13,7 @@
     %define LINK_ID r12 + 46
     %define LINK_VENDOR_LENGTH r12 + 58
     %define LINK_FORMAT_LENGTH r12 + 63
+    %define LINK_VENDOR r12 + 74
     %define EVENT_NEXT 0
     %define EVENT_TYPE 8
 

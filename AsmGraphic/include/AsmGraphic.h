@@ -48,7 +48,7 @@
 // event_queue: +0 8byte next_event | +8 32byte event_body
 typedef struct AsmLink AsmLink;
 
-// +0 4byte window_id | +4 4byte pixmap_id | +8 8byte link_fd | +16 4byte window_pos | +20 4byte window_size | +24 1byte window_depth | +25 1byte window_event (1 == move | 2 == resize)
+// +0 4byte window_id | +4 4byte pixmap_id | +8 8byte link | +16 4byte window_pos | +20 4byte window_size | +24 1byte window_depth | +25 1byte window_event (1 == move | 2 == resize)
 typedef struct AsmWindow AsmWindow;
 
 typedef unsigned char AsmColor[3];
