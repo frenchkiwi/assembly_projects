@@ -10,6 +10,9 @@ NAME = libAsmGraphic.a
 SRC = AsmLink/AsmCreateLink.asm \
 	  AsmLink/AsmThreadEvent.asm \
 	  AsmLink/AsmCloseLink.asm \
+	  AsmWindow/AsmCreateWindow.asm \
+	  AsmWindow/AsmCloseWindow.asm \
+	  AsmWindow/AsmDestroyWindow.asm \
 
 OBJ = $(SRC:.asm=.o)
 

@@ -48,8 +48,8 @@
 // event_queue: +0 8byte next_event | +8 32byte event_body
 typedef struct AsmLink AsmLink;
 
-// +0 4byte window_id | +4 4byte pixmap_id | +8 4byte window_pos | +12 4byte window_size | +16 1byte window_depth | +17 1byte window_fps | +18 1byte window_state | +19 1byte window_event (1 == move | 2 == resize)
-// typedef struct AsmWindow aWindow;
+// +0 4byte window_id | +4 4byte pixmap_id | +8 8byte link_fd | +16 4byte window_pos | +20 4byte window_size | +24 1byte window_depth | +25 1byte window_event (1 == move | 2 == resize)
+typedef struct AsmWindow AsmWindow;
 
 typedef unsigned char AsmColor[3];
 
@@ -94,5 +94,15 @@ typedef struct AsmRectangle AsmRectangle;
 AsmLink *AsmCreateLink(char **env);
 
 char AsmCloseLink(AsmLink *link);
+
+// // AsmWindow
+
+AsmWindow *AsmCreateWindow(AsmLink *link, AsmSize size, char *name);
+
+char AsmOpenWindow(AsmWindow *window);
+
+char AsmCloseWindow(AsmWindow *window);
+
+char AsmDestroyWindow(AsmWindow *window);
 
 #endif

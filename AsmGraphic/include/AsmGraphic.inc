@@ -20,4 +20,8 @@
     extern AsmThreadEvent
     extern AsmCloseLink
 
+    extern AsmCreateWindow
+    extern AsmCloseWindow
+    extern AsmDestroyWindow
+
 %endif
