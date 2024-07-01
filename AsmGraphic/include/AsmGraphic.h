@@ -48,13 +48,13 @@
 // event_queue: +0 8byte next_event | +8 32byte event_body
 typedef struct AsmLink AsmLink;
 
-// +0 4byte window_id | +4 4byte pixmap_id | +8 8byte link_fd | +16 4byte window_pos | +20 4byte window_size | +24 1byte window_depth | +25 1byte window_event (1 == move | 2 == resize)
+// +0 4byte window_id | +4 4byte pixmap_id | +8 8byte link_fd | +16 4byte window_pos | +20 4byte window_size | +24 1byte window_depth | +25 1byte window_event (1 == move | 2 == resize) | +26 4byte window_gc
 typedef struct AsmWindow AsmWindow;
 
 // +0 4byte font_id | +4 8byte link
 typedef struct AsmFont AsmFont;
 
-// +0 8byte string | +8 8byte link | +16 4byte gc_id | +20 4byte pos | +24 4byte background color | +28 4byte foreground color
+// +0 8byte string of 255 char max | +8 8byte link | +16 4byte gc_id | +20 4byte pos | +24 4byte foreground color | +28 4byte background color
 typedef struct AsmText AsmText;
 
 typedef unsigned char AsmColor[3];
@@ -106,6 +106,8 @@ char AsmCloseLink(AsmLink *link);
 AsmWindow *AsmCreateWindow(AsmLink *link, AsmSize size, char *name);
 
 char AsmOpenWindow(AsmWindow *window);
+
+char AsmDisplayWindow(AsmWindow *window);
 
 char AsmRenameWindow(AsmWindow *window, char *name);
 

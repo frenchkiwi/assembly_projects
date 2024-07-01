@@ -13,12 +13,14 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmLink/AsmCloseLink.asm \
 	  AsmWindow/AsmCreateWindow.asm \
 	  AsmWindow/AsmOpenWindow.asm \
+	  AsmWindow/AsmDisplayWindow.asm \
 	  AsmWindow/AsmRenameWindow.asm \
 	  AsmWindow/AsmCloseWindow.asm \
 	  AsmWindow/AsmDestroyWindow.asm \
 	  AsmText/AsmCreateFont.asm \
 	  AsmText/AsmDestroyFont.asm \
 	  AsmText/AsmCreateText.asm \
+	  AsmText/AsmDrawText.asm \
 	  AsmText/AsmDestroyText.asm \
 
 OBJ = $(SRC:.asm=.o)

@@ -46,8 +46,8 @@ AsmCreateWindow:
     mov word[rsp + 22], 1 ; set border-width
     mov r9d, dword[r8 + 32]
     mov dword[rsp + 24], r9d ; set visual_id
-    mov dword[rsp + 28], 2050 ; set bitmask
-    mov dword[rsp + 32], 0; set background to black
+    mov dword[rsp + 28], 0x2 | 0x800 ; set bitmask
+    mov dword[rsp + 32], 0x00000000 ; set background to black
     mov dword[rsp + 36], 0x1 | 0x4 | 0x20000 ; key press | button press | structure_notify
     
     mov rax, 1
@@ -58,7 +58,7 @@ AsmCreateWindow:
     cmp rax, rdx
     jne .bye_errorS
 
-    mov rdi, 26
+    mov rdi, 30
     call AsmAlloc
     cmp rax, 0
     je .bye_errorS
@@ -109,7 +109,7 @@ AsmCreateWindow:
     call AsmWaitEvent
 
     xor r13, r13
-    mov r13d, dword[rax + 16] ; r13 is now WM_DELETE_WINDOW id 
+    mov r13d, dword[rax + 16] ; r13 is now WM_DELETE_WINDOW id
 
     mov rdi, rax
     call AsmDalloc
@@ -199,6 +199,27 @@ AsmCreateWindow:
 
     mov rdi, rax
     call AsmDalloc
+
+    sub rsp, 16
+    mov byte[rsp], 55
+    mov word[rsp + 2], 4
+    mov r8d, dword[LINK_ID_GENERATOR]
+    mov dword[rsp + 4], r8d
+    mov dword[r15 + 26], r8d
+    inc dword[LINK_ID_GENERATOR]
+
+    mov r8d, dword[LINK_ID]
+    mov dword[rsp + 8], r8d
+    mov dword[rsp + 12], 0
+
+    mov rax, 1
+    mov rdi, qword[r12]
+    lea rsi, [rsp]
+    mov rdx, 16
+    syscall
+    add rsp, 16
+    cmp rax, rdx
+    jne .bye_error
 
     cmp r14, 0
     je .bye

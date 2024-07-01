@@ -20,6 +20,11 @@ int main(int ac, char **av, char **envp)
     if (AsmOpenWindow(window))
         AsmPutlstr("AsmOpenWindow error");
     for (int i = 0; i < 1000000000; i++);
+    if (AsmDrawText(window, text))
+        AsmPutlstr("AsmDrawText error");
+    if (AsmDisplayWindow(window))
+        AsmPutlstr("AsmDisplayWindow error");
+    for (int i = 0; i < 1000000000; i++);
     if (AsmCloseWindow(window))
         AsmPutlstr("AsmCloseWindow error");
     for (int i = 0; i < 1000000000; i++);

@@ -23,6 +23,11 @@ AsmCreateText:
     mov r14, rdx
     mov r15, rcx
 
+    mov rdi, r13
+    call AsmStrlen
+    cmp rax, 255
+    jg .bye_error
+
     mov rdi, 32
     call AsmAlloc
     cmp rax, 0

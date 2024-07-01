@@ -9,11 +9,7 @@ AsmDestroyText:
     cmp rdi, 0
     je .bye_error0
 
-    push rbx
     push r12
-    push r13
-    push r14
-    push r15
 
     mov r12, rdi
 
@@ -39,20 +35,12 @@ AsmDestroyText:
     mov rdi, r12
     call AsmDalloc
 
-    pop r15
-    pop r14
-    pop r13
     pop r12
-    pop rbx
     xor rax, rax
     ret
 
     .bye_error:
-        pop r15
-        pop r14
-        pop r13
         pop r12
-        pop rbx
     .bye_error0:
         mov rax, -1
         ret

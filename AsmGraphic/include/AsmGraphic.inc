@@ -19,8 +19,10 @@
     %define WINDOW_ID r12 + 0
     %define WINDOW_PIXMAP r12 + 4
     %define WINDOW_LINK r12 + 8
+    %define WINDOW_POS r12 + 16
     %define WINDOW_X r12 + 16
     %define WINDOW_Y r12 + 18
+    %define WINDOW_SIZE r12 + 20
     %define WINDOW_HEIGHT r12 + 20
     %define WINDOW_WIDTH r12 + 22
     %define WINDOW_DEPTH r12 + 24
@@ -28,6 +30,7 @@
     %define TEXT_STRING r12 + 0
     %define TEXT_LINK r12 + 8
     %define TEXT_GC r12 + 16
+    %define TEXT_POS r12 + 20
     %define TEXT_X r12 + 20
     %define TEXT_Y r12 + 22
     %define TEXT_FORE r12 + 24
@@ -42,6 +45,7 @@
     extern AsmCreateWindow
     extern AsmOpenWindow
     extern AsmRenameWindow
+    extern AsmDisplayWindow
     extern AsmCloseWindow
     extern AsmDestroyWindow
 
