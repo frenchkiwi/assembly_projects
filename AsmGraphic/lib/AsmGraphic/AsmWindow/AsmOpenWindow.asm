@@ -57,7 +57,7 @@ AsmOpenWindow:
     mov r12, qword[r8 + 8]
 
     mov rdi, r12
-    mov rsi, 22
+    mov rsi, 19
     call AsmWaitEvent
     mov rdi, rax
     call AsmDalloc
@@ -69,7 +69,7 @@ AsmOpenWindow:
     call AsmDalloc
 
     mov rdi, r12
-    mov rsi, 19
+    mov rsi, 22
     call AsmWaitEvent
     mov rdi, rax
     call AsmDalloc

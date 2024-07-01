@@ -48,6 +48,23 @@ AsmCloseWindow:
 
     mov dword[r8 + 4], 0
 
+    push r12
+    mov r12, r8
+
+    mov rdi, qword[r12 + 8]
+    mov rsi, 18
+    call AsmWaitEvent
+    mov rdi, rax
+    call AsmDalloc
+
+    mov rdi, qword[r12 + 8]
+    mov rsi, 21
+    call AsmWaitEvent
+    mov rdi, rax
+    call AsmDalloc
+
+    pop r12
+
     xor rax, rax
     ret
 
