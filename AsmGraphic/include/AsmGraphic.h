@@ -101,6 +101,8 @@ AsmWindow *AsmCreateWindow(AsmLink *link, AsmSize size, char *name);
 
 char AsmOpenWindow(AsmWindow *window);
 
+char AsmRenameWindow(AsmWindow *window, char *name);
+
 char AsmCloseWindow(AsmWindow *window);
 
 char AsmDestroyWindow(AsmWindow *window);

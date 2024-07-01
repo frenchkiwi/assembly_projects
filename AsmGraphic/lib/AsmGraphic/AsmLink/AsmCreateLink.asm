@@ -304,9 +304,12 @@ AsmCreateLink:
     mov rdi, qword[LINK_SOCKET]
     lea rsi, [LINK_BODY]
     mov rdx, r13
-    syscall ; read header
+    syscall ; read body
     cmp rax, rdx
     jne .bye_errorD
+
+    mov r8d, dword[LINK_ID]
+    mov dword[LINK_ID_GENERATOR], r8d
 
     CALL_ AsmCalloc, 4096 * 2, 0
     mov r8, rax ; create stack for thread

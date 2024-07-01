@@ -12,6 +12,7 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmLink/AsmWaitReply.asm \
 	  AsmLink/AsmCloseLink.asm \
 	  AsmWindow/AsmCreateWindow.asm \
+	  AsmWindow/AsmOpenWindow.asm \
 	  AsmWindow/AsmRenameWindow.asm \
 	  AsmWindow/AsmCloseWindow.asm \
 	  AsmWindow/AsmDestroyWindow.asm \

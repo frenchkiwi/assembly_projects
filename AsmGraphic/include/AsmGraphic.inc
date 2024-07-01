@@ -18,7 +18,7 @@
     %define EVENT_TYPE 8
     %define WINDOW_ID r12 + 0
     %define WINDOW_PIXMAP r12 + 4
-    %define WINDOW_LINK_FD r12 + 8
+    %define WINDOW_LINK r12 + 8
     %define WINDOW_X r12 + 16
     %define WINDOW_Y r12 + 18
     %define WINDOW_HEIGHT r12 + 20
@@ -32,6 +32,7 @@
     extern AsmCloseLink
 
     extern AsmCreateWindow
+    extern AsmOpenWindow
     extern AsmRenameWindow
     extern AsmCloseWindow
     extern AsmDestroyWindow

@@ -78,6 +78,10 @@ AsmThreadEvent:
         syscall
 
         .add_to_queue:
+        ; mov rdi, 'e'
+        ; call AsmPutchar
+        ; movzx rdi, byte[r13 + 8]
+        ; call AsmPutlnbr
         lea rdi, [LINK_FUTEX]
         call AsmLock
         mov r8, qword[LINK_EVENT_QUEUE]

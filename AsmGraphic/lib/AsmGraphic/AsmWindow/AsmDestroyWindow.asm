@@ -11,16 +11,17 @@ AsmDestroyWindow:
     sub rsp, 8
 
     mov r8, rdi
+    mov r9, qword[rdi + 8]
     cmp dword[r8 + 4], 0
     je .no_pixmap
 
     mov byte[rsp], 54
     mov word[rsp + 2], 2
-    mov r9d, dword[r8 + 4]
-    mov dword[rsp + 4], r9d
+    mov r10d, dword[r8 + 4]
+    mov dword[rsp + 4], r10d
 
     mov rax, 1
-    mov rdi, qword[r8 + 8]
+    mov rdi, qword[r9]
     lea rsi, [rsp]
     mov rdx, 8
     syscall
@@ -30,11 +31,11 @@ AsmDestroyWindow:
     .no_pixmap:
     mov byte[rsp], 4
     mov word[rsp + 2], 2
-    mov r9d, dword[r8]
-    mov dword[rsp + 4], r9d
+    mov r10d, dword[r8]
+    mov dword[rsp + 4], r10d
 
     mov rax, 1
-    mov rdi, qword[r8 + 8]
+    mov rdi, qword[r9]
     lea rsi, [rsp]
     mov rdx, 8
     syscall
