@@ -37,4 +37,7 @@
     extern AsmCloseWindow
     extern AsmDestroyWindow
 
+    extern AsmCreateFont
+    extern AsmDestroyFont
+
 %endif

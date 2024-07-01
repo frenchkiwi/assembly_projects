@@ -51,6 +51,9 @@ typedef struct AsmLink AsmLink;
 // +0 4byte window_id | +4 4byte pixmap_id | +8 8byte link_fd | +16 4byte window_pos | +20 4byte window_size | +24 1byte window_depth | +25 1byte window_event (1 == move | 2 == resize)
 typedef struct AsmWindow AsmWindow;
 
+// +0 4byte font_id | +4 8byte link
+typedef struct AsmFont AsmFont;
+
 typedef unsigned char AsmColor[3];
 
 typedef unsigned char AsmFps;
@@ -106,5 +109,11 @@ char AsmRenameWindow(AsmWindow *window, char *name);
 char AsmCloseWindow(AsmWindow *window);
 
 char AsmDestroyWindow(AsmWindow *window);
+
+// // AsmText
+
+AsmFont *AsmCreateFont(AsmLink *link, char *font);
+
+char AsmDestroyFont(AsmFont *font);
 
 #endif
