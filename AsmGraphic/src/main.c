@@ -4,7 +4,7 @@
 int main(int ac, char **av, char **envp)
 {
     AsmLink *link = AsmCreateLink(envp);
-    AsmWindow *window = AsmCreateWindow(link, (AsmSize){800, 600}, (void *)(0));
+    AsmWindow *window = AsmCreateWindow(link, (AsmSize){800, 600}, "AsmGraphic Rework");
 
     if (!link)
         AsmPutlstr("AsmCreateLink error");
