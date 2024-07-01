@@ -25,6 +25,14 @@
     %define WINDOW_WIDTH r12 + 22
     %define WINDOW_DEPTH r12 + 24
     %define WINDOW_EVENT r12 + 25
+    %define TEXT_STRING r12 + 0
+    %define TEXT_LINK r12 + 8
+    %define TEXT_GC r12 + 16
+    %define TEXT_X r12 + 20
+    %define TEXT_Y r12 + 22
+    %define TEXT_FORE r12 + 24
+    %define TEXT_BACK r12 + 28
+
 
     extern AsmCreateLink
     extern AsmThreadEvent
@@ -39,5 +47,8 @@
 
     extern AsmCreateFont
     extern AsmDestroyFont
+    extern AsmCreateText
+    extern AsmDrawText
+    extern AsmDestroyText
 
 %endif

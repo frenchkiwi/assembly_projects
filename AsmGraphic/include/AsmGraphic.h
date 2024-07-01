@@ -22,14 +22,14 @@
 #define AsmEventWindowModified 22
 #define AsmEventSpecial 33
 
-#define TYPE(event) (unsigned char)event.data[0]
-#define KEYCODE(event) (unsigned char)event.data[1]
-#define BUTTON(event) (unsigned char)event.data[1]
-#define CLIENT_WINDOW(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
-#define CLIENT_ATOM(event) (unsigned char)event.data[8] | (unsigned char)event.data[9] << 8 | (unsigned char)event.data[10] << 16 | (unsigned char)event.data[11] << 24
-#define CONFIGURE_EVENT(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
+#define AsmTYPE(event) (unsigned char)event.data[0]
+#define AsmKEYCODE(event) (unsigned char)event.data[1]
+#define AsmBUTTON(event) (unsigned char)event.data[1]
+#define AsmCLIENT_WINDOW(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
+#define AsmCLIENT_ATOM(event) (unsigned char)event.data[8] | (unsigned char)event.data[9] << 8 | (unsigned char)event.data[10] << 16 | (unsigned char)event.data[11] << 24
+#define AsmCONFIGURE_EVENT(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
 
-#define PURPLE (unsigned char[3]){200, 0, 255}
+#define AsmPURPLE (AsmColor){200, 0, 255}
 
 #define AsmSecond(time) (long)((double)(time))
 #define AsmNanoSecond(time) 
@@ -53,6 +53,9 @@ typedef struct AsmWindow AsmWindow;
 
 // +0 4byte font_id | +4 8byte link
 typedef struct AsmFont AsmFont;
+
+// +0 8byte string | +8 8byte link | +16 4byte gc_id | +20 4byte pos | +24 4byte background color | +28 4byte foreground color
+typedef struct AsmText AsmText;
 
 typedef unsigned char AsmColor[3];
 
@@ -115,5 +118,11 @@ char AsmDestroyWindow(AsmWindow *window);
 AsmFont *AsmCreateFont(AsmLink *link, char *font);
 
 char AsmDestroyFont(AsmFont *font);
+
+AsmText *AsmCreateText(AsmLink *link, char *string, AsmFont *font, AsmPos pos);
+
+char AsmDrawText(AsmWindow *window, AsmText *text);
+
+char AsmDestroyText(AsmText *text);
 
 #endif

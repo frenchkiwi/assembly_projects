@@ -6,6 +6,7 @@ int main(int ac, char **av, char **envp)
     AsmLink *link = AsmCreateLink(envp);
     AsmWindow *window = AsmCreateWindow(link, (AsmSize){800, 600}, "AsmGraphic Rework");
     AsmFont *font = AsmCreateFont(link, "fixed");
+    AsmText *text = AsmCreateText(link, "Bonjour", font, (AsmPos){50, 50});
 
     if (!link)
         AsmPutlstr("AsmCreateLink error");
@@ -13,6 +14,8 @@ int main(int ac, char **av, char **envp)
         AsmPutlstr("AsmCreateWindow error");
     if (!font)
         AsmPutlstr("AsmCreateFont error");
+    if (!text)
+        AsmPutlstr("AsmCreateText error");
 
     if (AsmOpenWindow(window))
         AsmPutlstr("AsmOpenWindow error");
@@ -21,6 +24,8 @@ int main(int ac, char **av, char **envp)
         AsmPutlstr("AsmCloseWindow error");
     for (int i = 0; i < 1000000000; i++);
 
+    if (AsmDestroyText(text))
+        AsmPutlstr("AsmDestroyText error");
     if (AsmDestroyFont(font))
         AsmPutlstr("AsmDestroyFont error");
     if (AsmDestroyWindow(window))

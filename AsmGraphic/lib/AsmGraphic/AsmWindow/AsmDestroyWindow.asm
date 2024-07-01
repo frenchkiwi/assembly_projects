@@ -8,9 +8,9 @@ section .text
 AsmDestroyWindow:
     cmp rdi, 0
     je .bye_error0
-    sub rsp, 8
-
+    
     mov r8, rdi
+    sub rsp, 8
     mov r9, qword[rdi + 8]
     cmp dword[r8 + 4], 0
     je .no_pixmap

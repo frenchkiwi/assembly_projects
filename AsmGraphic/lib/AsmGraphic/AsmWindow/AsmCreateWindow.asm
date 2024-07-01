@@ -17,18 +17,13 @@ AsmCreateWindow:
     mov r13, rsi
     mov r14, rdx
 
-    mov rdi, 32 + 4 + 4 ; create window minimum + 2 values
-    call AsmAlloc
-    cmp rax, 0
-    je .bye_error
-
-    mov r15, rax
-    mov byte[r15], 1 ; set create_window request
-    mov byte[r15 + 1], 0 ; set depth
-    mov word[r15 + 2], 8 + 2 ; set length minimum + 2 value
+    sub rsp, 32 + 4 + 4 ; create window minimum + 2 values
+    mov byte[rsp], 1 ; set create_window request
+    mov byte[rsp + 1], 0 ; set depth
+    mov word[rsp + 2], 8 + 2 ; set length minimum + 2 value
 
     mov r10d, dword[LINK_ID_GENERATOR]
-    mov dword[r15 + 4], r10d ; set window_id
+    mov dword[rsp + 4], r10d ; set window_id
     inc dword[LINK_ID_GENERATOR]
 
     mov r8, r12
@@ -44,41 +39,39 @@ AsmCreateWindow:
     add r8, rax ; go to root section
 
     mov r9d, dword[r8]
-    mov dword[r15 + 8], r9d ; set parent_id
-    mov dword[r15 + 12], 0 ; set pos
-    mov dword[r15 + 16], r13d ; set size
-    mov word[r15 + 20], 1 ; set group/class
-    mov word[r15 + 22], 1 ; set border-width
+    mov dword[rsp + 8], r9d ; set parent_id
+    mov dword[rsp + 12], 0 ; set pos
+    mov dword[rsp + 16], r13d ; set size
+    mov word[rsp + 20], 1 ; set group/class
+    mov word[rsp + 22], 1 ; set border-width
     mov r9d, dword[r8 + 32]
-    mov dword[r15 + 24], r9d ; set visual_id
-    mov dword[r15 + 28], 2050 ; set bitmask
-    mov dword[r15 + 32], 0; set background to black
-    mov dword[r15 + 36], 0x1 | 0x4 | 0x20000 ; key press | button press | structure_notify
+    mov dword[rsp + 24], r9d ; set visual_id
+    mov dword[rsp + 28], 2050 ; set bitmask
+    mov dword[rsp + 32], 0; set background to black
+    mov dword[rsp + 36], 0x1 | 0x4 | 0x20000 ; key press | button press | structure_notify
     
     mov rax, 1
     mov rdi, qword[r12]
-    lea rsi, [r15]
+    lea rsi, [rsp]
     mov rdx, 32 + 4 + 4
     syscall ; send my message
     cmp rax, rdx
-    jne .bye_error
+    jne .bye_errorS
 
     mov rdi, 26
     call AsmAlloc
     cmp rax, 0
-    je .bye_error
+    je .bye_errorS
 
-    mov r8d, dword[r15 + 4]
+    mov r8d, dword[rsp + 4]
     mov dword[rax], r8d
     mov dword[rax + 4], 0
     mov qword[rax + 8], r12
     mov dword[rax + 16], 0
     mov dword[rax + 20], r13d
     mov word[rax + 24], 0
-    xchg r15, rax ; r15 is now the window
-
-    mov rdi, rax
-    call AsmDalloc
+    mov r15, rax ; r15 is now the window
+    add rsp, 32 + 4 + 4
 
     sub rsp, 24
     mov byte[rsp], 16 ; code
@@ -223,6 +216,8 @@ AsmCreateWindow:
     pop rbx
     ret
 
+    .bye_errorS:
+        add rsp, 32 + 4 + 4
     .bye_error:
         pop r15
         pop r14

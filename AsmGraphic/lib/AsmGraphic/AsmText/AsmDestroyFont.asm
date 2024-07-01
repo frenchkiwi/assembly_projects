@@ -10,8 +10,8 @@ AsmDestroyFont:
     je .bye_error
 
     mov r8, rdi
-    sub rsp, 8
 
+    sub rsp, 8
     mov byte[rsp], 46
     mov word[rsp + 2], 2
     mov r9d, dword[r8]

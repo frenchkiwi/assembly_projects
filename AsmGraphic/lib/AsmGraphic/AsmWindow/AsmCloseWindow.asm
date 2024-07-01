@@ -12,8 +12,8 @@ AsmCloseWindow:
     je .bye_error
 
     mov r8, rdi
-    sub rsp, 8
 
+    sub rsp, 8
     mov byte[rsp], 10
     mov word[rsp + 2], 2
     mov r9d, dword[r8]
@@ -30,7 +30,6 @@ AsmCloseWindow:
     jne .bye_error
 
     sub rsp, 8
-
     mov byte[rsp], 54
     mov word[rsp + 2], 2
     mov r9d, dword[r8 + 4]

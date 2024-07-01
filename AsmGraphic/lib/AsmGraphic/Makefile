@@ -18,6 +18,8 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmWindow/AsmDestroyWindow.asm \
 	  AsmText/AsmCreateFont.asm \
 	  AsmText/AsmDestroyFont.asm \
+	  AsmText/AsmCreateText.asm \
+	  AsmText/AsmDestroyText.asm \
 
 OBJ = $(SRC:.asm=.o)
 

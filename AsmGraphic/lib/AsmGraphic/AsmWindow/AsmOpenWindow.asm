@@ -6,8 +6,12 @@ section .text
     %include "AsmGraphic.inc"
 
 AsmOpenWindow:
-    sub rsp, 16
+    cmp rdi, 0
+    je .bye_error0
+    cmp dword[rdi + 4], 0
+    jne .bye
 
+    sub rsp, 16
     mov byte[rsp], 53 ; create pixmap
     mov r8b, byte[rdi + 24]
     mov byte[rsp + 1], r8b ; set depth
@@ -36,7 +40,6 @@ AsmOpenWindow:
     jne .bye_error
 
     sub rsp, 8
-
     mov byte[rsp], 8
     mov byte[rsp + 1], 0
     mov word[rsp + 2], 2
@@ -73,13 +76,15 @@ AsmOpenWindow:
     call AsmWaitEvent
     mov rdi, rax
     call AsmDalloc
-    
+
     pop r12
 
+    .bye:
     xor rax, rax
     ret
 
     .bye_error:
         mov dword[r8], 0
+    .bye_error0:
         mov rax, -1
         ret

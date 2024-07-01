@@ -8,6 +8,8 @@ section .text
 AsmRenameWindow:
     cmp rdi, 0
     je .bye_error0
+    cmp rsi, 0
+    je .bye_error0
 
     push rbx
     push r12
@@ -16,8 +18,8 @@ AsmRenameWindow:
     push r15
     mov r12, rdi
     mov r15, rsi
+    
     sub rsp, 16
-
     mov byte[rsp], 16 ; code
     mov byte[rsp + 1], 1 ; only if exist
     mov word[rsp + 2], 4 ; 2 + (7 + 1) / 4
@@ -51,7 +53,6 @@ AsmRenameWindow:
     call AsmDalloc
 
     sub rsp, 16
-
     mov byte[rsp], 16 ; code
     mov byte[rsp + 1], 1 ; only if exist
     mov word[rsp + 2], 4 ; 2 + (6 + 2) / 4
