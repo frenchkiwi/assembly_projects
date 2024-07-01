@@ -11,9 +11,11 @@ int main(int ac, char **av, char **envp)
     if (!window)
         AsmPutlstr("AsmCreateWindow error");
 
-    AsmOpenWindow(window);
+    if (AsmOpenWindow(window))
+        AsmPutlstr("AsmOpenWindow error");
     for (int i = 0; i < 1000000000; i++);
-    AsmCloseWindow(window);
+    if (AsmCloseWindow(window))
+        AsmPutlstr("AsmCloseWindow error");
     for (int i = 0; i < 1000000000; i++);
 
     if (AsmDestroyWindow(window))

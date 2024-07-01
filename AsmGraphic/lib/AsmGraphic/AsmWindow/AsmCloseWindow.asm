@@ -6,4 +6,51 @@ section .text
     %include "AsmGraphic.inc"
 
 AsmCloseWindow:
+    cmp rdi, 0
+    je .bye_error
+    cmp dword[rdi + 4], 0
+    je .bye_error
+
+    mov r8, rdi
+    sub rsp, 8
+
+    mov byte[rsp], 10
+    mov word[rsp + 2], 2
+    mov r9d, dword[r8]
+    mov dword[rsp + 4], r9d
+
+    mov rax, 1
+    mov rdi, qword[r8 + 8]
+    mov rdi, qword[rdi]
+    lea rsi, [rsp]
+    mov rdx, 8
+    syscall
+    add rsp, 8
+    cmp rax, rdx
+    jne .bye_error
+
+    sub rsp, 8
+
+    mov byte[rsp], 54
+    mov word[rsp + 2], 2
+    mov r9d, dword[r8 + 4]
+    mov dword[rsp + 4], r9d
+
+    mov rax, 1
+    mov rdi, qword[r8 + 8]
+    mov rdi, qword[rdi]
+    lea rsi, [rsp]
+    mov rdx, 8
+    syscall
+    add rsp, 8
+    cmp rax, rdx
+    jne .bye_error
+
+    mov dword[r8 + 4], 0
+
+    xor rax, rax
     ret
+
+    .bye_error:
+        mov rax, -1
+        ret

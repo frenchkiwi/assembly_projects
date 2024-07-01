@@ -8,10 +8,6 @@ section .text
 AsmOpenWindow:
     sub rsp, 16
 
-    xor r8, r8
-    mov r8d, dword[rdi]
-    CALL_ AsmPutlnbr, r8
-
     mov byte[rsp], 53 ; create pixmap
     mov r8b, byte[rdi + 24]
     mov byte[rsp + 1], r8b ; set depth
