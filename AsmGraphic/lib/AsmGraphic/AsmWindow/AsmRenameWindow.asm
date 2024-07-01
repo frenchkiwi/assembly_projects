@@ -1,9 +1,9 @@
 section .data
 
 section .text
-    global AsmCloseWindow
+    global AsmRenameWindow
     %include "AsmLibrary.inc"
     %include "AsmGraphic.inc"
 
-AsmCloseWindow:
+AsmRenameWindow:
     ret

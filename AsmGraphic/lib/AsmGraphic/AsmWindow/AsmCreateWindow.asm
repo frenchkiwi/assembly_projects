@@ -29,7 +29,7 @@ AsmCreateWindow:
 
     mov r10d, dword[LINK_ID]
     add r10d, dword[LINK_ID_GENERATOR]
-    add dword[r15 + 4], r10d ; set window_id
+    mov dword[r15 + 4], r10d ; set window_id
     inc dword[LINK_ID_GENERATOR]
 
     mov r8, r12
@@ -64,7 +64,7 @@ AsmCreateWindow:
     cmp rax, rdx
     jne .bye_error
 
-    mov rdi, 18
+    mov rdi, 26
     call AsmAlloc
     cmp rax, 0
     je .bye_error
@@ -72,11 +72,12 @@ AsmCreateWindow:
     mov r8d, dword[r15 + 4]
     mov dword[rax], r8d
     mov dword[rax + 4], 0
-    mov qword[rax + 8], r12
+    mov r8, qword[LINK_SOCKET]
+    mov qword[rax + 8], r8
     mov dword[rax + 16], 0
     mov dword[rax + 20], r13d
     mov word[rax + 24], 0
-    xchg r15, rax
+    xchg r15, rax ; r15 is now the window
 
     mov rdi, rax
     call AsmDalloc
@@ -112,8 +113,111 @@ AsmCreateWindow:
     cmp rax, rdx
     jne .bye_error
 
-    ; call AsmWaitReply
+    mov rdi, r12
+    mov rsi, 1
+    call AsmWaitEvent
 
+    xor r13, r13
+    mov r13d, dword[rax + 16] ; r13 is now WM_DELETE_WINDOW id 
+
+    mov rdi, rax
+    call AsmDalloc
+
+    sub rsp, 24
+    mov byte[rsp], 16 ; code
+    mov byte[rsp + 1], 0 ; only if exits
+    mov word[rsp + 2], 5 ; 2 + 12 / 4
+    mov word[rsp + 4], 12 ; my_strlen de l'atom
+    mov byte[rsp + 8], 'W'
+    mov byte[rsp + 9], 'M'
+    mov byte[rsp + 10], '_'
+    mov byte[rsp + 11], 'P'
+    mov byte[rsp + 12], 'R'
+    mov byte[rsp + 13], 'O'
+    mov byte[rsp + 14], 'T'
+    mov byte[rsp + 15], 'O'
+    mov byte[rsp + 16], 'C'
+    mov byte[rsp + 17], 'O'
+    mov byte[rsp + 18], 'L'
+    mov byte[rsp + 19], 'S'
+
+    mov rax, 1
+    mov rdi, qword[r12]
+    lea rsi, [rsp]
+    mov rdx, 20
+    syscall
+    add rsp, 24
+    cmp rax, rdx
+    jne .bye_error
+
+    mov rdi, r12
+    mov rsi, 1
+    call AsmWaitEvent
+
+    xor rbx, rbx
+    mov ebx, dword[rax + 16]
+
+    mov rdi, rax
+    call AsmDalloc
+
+    sub rsp, 32
+    mov byte[rsp], 18 ; code
+    mov byte[rsp + 1], 0 ; replace
+    mov word[rsp + 2], 7 ; 6 + 1
+    mov r8d, dword[r15]
+    mov dword[rsp + 4], r8d ; window_id
+    mov dword[rsp + 8], ebx ; WM_PROTOCOLS atom
+    mov dword[rsp + 12], 4 ; type ATOM
+    mov byte[rsp + 16], 32 ; format en 4octet
+    mov dword[rsp + 20], 1 ; 1 atom
+    mov dword[rsp + 24], r13d ; WM_DELETE_WINDOW atom
+
+    mov rax, 1
+    mov rdi, qword[r12]
+    lea rsi, [rsp]
+    mov rdx, 28
+    syscall
+    add rsp, 32
+    cmp rax, rdx
+    jne .bye_error
+
+    sub rsp, 8
+
+    mov byte[rsp], 14
+    mov word[rsp + 2], 2
+    mov r10d, dword[r15]
+    mov dword[rsp + 4], r10d
+
+    mov rax, 1
+    mov rdi, qword[r12]
+    lea rsi, [rsp]
+    mov rdx, 8
+    syscall
+    add rsp, 8
+    cmp rax, rdx
+    jne .bye_error
+
+    mov rdi, r12
+    mov rsi, 1
+    call AsmWaitEvent
+
+    mov r8d, dword[rax + 20]
+    mov dword[r15 + 16], r8d
+    mov r8b, byte[rax + 9]
+    mov byte[r15 + 24], r8b
+
+    mov rdi, rax
+    call AsmDalloc
+
+    cmp r14, 0
+    je .bye
+
+    mov rdi, r15
+    mov rsi, r14
+    call AsmRenameWindow
+
+    .bye:
+    mov rax, r15
     pop r15
     pop r14
     pop r13
@@ -333,7 +437,7 @@ AsmCreateWindow:
 
 ;     pop rsi
 ;     pop rdi
-
+;------------------------------------------------------------------------------------------------------------------
 ;     CALL_ my_malloc, 8
 ;     mov r9, rax
 
