@@ -77,6 +77,12 @@ AsmOpenWindow:
     mov rdi, rax
     call AsmDalloc
 
+    mov rdi, r12
+    mov rsi, 150
+    call AsmWaitEvent
+    mov rdi, rax
+    call AsmDalloc
+
     pop r12
 
     .bye:

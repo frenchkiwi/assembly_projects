@@ -21,7 +21,6 @@ int main(int ac, char **av, char **envp)
 
     if (AsmOpenWindow(window))
         AsmPutlstr("AsmOpenWindow error");
-    for (int i = 0; i < 1000000000; i++);
     if (AsmClearWindow(window, (AsmColor){0, 0, 0, 0}))
         AsmPutlstr("AsmClearWindow error");
     if (AsmDrawText(window, text))
