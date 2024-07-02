@@ -1,7 +1,7 @@
 #include "AsmLibrary.h"
 #include "AsmGraphic.h"
 
-void analyze_event(AsmEvent event, AsmWindow *window)
+void analyze_event(AsmEvent event, AsmLink *link, AsmWindow *window)
 {
     switch (AsmTYPE(event)) {
         case AsmEventKeyPressed:
@@ -12,6 +12,7 @@ void analyze_event(AsmEvent event, AsmWindow *window)
             break;
         case AsmEventMouseButtonPressed:
             AsmPrint("Button pressed: %d\n", AsmBUTTON(event));
+            AsmBell(link, 100);
             break;
         case AsmEventMouseButtonRelease:
             AsmPrint("Button release: %d\n", AsmBUTTON(event));
@@ -25,12 +26,17 @@ void analyze_event(AsmEvent event, AsmWindow *window)
     }
 }
 
-void update(AsmWindow *window, AsmRectangle *rectangle, AsmText *text)
+void update(AsmLink *link, AsmWindow *window, AsmRectangle *rectangle, AsmText *text)
 {
+    AsmPos pos = AsmPositionWindow(window);
+    AsmSize size = AsmSizeWindow(window);
+
+    AsmPrint("x: %d et y: %d\n", pos.x, pos.y);
+    AsmPrint("width: %d et height: %d\n", size.width, size.heigth);
     return;
 }
 
-void display(AsmWindow *window, AsmRectangle *rectangle, AsmText *text)
+void display(AsmLink *link, AsmWindow *window, AsmRectangle *rectangle, AsmText *text)
 {
     if (AsmClearWindow(window, (AsmColor){0, 0, 0, 0}))
         AsmPutlstr("AsmClearWindow error");
@@ -72,11 +78,11 @@ int main(int ac, char **av, char **envp)
         AsmPutlstr("AsmOpenWindow error");
     while (AsmIsOpenWindow(window)) {
         while (AsmPollEvent(&event, window))
-            analyze_event(event, window);
+            analyze_event(event, link, window);
         if (AsmTickTimer(updateT))
-            update(window, rectangle, text);
+            update(link, window, rectangle, text);
         if (AsmTickTimer(displayT))
-            display(window, rectangle, text);
+            display(link, window, rectangle, text);
     }
 
     if (AsmDestroyTimer(displayT))

@@ -15,6 +15,8 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmWindow/AsmCreateWindow.asm \
 	  AsmWindow/AsmOpenWindow.asm \
 	  AsmWindow/AsmIsOpenWindow.asm \
+	  AsmWindow/AsmPositionWindow.asm \
+	  AsmWindow/AsmSizeWindow.asm \
 	  AsmWindow/AsmClearWindow.asm \
 	  AsmWindow/AsmDisplayWindow.asm \
 	  AsmWindow/AsmRenameWindow.asm \
@@ -31,6 +33,7 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmTimer/AsmInitTimer.asm \
 	  AsmTimer/AsmTickTimer.asm \
 	  AsmTimer/AsmDestroyTimer.asm \
+	  AsmBell.asm \
 
 OBJ = $(SRC:.asm=.o)
 

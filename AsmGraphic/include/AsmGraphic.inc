@@ -63,6 +63,8 @@
     extern AsmCreateWindow
     extern AsmOpenWindow
     extern AsmIsOpenWindow
+    extern AsmPositionWindow
+    extern AsmSizeWindow
     extern AsmRenameWindow
     extern AsmDisplayWindow
     extern AsmCloseWindow
@@ -81,5 +83,7 @@
     extern AsmInitTimer
     extern AsmTickTimer
     extern AsmDestroyTimer
+
+    extern AsmBell
 
 %endif

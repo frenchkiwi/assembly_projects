@@ -96,6 +96,10 @@ char AsmOpenWindow(AsmWindow *window);
 
 char AsmIsOpenWindow(AsmWindow *window);
 
+AsmPos AsmPositionWindow(AsmWindow *window);
+
+AsmSize AsmSizeWindow(AsmWindow *window);
+
 char AsmClearWindow(AsmWindow *window, AsmColor color);
 
 char AsmDisplayWindow(AsmWindow *window);
@@ -133,5 +137,9 @@ AsmTimer *AsmInitTimer(double delay);
 char AsmTickTimer(AsmTimer *timer);
 
 char AsmDestroyTimer(AsmTimer *timer);
+
+// // Fun
+
+char AsmBell(AsmLink *link, char volume);
 
 #endif
