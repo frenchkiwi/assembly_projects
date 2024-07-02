@@ -58,7 +58,7 @@ AsmCreateWindow:
     cmp rax, rdx
     jne .bye_errorS
 
-    mov rdi, 30
+    mov rdi, 34
     call AsmAlloc
     cmp rax, 0
     je .bye_errorS
@@ -70,6 +70,7 @@ AsmCreateWindow:
     mov dword[rax + 16], 0
     mov dword[rax + 20], r13d
     mov word[rax + 24], 0
+    mov dword[rax + 30], 0
     mov r15, rax ; r15 is now the window
     add rsp, 32 + 4 + 4
 

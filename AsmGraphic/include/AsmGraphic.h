@@ -29,7 +29,7 @@
 #define AsmCLIENT_ATOM(event) (unsigned char)event.data[8] | (unsigned char)event.data[9] << 8 | (unsigned char)event.data[10] << 16 | (unsigned char)event.data[11] << 24
 #define AsmCONFIGURE_EVENT(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
 
-#define AsmPURPLE (AsmColor){200, 0, 255}
+#define AsmPURPLE (AsmColor){0, 200, 0, 255}
 
 #define AsmSecond(time) (long)((double)(time))
 #define AsmNanoSecond(time) 
@@ -48,16 +48,24 @@
 // event_queue: +0 8byte next_event | +8 32byte event_body
 typedef struct AsmLink AsmLink;
 
-// +0 4byte window_id | +4 4byte pixmap_id | +8 8byte link_fd | +16 4byte window_pos | +20 4byte window_size | +24 1byte window_depth | +25 1byte window_event (1 == move | 2 == resize) | +26 4byte window_gc
+// +0 4byte window_id | +4 4byte pixmap_id | +8 8byte link_fd | +16 4byte window_pos | +20 4byte window_size | +24 1byte window_depth | +25 1byte window_event (1 == move | 2 == resize) | +26 4byte window_gc | +30 4byte color
 typedef struct AsmWindow AsmWindow;
 
 // +0 4byte font_id | +4 8byte link
 typedef struct AsmFont AsmFont;
 
-// +0 8byte string of 255 char max | +8 8byte link | +16 4byte gc_id | +20 4byte pos | +24 4byte foreground color | +28 4byte background color
+// +0 8byte string of 255 char max | +8 8byte link | +16 4byte gc_id | +20 4byte pos | +24 4byte foreground color
 typedef struct AsmText AsmText;
 
-typedef unsigned char AsmColor[3];
+// +0 4byte pos | +4 4byte size | +8 8byte link | +16 4byte gc_id | +20 4byte color
+typedef struct AsmRectangle AsmRectangle;
+
+typedef struct AsmColor {
+    unsigned char unused;
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+} AsmColor;
 
 typedef unsigned char AsmFps;
 
@@ -89,10 +97,6 @@ typedef struct {
     long last_time;
 } AsmTask;
 
-typedef struct AsmText AsmText;
-
-typedef struct AsmRectangle AsmRectangle;
-
 // Resources Gestion
 
 // // AsmLink
@@ -106,6 +110,8 @@ char AsmCloseLink(AsmLink *link);
 AsmWindow *AsmCreateWindow(AsmLink *link, AsmSize size, char *name);
 
 char AsmOpenWindow(AsmWindow *window);
+
+char AsmClearWindow(AsmWindow *window, AsmColor color);
 
 char AsmDisplayWindow(AsmWindow *window);
 
@@ -126,5 +132,13 @@ AsmText *AsmCreateText(AsmLink *link, char *string, AsmFont *font, AsmPos pos);
 char AsmDrawText(AsmWindow *window, AsmText *text);
 
 char AsmDestroyText(AsmText *text);
+
+// // AsmRectangle
+
+AsmRectangle *AsmCreateRectangle(AsmLink *link, AsmPosSize dimension, AsmColor color);
+
+char AsmDrawRectangle(AsmWindow *window, AsmRectangle *rectangle);
+
+char AsmDestroyRectangle(AsmRectangle *rectangle);
 
 #endif

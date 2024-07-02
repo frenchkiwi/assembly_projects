@@ -13,6 +13,7 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmLink/AsmCloseLink.asm \
 	  AsmWindow/AsmCreateWindow.asm \
 	  AsmWindow/AsmOpenWindow.asm \
+	  AsmWindow/AsmClearWindow.asm \
 	  AsmWindow/AsmDisplayWindow.asm \
 	  AsmWindow/AsmRenameWindow.asm \
 	  AsmWindow/AsmCloseWindow.asm \
@@ -22,6 +23,9 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmText/AsmCreateText.asm \
 	  AsmText/AsmDrawText.asm \
 	  AsmText/AsmDestroyText.asm \
+	  AsmRectangle/AsmCreateRectangle.asm \
+	  AsmRectangle/AsmDrawRectangle.asm \
+	  AsmRectangle/AsmDestroyRectangle.asm \
 
 OBJ = $(SRC:.asm=.o)
 
