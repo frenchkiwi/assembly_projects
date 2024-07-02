@@ -11,7 +11,7 @@ SRC = src/main.c \
 
 OBJ = $(SRC:.c=.o)
 
-CFLAGS = -z execstack -Wall -Wextra -Wunused-parameter -I./include -L./lib -lAsmGlobal
+CFLAGS = -z execstack -Wall -Wextra -Wno-unused-parameter -I./include -L./lib -lAsmGlobal
 
 all: $(NAME)
 
