@@ -17,7 +17,6 @@ void analyze_event(AsmEvent event, AsmWindow *window)
             AsmPrint("Button release: %d\n", AsmBUTTON(event));
             break;
         case AsmEventSpecial:
-            AsmPutlstr("Oue j'uis special");
             if (AsmCloseWindow(window))
                 AsmPutlstr("AsmCloseWindow error");
             break;

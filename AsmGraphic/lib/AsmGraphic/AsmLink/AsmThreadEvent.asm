@@ -32,14 +32,19 @@ AsmThreadEvent:
         je .loop
 
         mov rdi, 40
-        mov rsi, 0
-        call AsmCalloc
+        call AsmAlloc
+        cmp rax, 0
+        je .exit
+
         mov r13, rax ; alloc the event
+        mov qword[r13], 0
         mov rax, 0 ; code for read
         mov rdi, qword[LINK_SOCKET] ; read fd socket
         lea rsi, [r13 + 8] ; link the event anwser space
         mov rdx, 32 ; read a basic
         syscall
+        cmp rax, rdx
+        jne .exit
 
         cmp byte[r13 + 8], 0
         je .error_detect
@@ -57,7 +62,10 @@ AsmThreadEvent:
 
         mov rdi, rax
         call AsmAlloc; alloc the right one event
+        cmp rax, 0
+        je .exit
 
+        mov qword[rax], 0
         mov r8, qword[r13 + 8]
         mov qword[rax + 8], r8
         mov r8, qword[r13 + 16]
@@ -76,6 +84,8 @@ AsmThreadEvent:
         lea rsi, [r13 + 40] ; link the event anwser space
         pop rdx ; get back the extra data length
         syscall
+        cmp rax, rdx
+        jne .exit
 
         .add_to_queue:
         cmp byte[r13 + 8], 128
@@ -88,11 +98,20 @@ AsmThreadEvent:
         ; call AsmPutlnbr
         lea rdi, [LINK_FUTEX]
         call AsmLock
-        mov r8, qword[LINK_EVENT_QUEUE]
-        mov qword[r13], r8
-        mov qword[LINK_EVENT_QUEUE], r13
+
+        mov r8, r12
+        add r8, 26
+        .go_to_end:
+            cmp qword[r8], 0
+            je .quit_go_to_end
+            mov r8, qword[r8]
+            jmp .go_to_end
+        .quit_go_to_end:
+        mov qword[r8], r13
+
         lea rdi, [LINK_FUTEX]
         call AsmUnlock
+
 
         jmp .loop
 
