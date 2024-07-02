@@ -31,18 +31,6 @@
 
 #define AsmPURPLE (AsmColor){0, 200, 0, 255}
 
-#define AsmSecond(time) (long)((double)(time))
-#define AsmNanoSecond(time) 
-
-#define AsmSetTask(name, function_addr, arg_addr, delay) \
-    do { \
-        name.function = function_addr; \
-        name.arg = arg_addr; \
-        name.interval[0] = (long)((double)delay); \
-        name.interval[1] = (long)((double)((double)(delay) - aSecond(delay)) * 1000000000); \
-        name.last_time = 0; \
-    } while (0)
-
 //link: +0 4byte fd socket | +4 8byte thread_info | +12 8byte header | +20 request body
 // thread_info: +0 1byte futex | +1 1byte conditionnal variable | +2 4byte thread id | +6 8byte thread_stack | +14 8byte event_queue
 // event_queue: +0 8byte next_event | +8 32byte event_body
@@ -60,14 +48,12 @@ typedef struct AsmText AsmText;
 // +0 4byte pos | +4 4byte size | +8 8byte link | +16 4byte gc_id | +20 4byte color
 typedef struct AsmRectangle AsmRectangle;
 
-typedef struct AsmColor {
+typedef struct {
     unsigned char unused;
     unsigned char red;
     unsigned char green;
     unsigned char blue;
 } AsmColor;
-
-typedef unsigned char AsmFps;
 
 typedef struct {
     short x;
@@ -90,12 +76,7 @@ typedef struct {
     char data[32];
 } AsmEvent;
 
-typedef struct {
-    void (*function)(void *);
-    void *arg;
-    long interval[2];
-    long last_time;
-} AsmTask;
+typedef struct AsmTimer AsmTimer;
 
 // Resources Gestion
 
@@ -140,5 +121,11 @@ AsmRectangle *AsmCreateRectangle(AsmLink *link, AsmPosSize dimension, AsmColor c
 char AsmDrawRectangle(AsmWindow *window, AsmRectangle *rectangle);
 
 char AsmDestroyRectangle(AsmRectangle *rectangle);
+
+// // AsmTask
+
+AsmTimer *AsmInitTimer(double delay);
+
+char AsmTickTimer(AsmTimer *timer);
 
 #endif

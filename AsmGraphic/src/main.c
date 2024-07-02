@@ -1,6 +1,24 @@
 #include "AsmLibrary.h"
 #include "AsmGraphic.h"
 
+void update(AsmWindow *window, AsmRectangle *rectangle, AsmText *text)
+{
+    return;
+}
+
+void display(AsmWindow *window, AsmRectangle *rectangle, AsmText *text)
+{
+    if (AsmClearWindow(window, (AsmColor){0, 0, 0, 0}))
+        AsmPutlstr("AsmClearWindow error");
+    if (AsmDrawText(window, text))
+        AsmPutlstr("AsmDrawText error");
+    if (AsmDrawRectangle(window, rectangle))
+        AsmPutlstr("AsmDrawRectangle error");
+    if (AsmDisplayWindow(window))
+        AsmPutlstr("AsmDisplayWindow error");
+    return;
+}
+
 int main(int ac, char **av, char **envp)
 {
     AsmLink *link = AsmCreateLink(envp);
@@ -18,18 +36,18 @@ int main(int ac, char **av, char **envp)
     AsmRectangle *rectangle = AsmCreateRectangle(link, (AsmPosSize){50, 70, 500, 5}, AsmPURPLE);
     if (!rectangle)
         AsmPutlstr("AsmCreateRectangle error");
+    AsmTimer *updateT = AsmInitTimer(2.0);
+    AsmTimer *displayT = AsmInitTimer(1 / 60.0);
 
     if (AsmOpenWindow(window))
         AsmPutlstr("AsmOpenWindow error");
-    if (AsmClearWindow(window, (AsmColor){0, 0, 0, 0}))
-        AsmPutlstr("AsmClearWindow error");
-    if (AsmDrawText(window, text))
-        AsmPutlstr("AsmDrawText error");
-    if (AsmDrawRectangle(window, rectangle))
-        AsmPutlstr("AsmDrawRectangle error");
-    if (AsmDisplayWindow(window))
-        AsmPutlstr("AsmDisplayWindow error");
-    for (int i = 0; i < 1000000000; i++);
+    while (1) {
+        
+        if (AsmTickTimer(updateT))
+            update(window, rectangle, text);
+        if (AsmTickTimer(displayT))
+            display(window, rectangle, text);
+    }
     if (AsmCloseWindow(window))
         AsmPutlstr("AsmCloseWindow error");
 

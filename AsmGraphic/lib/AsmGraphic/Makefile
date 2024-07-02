@@ -26,6 +26,8 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmRectangle/AsmCreateRectangle.asm \
 	  AsmRectangle/AsmDrawRectangle.asm \
 	  AsmRectangle/AsmDestroyRectangle.asm \
+	  AsmTimer/AsmInitTimer.asm \
+	  AsmTimer/AsmTickTimer.asm \
 
 OBJ = $(SRC:.asm=.o)
 

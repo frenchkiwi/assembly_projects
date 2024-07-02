@@ -76,4 +76,7 @@
     extern AsmDrawRectangle
     extern AsmDestroyRectangle
 
+    extern AsmInitTimer
+    extern AsmTickTimer
+
 %endif
