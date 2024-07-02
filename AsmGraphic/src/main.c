@@ -12,7 +12,8 @@ void analyze_event(AsmEvent event, AsmLink *link, AsmWindow *window)
             break;
         case AsmEventMouseButtonPressed:
             AsmPrint("Button pressed: %d\n", AsmBUTTON(event));
-            AsmBell(link, 100);
+            if (AsmBell(link, 99))
+                AsmPutlstr("AsmBell error");
             break;
         case AsmEventMouseButtonRelease:
             AsmPrint("Button release: %d\n", AsmBUTTON(event));

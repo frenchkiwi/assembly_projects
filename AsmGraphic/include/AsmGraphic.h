@@ -140,6 +140,6 @@ char AsmDestroyTimer(AsmTimer *timer);
 
 // // Fun
 
-char AsmBell(AsmLink *link, char volume);
+char AsmBell(AsmLink *link, unsigned char volume);
 
 #endif

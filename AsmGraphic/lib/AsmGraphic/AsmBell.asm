@@ -8,9 +8,7 @@ section .text
 AsmBell:
     cmp rdi, 0
     je .bye_error
-    cmp rsi, -100
-    jb .bye_error
-    cmp rsi, 100
+    cmp sil, 100
     ja .bye_error
 
     sub rsp, 8
