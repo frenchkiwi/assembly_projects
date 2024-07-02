@@ -10,9 +10,11 @@ NAME = libAsmGraphic.a
 SRC = AsmLink/AsmCreateLink.asm \
 	  AsmLink/AsmThreadEvent.asm \
 	  AsmLink/AsmWaitReply.asm \
+	  AsmLink/AsmPollEvent.asm \
 	  AsmLink/AsmCloseLink.asm \
 	  AsmWindow/AsmCreateWindow.asm \
 	  AsmWindow/AsmOpenWindow.asm \
+	  AsmWindow/AsmIsOpenWindow.asm \
 	  AsmWindow/AsmClearWindow.asm \
 	  AsmWindow/AsmDisplayWindow.asm \
 	  AsmWindow/AsmRenameWindow.asm \
@@ -28,6 +30,7 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmRectangle/AsmDestroyRectangle.asm \
 	  AsmTimer/AsmInitTimer.asm \
 	  AsmTimer/AsmTickTimer.asm \
+	  AsmTimer/AsmDestroyTimer.asm \
 
 OBJ = $(SRC:.asm=.o)
 

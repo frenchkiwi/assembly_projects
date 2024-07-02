@@ -201,9 +201,9 @@ AsmCreateWindow:
     mov rdi, rax
     call AsmDalloc
 
-    sub rsp, 16
+    sub rsp, 24
     mov byte[rsp], 55
-    mov word[rsp + 2], 4
+    mov word[rsp + 2], 4 + 1
     mov r8d, dword[LINK_ID_GENERATOR]
     mov dword[rsp + 4], r8d
     mov dword[r15 + 26], r8d
@@ -211,14 +211,15 @@ AsmCreateWindow:
 
     mov r8d, dword[LINK_ID]
     mov dword[rsp + 8], r8d
-    mov dword[rsp + 12], 0
+    mov dword[rsp + 12], 0x00010000
+    mov dword[rsp + 16], 0
 
     mov rax, 1
     mov rdi, qword[r12]
     lea rsi, [rsp]
-    mov rdx, 16
+    mov rdx, 20
     syscall
-    add rsp, 16
+    add rsp, 24
     cmp rax, rdx
     jne .bye_error
 

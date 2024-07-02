@@ -57,10 +57,12 @@
     extern AsmCreateLink
     extern AsmThreadEvent
     extern AsmWaitEvent
+    extern AsmPollEvent
     extern AsmCloseLink
 
     extern AsmCreateWindow
     extern AsmOpenWindow
+    extern AsmIsOpenWindow
     extern AsmRenameWindow
     extern AsmDisplayWindow
     extern AsmCloseWindow
@@ -78,5 +80,6 @@
 
     extern AsmInitTimer
     extern AsmTickTimer
+    extern AsmDestroyTimer
 
 %endif

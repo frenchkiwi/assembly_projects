@@ -78,6 +78,10 @@ AsmThreadEvent:
         syscall
 
         .add_to_queue:
+        cmp byte[r13 + 8], 128
+        jb .no_sub
+        sub byte[r13 + 8], 128
+        .no_sub:
         ; mov rdi, 'e'
         ; call AsmPutchar
         ; movzx rdi, byte[r13 + 8]

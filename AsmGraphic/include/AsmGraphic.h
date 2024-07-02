@@ -22,7 +22,7 @@
 #define AsmEventWindowModified 22
 #define AsmEventSpecial 33
 
-#define AsmTYPE(event) (unsigned char)event.data[0]
+#define AsmTYPE(event) (unsigned char)event.data[0] % 128
 #define AsmKEYCODE(event) (unsigned char)event.data[1]
 #define AsmBUTTON(event) (unsigned char)event.data[1]
 #define AsmCLIENT_WINDOW(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
@@ -84,6 +84,8 @@ typedef struct AsmTimer AsmTimer;
 
 AsmLink *AsmCreateLink(char **env);
 
+char AsmPollEvent(AsmEvent *event, AsmWindow *window);
+
 char AsmCloseLink(AsmLink *link);
 
 // // AsmWindow
@@ -91,6 +93,8 @@ char AsmCloseLink(AsmLink *link);
 AsmWindow *AsmCreateWindow(AsmLink *link, AsmSize size, char *name);
 
 char AsmOpenWindow(AsmWindow *window);
+
+char AsmIsOpenWindow(AsmWindow *window);
 
 char AsmClearWindow(AsmWindow *window, AsmColor color);
 
@@ -127,5 +131,7 @@ char AsmDestroyRectangle(AsmRectangle *rectangle);
 AsmTimer *AsmInitTimer(double delay);
 
 char AsmTickTimer(AsmTimer *timer);
+
+char AsmDestroyTimer(AsmTimer *timer);
 
 #endif

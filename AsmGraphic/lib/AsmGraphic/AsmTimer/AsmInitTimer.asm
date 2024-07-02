@@ -1,7 +1,7 @@
 section .data
 
 section .text
-    global AsmInitText
+    global AsmInitTimer
     %include "AsmLibrary.inc"
     %include "AsmGraphic.inc"
 

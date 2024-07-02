@@ -1,6 +1,31 @@
 #include "AsmLibrary.h"
 #include "AsmGraphic.h"
 
+void analyze_event(AsmEvent event, AsmWindow *window)
+{
+    switch (AsmTYPE(event)) {
+        case AsmEventKeyPressed:
+            AsmPrint("Key pressed: %d\n", AsmKEYCODE(event));
+            break;
+        case AsmEventKeyRelease:
+            AsmPrint("Key release: %d\n", AsmKEYCODE(event));
+            break;
+        case AsmEventMouseButtonPressed:
+            AsmPrint("Button pressed: %d\n", AsmBUTTON(event));
+            break;
+        case AsmEventMouseButtonRelease:
+            AsmPrint("Button release: %d\n", AsmBUTTON(event));
+            break;
+        case AsmEventSpecial:
+            AsmPutlstr("Oue j'uis special");
+            if (AsmCloseWindow(window))
+                AsmPutlstr("AsmCloseWindow error");
+            break;
+        default:
+            AsmPrint("Event unknow: %d\n", AsmTYPE(event));
+    }
+}
+
 void update(AsmWindow *window, AsmRectangle *rectangle, AsmText *text)
 {
     return;
@@ -27,6 +52,7 @@ int main(int ac, char **av, char **envp)
     AsmWindow *window = AsmCreateWindow(link, (AsmSize){800, 600}, "AsmGraphic Rework");
     if (!window)
         AsmPutlstr("AsmCreateWindow error");
+    AsmEvent event;
     AsmFont *font = AsmCreateFont(link, "fixed");
     if (!font)
         AsmPutlstr("AsmCreateFont error");
@@ -37,20 +63,27 @@ int main(int ac, char **av, char **envp)
     if (!rectangle)
         AsmPutlstr("AsmCreateRectangle error");
     AsmTimer *updateT = AsmInitTimer(2.0);
+    if (!updateT)
+        AsmPutlstr("AsmInitTimer error");
     AsmTimer *displayT = AsmInitTimer(1 / 60.0);
+    if (!displayT)
+        AsmPutlstr("AsmInitTimer error");
 
     if (AsmOpenWindow(window))
         AsmPutlstr("AsmOpenWindow error");
-    while (1) {
-        
+    while (AsmIsOpenWindow(window)) {
+        while (AsmPollEvent(&event, window))
+            analyze_event(event, window);
         if (AsmTickTimer(updateT))
             update(window, rectangle, text);
         if (AsmTickTimer(displayT))
             display(window, rectangle, text);
     }
-    if (AsmCloseWindow(window))
-        AsmPutlstr("AsmCloseWindow error");
 
+    if (AsmDestroyTimer(displayT))
+        AsmPutlstr("AsmDestroyTimer error");
+    if (AsmDestroyTimer(updateT))
+        AsmPutlstr("AsmDestroyTimer error");
     if (AsmDestroyRectangle(rectangle))
         AsmPutlstr("AsmDestroyRectangle error");
     if (AsmDestroyText(text))
