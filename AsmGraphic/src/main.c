@@ -1,121 +1,111 @@
-/*
-** EPITECH PROJECT, 2023
-** Library
-** File description:
-** main.c
-*/
+#include "AsmLibrary.h"
+#include "AsmGraphic.h"
 
-#include "header.h"
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <unistd.h>
-
-void display(void *arg)
+void analyze_event(AsmEvent event, AsmLink *link, AsmWindow *window)
 {
-    arg_display_t *args = arg;
-
-    aClearWindow(args->link, args->window);
-    aDrawRectangle(args->link, args->window, args->rect);
-    aDrawText(args->link, args->window, args->text);
-    aDisplayWindow(args->link, args->window);
-}
-
-void update(void *arg)
-{
-    arg_update_t *args = arg;
-    aPos pos;
-    aSize size;
-
-    pos = aGetWindowPosition(args->window);
-    size = aGetWindowSize(args->window);
-}
-
-void analize_event(aLink *link, aWindow *window, aEvent event, global_t *base)
-{
-    switch (TYPE(event) % 128) {
-        case aEventRequestError:
-            my_putstr("error: ");
-            my_putnbr(KEYCODE(event));
-            my_putchar('\n');
-            exit(0);
-        case aEventReplyError:
-            my_putstr("reply in event\n");
-            exit(0);
-        case aEventKeyPressed:
-            my_putstr("key_pressed: ");
-            my_putnbr(KEYCODE(event));
-            my_putchar('\n');
-            aBell(link, 40);
+    switch (AsmTYPE(event)) {
+        case AsmEventKeyPressed:
+            AsmPrint("Key pressed: %d\n", AsmKEYCODE(event));
             break;
-        case aEventMouseButtonPressed:
-            my_putstr("button_pressed\n");
+        case AsmEventKeyRelease:
+            AsmPrint("Key release: %d\n", AsmKEYCODE(event));
             break;
-        case aEventWindowMapped:
-            my_putstr("window mapped successfully\n");
+        case AsmEventMouseButtonPressed:
+            AsmPrint("Button pressed: %d\n", AsmBUTTON(event));
+            if (AsmBell(link, 99))
+                AsmPutlstr("AsmBell error");
             break;
-        case aEventWindowCreate:
-            my_putstr("create window\n");
+        case AsmEventMouseButtonRelease:
+            AsmPrint("Button release: %d\n", AsmBUTTON(event));
             break;
-        case aEventWindowModified:
-            aWindowUpdate(link, window, &event);
-            if (aIsWindowResizing(window))
-                my_putstr("window resized\n");
-            if (aIsWindowMoving(window))
-                my_putstr("window moved\n");
+        case AsmEventWindowModified:
+            if (AsmHasMovedWindow(window))
+                AsmPutlstr("Window moved");
+            if (AsmHasResizedWindow(window))
+                AsmPutlstr("Window resized");
             break;
-        case aEventSpecial:
-            if (aIsWindowClosing(link, window, &event))
-                aCloseWindow(window);
+        case AsmEventClose:
+            if (AsmCloseWindow(window))
+                AsmPutlstr("AsmCloseWindow error");
             break;
         default:
-            my_putstr("analize: ");
-            my_putnbr(TYPE(event));
-            my_putchar('\n');
+            AsmPrint("Event unknow: %d\n", AsmTYPE(event));
     }
 }
 
-global_t *init(char **env)
+void update(AsmLink *link, AsmWindow *window, AsmRectangle *rectangle, AsmText *text)
 {
-    global_t *base = my_malloc(sizeof(global_t));
+    AsmPos pos = AsmPositionWindow(window);
+    AsmSize size = AsmSizeWindow(window);
 
-    base->link = aCreateLink(env);
-    base->window = aCreateWindow(base->link, (short[2]){800, 600}, "AsmGraphic");
-    base->rect = aCreateRectangle((aPosSize){50, 120, 700, 10}, (aColor){255, 255, 0});
-    base->text = aCreateText("Message for test !", (aPos){100, 100}, (aColor){0, 200, 255});
-    base->arg_update = (arg_update_t){base->link, base->window};
-    base->arg_display =
-    (arg_display_t){base->link, base->window, base->rect, base->text};
-    return base;
+    AsmPrint("x: %d et y: %d\n", pos.x, pos.y);
+    AsmPrint("width: %d et height: %d\n", size.width, size.heigth);
+    return;
 }
 
-int main(int ac, char **av, char **env)
+void display(AsmLink *link, AsmWindow *window, AsmRectangle *rectangle, AsmText *text)
 {
-    global_t *base = init(env);
-    aTask task_update;
-    aTask task_display;
-    
-    aSetTask(task_update, &update, &base->arg_update, 2);
-    aSetTask(task_display, &display, &base->arg_display, 1.0 / 60.0);
-    aOpenFont(base->link, "fixed");
-    aMapWindow(base->link, base->window);
-    // error case for mapwindow avec un get reply pour le message de mapping
-    while (aIsWindowOpen(base->window)) {
-        puts("loop");
-        while (aPollEvent(base->link, &base->event))
-            analize_event(base->link, base->window, base->event, base);
-        puts("analyze done");
-        aRunTask(&task_update);
-        puts("update done");
-        aRunTask(&task_display);
-        puts("display done");
+    if (AsmClearWindow(window, (AsmColor){0, 0, 0, 0}))
+        AsmPutlstr("AsmClearWindow error");
+    if (AsmDrawText(window, text))
+        AsmPutlstr("AsmDrawText error");
+    if (AsmDrawRectangle(window, rectangle))
+        AsmPutlstr("AsmDrawRectangle error");
+    if (AsmDisplayWindow(window))
+        AsmPutlstr("AsmDisplayWindow error");
+    return;
+}
+
+int main(int ac, char **av, char **envp)
+{
+    AsmLink *link = AsmCreateLink(envp);
+    if (!link)
+        AsmPutlstr("AsmCreateLink error");
+    AsmWindow *window = AsmCreateWindow(link, (AsmSize){800, 600}, "AsmGraphic Rework");
+    if (!window)
+        AsmPutlstr("AsmCreateWindow error");
+    AsmEvent event;
+    AsmFont *font = AsmCreateFont(link, "fixed");
+    if (!font)
+        AsmPutlstr("AsmCreateFont error");
+    AsmText *text = AsmCreateText(link, "Bonjour", font, (AsmPos){50, 50});
+    if (!text)
+        AsmPutlstr("AsmCreateText error");
+    AsmRectangle *rectangle = AsmCreateRectangle(link, (AsmPosSize){50, 70, 500, 5}, AsmPURPLE);
+    if (!rectangle)
+        AsmPutlstr("AsmCreateRectangle error");
+    AsmTimer *updateT = AsmInitTimer(2.0);
+    if (!updateT)
+        AsmPutlstr("AsmInitTimer error");
+    AsmTimer *displayT = AsmInitTimer(1 / 60.0);
+    if (!displayT)
+        AsmPutlstr("AsmInitTimer error");
+
+    if (AsmOpenWindow(window))
+        AsmPutlstr("AsmOpenWindow error");
+    while (AsmIsOpenWindow(window)) {
+        while (AsmPollEvent(&event, window))
+            analyze_event(event, link, window);
+        if (AsmTickTimer(updateT))
+            update(link, window, rectangle, text);
+        if (AsmTickTimer(displayT))
+            display(link, window, rectangle, text);
     }
-    aDestroyText(base->text);
-    aDestroyRectangle(base->rect);
-    aDestroyWindow(base->link, base->window);
-    aCloseLink(base->link);
-    my_free(base);
-    show_malloc();
+
+    if (AsmDestroyTimer(displayT))
+        AsmPutlstr("AsmDestroyTimer error");
+    if (AsmDestroyTimer(updateT))
+        AsmPutlstr("AsmDestroyTimer error");
+    if (AsmDestroyRectangle(rectangle))
+        AsmPutlstr("AsmDestroyRectangle error");
+    if (AsmDestroyText(text))
+        AsmPutlstr("AsmDestroyText error");
+    if (AsmDestroyFont(font))
+        AsmPutlstr("AsmDestroyFont error");
+    if (AsmDestroyWindow(window))
+        AsmPutlstr("AsmDestoyWindow error");
+    if (AsmCloseLink(link))
+        AsmPutlstr("AsmCloseLink error");
+    AsmShowMemory();
     return 0;
 }

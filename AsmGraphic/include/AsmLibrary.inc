@@ -1,5 +1,6 @@
-%ifndef MACRO_
-    %define MACRO_
+%ifndef AsmLib_
+    %define AsmLib_
+
     %macro ABS 1
         cmp %1, 0
         jge %%bye_ABS
@@ -52,45 +53,53 @@
         pop rsi ;
         pop rdi ; ----------
     %endmacro
-%endif
+    
+    ; AsmString
+    extern AsmPutchar
+    extern AsmPutstr
+    extern AsmPutlstr
+    extern AsmIsNum
+    extern AsmGetnbr
+    extern AsmGetstr
+    extern AsmPutnbr
+    extern AsmPutlnbr
+    extern AsmStrlen
+    extern AsmStrcpy
+    extern AsmStrncpy
+    extern AsmStrcmp
+    extern AsmStrncmp
+    extern AsmStrcasecmp
+    extern AsmStrcat
+    extern AsmStrncat
+    extern AsmStrchr
+    extern AsmStrrchr
+    extern AsmStrpbrk
+    extern AsmStrcspn
+    extern AsmStrstr
+    extern AsmPrint
+    extern AsmStrcut
 
-section .text
-    extern my_putchar
-    extern my_putcharerror
-    extern my_putnbr
-    extern my_strlen
-    extern my_putstr
-    extern my_puterror
-    extern my_getnbr
-    extern my_factorial
-    extern my_power
-    extern my_strcpy
-    extern my_strncpy
-    extern my_strstr
-    extern my_strcmp
-    extern my_strncmp
-    extern my_strcat
-    extern my_strncat
-    extern my_strdup
-    extern show_word_array
-    extern str_to_word_array
-    extern sort_word_array
-    extern advanced_sort_word_array
-    extern list_size
-    extern rev_list
-    extern apply_on_nodes
-    extern apply_on_matching_nodes
-    extern find_node
-    extern delete_nodes
-    extern concat_list
-    extern sort_list
-    extern get_ptr
-    extern add_in_sorted_list
-    extern merge
-    extern my_malloc
-    extern my_free
-    extern my_calloc
-    extern my_realloc
-    extern show_malloc
-    extern futex_lock
-    extern futex_unlock
+    ;AsmMath
+    extern AsmPower
+
+    ;AsmMemory
+    extern AsmCoreMemory
+    extern AsmFutexMemory
+
+    extern AsmMemset
+    extern AsmMemcpy
+    extern AsmMemmove
+    extern AsmAlloc
+    extern AsmDalloc
+    extern AsmCalloc
+    extern AsmRealloc
+    extern AsmStrdup
+    extern AsmGetptr
+    extern AsmShowMemory
+    extern AsmClearMemory
+
+    ;AsmFutex
+    extern AsmLock
+    extern AsmUnlock
+
+%endif

@@ -1,164 +1,147 @@
 /*
 ** EPITECH PROJECT, 2023
-** Library
+** assembly_projects
 ** File description:
-** header.h
+** AsmLib.h
 */
 
-#ifndef GRAPHIC_
-    #define GRAPHIC_
+#ifndef AsmGraphic_
+    #define AsmGraphic_
 
-    #include "AsmFunctions.h"
+    #include "AsmLibrary.h"
 
-#define aEventRequestError 0
-#define aEventReplyError 1
-#define aEventKeyPressed 2
-#define aEventKeyRelease 3
-#define aEventMouseButtonPressed 4
-#define aEventMouseButtonRelease 5
-#define aEventExposure 12
-#define aEventWindowMapped 19
-#define aEventWindowCreate 21
-#define aEventWindowModified 22
-#define aEventSpecial 33
+#define AsmEventRequestError 0
+#define AsmEventReplyError 1
+#define AsmEventKeyPressed 2
+#define AsmEventKeyRelease 3
+#define AsmEventMouseButtonPressed 4
+#define AsmEventMouseButtonRelease 5
+#define AsmEventWindowModified 22
+#define AsmEventSpecial 33
+#define AsmEventClose 35
 
-#define TYPE(event) (unsigned char)event.data[0]
-#define KEYCODE(event) (unsigned char)event.data[1]
-#define BUTTON(event) (unsigned char)event.data[1]
-#define CLIENT_WINDOW(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
-#define CLIENT_ATOM(event) (unsigned char)event.data[8] | (unsigned char)event.data[9] << 8 | (unsigned char)event.data[10] << 16 | (unsigned char)event.data[11] << 24
-#define CONFIGURE_EVENT(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
+#define AsmTYPE(event) (unsigned char)event.data[0] % 128
+#define AsmKEYCODE(event) (unsigned char)event.data[1]
+#define AsmBUTTON(event) (unsigned char)event.data[1]
+#define AsmCLIENT_WINDOW(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
+#define AsmCLIENT_ATOM(event) (unsigned char)event.data[8] | (unsigned char)event.data[9] << 8 | (unsigned char)event.data[10] << 16 | (unsigned char)event.data[11] << 24
+#define AsmCONFIGURE_EVENT(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
 
-#define aPURPLE (unsigned char[3]){200, 0, 255}
-
-#define aSecond(time) (long)((double)(time))
-#define aNanoSecond(time) 
-
-#define aSetTask(name, function_addr, arg_addr, delay) \
-    do { \
-        name.function = function_addr; \
-        name.arg = arg_addr; \
-        name.interval[0] = (long)((double)delay); \
-        name.interval[1] = (long)((double)((double)(delay) - aSecond(delay)) * 1000000000); \
-        name.last_time = 0; \
-    } while (0)
+#define AsmPURPLE (AsmColor){0, 200, 0, 255}
 
 //link: +0 4byte fd socket | +4 8byte thread_info | +12 8byte header | +20 request body
 // thread_info: +0 1byte futex | +1 1byte conditionnal variable | +2 4byte thread id | +6 8byte thread_stack | +14 8byte event_queue
 // event_queue: +0 8byte next_event | +8 32byte event_body
-typedef struct AsmLink aLink;
+typedef struct AsmLink AsmLink;
 
-// +0 4byte window_id | +4 4byte pixmap_id | +8 4byte window_pos | +12 4byte window_size | +16 1byte window_depth | +17 1byte window_fps | +18 1byte window_state | +19 1byte window_event (1 == move | 2 == resize)
-typedef struct AsmWindow aWindow;
+// +0 4byte window_id | +4 4byte pixmap_id | +8 8byte link_fd | +16 4byte window_pos | +20 4byte window_size | +24 1byte window_depth | +25 1byte window_event (1 == move | 2 == resize) | +26 4byte window_gc | +30 4byte color
+typedef struct AsmWindow AsmWindow;
 
-typedef unsigned char aColor[3];
+// +0 4byte font_id | +4 8byte link
+typedef struct AsmFont AsmFont;
 
-typedef unsigned char aFps;
+// +0 8byte string of 255 char max | +8 8byte link | +16 4byte gc_id | +20 4byte pos | +24 4byte foreground color
+typedef struct AsmText AsmText;
+
+// +0 4byte pos | +4 4byte size | +8 8byte link | +16 4byte gc_id | +20 4byte color
+typedef struct AsmRectangle AsmRectangle;
+
+typedef struct {
+    unsigned char unused;
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+} AsmColor;
 
 typedef struct {
     short x;
     short y;
-} aPos;
+} AsmPos;
 
 typedef struct {
     unsigned short width;
     unsigned short heigth;
-} aSize;
+} AsmSize;
 
 typedef struct {
     short x;
     short y;
     unsigned short width;
     unsigned short height;
-} aPosSize;
+} AsmPosSize;
 
 typedef struct {
     char data[32];
-} aEvent;
+} AsmEvent;
 
-typedef struct {
-    void (*function)(void *);
-    void *arg;
-    long interval[2];
-    long last_time;
-} aTask;
-
-typedef struct AsmText aText;
-
-typedef struct AsmRectangle aRectangle;
-
-// Fonction Event
-
-// // AsmEvent
-
-int aPollEvent(aLink *link, aEvent *event);
-
-// // AsmWindow
-
-void aWindowUpdate(aLink *link, aWindow *window, aEvent *event);
-
-int aIsWindowMoving(aWindow *window);
-
-int aIsWindowResizing(aWindow *window);
-
-int aIsWindowClosing(aLink *link, aWindow *window, aEvent *event);
-
-int aIsWindowOpen(aWindow *window);
-
-aPos aGetWindowPosition(aWindow *window);
-
-aSize aGetWindowSize(aWindow *window);
+typedef struct AsmTimer AsmTimer;
 
 // Resources Gestion
 
 // // AsmLink
 
-aLink *aCreateLink(char **env);
+AsmLink *AsmCreateLink(char **env);
 
-int aCloseLink(aLink *link);
+char AsmPollEvent(AsmEvent *event, AsmWindow *window);
+
+char AsmCloseLink(AsmLink *link);
 
 // // AsmWindow
 
-aWindow *aCreateWindow(aLink *link, short size[2], char *name);
+AsmWindow *AsmCreateWindow(AsmLink *link, AsmSize size, char *name);
 
-void aMapWindow(aLink *link, aWindow *window);
+char AsmOpenWindow(AsmWindow *window);
 
-void aRenameWindow(aLink *link, aWindow *window, char *name);
+char AsmIsOpenWindow(AsmWindow *window);
 
-void aClearWindow(aLink *link, aWindow *window);
+char AsmHasMovedWindow(AsmWindow *window);
 
-void aDisplayWindow(aLink *link, aWindow *window);
+char AsmHasResizedWindow(AsmWindow *window);
 
-void aCloseWindow(aWindow *window);
+AsmPos AsmPositionWindow(AsmWindow *window);
 
-void aDestroyWindow(aLink *link, aWindow *window);
+AsmSize AsmSizeWindow(AsmWindow *window);
 
-// // AsmFont
+char AsmClearWindow(AsmWindow *window, AsmColor color);
 
-void aOpenFont(aLink *link, char *);
+char AsmDisplayWindow(AsmWindow *window);
 
-// // AsmClock
+char AsmRenameWindow(AsmWindow *window, char *name);
+
+char AsmCloseWindow(AsmWindow *window);
+
+char AsmDestroyWindow(AsmWindow *window);
 
 // // AsmText
 
-aText *aCreateText(char *string, aPos pos, aColor color);
+AsmFont *AsmCreateFont(AsmLink *link, char *font);
 
-void aDrawText(aLink *link, aWindow *window, aText *text);
+char AsmDestroyFont(AsmFont *font);
 
-void aDestroyText(aText *text);
+AsmText *AsmCreateText(AsmLink *link, char *string, AsmFont *font, AsmPos pos);
+
+char AsmDrawText(AsmWindow *window, AsmText *text);
+
+char AsmDestroyText(AsmText *text);
 
 // // AsmRectangle
 
-aRectangle *aCreateRectangle(aPosSize rect, aColor color);
+AsmRectangle *AsmCreateRectangle(AsmLink *link, AsmPosSize dimension, AsmColor color);
 
-void aDrawRectangle(aLink *link, aWindow *window, aRectangle *rect);
+char AsmDrawRectangle(AsmWindow *window, AsmRectangle *rectangle);
 
-void aDestroyRectangle(aRectangle *rect);
+char AsmDestroyRectangle(AsmRectangle *rectangle);
 
-// Miscellaneous
+// // AsmTask
 
-void aBell(aLink *link, char volume);
+AsmTimer *AsmInitTimer(double delay);
 
-void aRunTask(aTask *task);
+char AsmTickTimer(AsmTimer *timer);
+
+char AsmDestroyTimer(AsmTimer *timer);
+
+// // Fun
+
+char AsmBell(AsmLink *link, unsigned char volume);
 
 #endif
