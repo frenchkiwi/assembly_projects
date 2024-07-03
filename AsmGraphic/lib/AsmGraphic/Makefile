@@ -9,7 +9,7 @@ NAME = libAsmGraphic.a
 
 SRC = AsmLink/AsmCreateLink.asm \
 	  AsmLink/AsmThreadEvent.asm \
-	  AsmLink/AsmWaitReply.asm \
+	  AsmLink/AsmWaitEvent.asm \
 	  AsmLink/AsmPollEvent.asm \
 	  AsmLink/AsmCloseLink.asm \
 	  AsmWindow/AsmCreateWindow.asm \

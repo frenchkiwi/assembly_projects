@@ -59,25 +59,25 @@ AsmOpenWindow:
     push r12
     mov r12, r8
 
-    mov rdi, qword[WINDOW_LINK]
+    mov rdi, r12
     mov rsi, 19
     call AsmWaitEvent
     mov rdi, rax
     call AsmDalloc
 
-    mov rdi, qword[WINDOW_LINK]
+    mov rdi, r12
     mov rsi, 21
     call AsmWaitEvent
     mov rdi, rax
     call AsmDalloc
 
-    mov rdi, qword[WINDOW_LINK]
+    mov rdi, r12
     mov rsi, 22
     call AsmWaitEvent
     mov rdi, rax
     call AsmDalloc
 
-    mov rdi, qword[WINDOW_LINK]
+    mov rdi, r12
     mov rsi, 22
     call AsmWaitEvent
     mov r8, qword[rax + 8 + 16]

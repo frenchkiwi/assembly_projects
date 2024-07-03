@@ -105,7 +105,7 @@ AsmCreateWindow:
     cmp rax, rdx
     jne .bye_error
 
-    mov rdi, r12
+    mov rdi, r15
     mov rsi, 1
     call AsmWaitEvent
 
@@ -142,7 +142,7 @@ AsmCreateWindow:
     cmp rax, rdx
     jne .bye_error
 
-    mov rdi, r12
+    mov rdi, r15
     mov rsi, 1
     call AsmWaitEvent
 
@@ -189,7 +189,7 @@ AsmCreateWindow:
     cmp rax, rdx
     jne .bye_error
 
-    mov rdi, r12
+    mov rdi, r15
     mov rsi, 1
     call AsmWaitEvent
 

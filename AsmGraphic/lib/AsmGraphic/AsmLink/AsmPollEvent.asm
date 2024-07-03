@@ -176,7 +176,7 @@ AsmPollEvent:
         syscall
         add rsp, 8
 
-        mov rdi, qword[WINDOW_LINK]
+        mov rdi, r12
         mov rsi, 1
         call AsmWaitEvent
         mov r9, rax

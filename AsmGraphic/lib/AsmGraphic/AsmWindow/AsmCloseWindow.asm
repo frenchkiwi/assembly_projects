@@ -48,7 +48,7 @@ AsmCloseWindow:
     mov dword[r8 + 4], 0
 
     push r12
-    mov r12, qword[r8 + 8]
+    mov r12, r8
 
     mov rdi, r12
     mov rsi, 18
