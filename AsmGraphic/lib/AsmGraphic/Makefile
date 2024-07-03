@@ -17,8 +17,8 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmWindow/AsmIsOpenWindow.asm \
 	  AsmWindow/AsmHasMovedWindow.asm \
 	  AsmWindow/AsmHasResizedWindow.asm \
-	  AsmWindow/AsmPositionWindow.asm \
-	  AsmWindow/AsmSizeWindow.asm \
+	  AsmWindow/AsmGetPositionWindow.asm \
+	  AsmWindow/AsmGetSizeWindow.asm \
 	  AsmWindow/AsmClearWindow.asm \
 	  AsmWindow/AsmDisplayWindow.asm \
 	  AsmWindow/AsmRenameWindow.asm \
@@ -32,6 +32,9 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmRectangle/AsmCreateRectangle.asm \
 	  AsmRectangle/AsmDrawRectangle.asm \
 	  AsmRectangle/AsmDestroyRectangle.asm \
+	  AsmCircle/AsmCreateCircle.asm \
+	  AsmCircle/AsmDrawCircle.asm \
+	  AsmCircle/AsmDestroyCircle.asm \
 	  AsmTimer/AsmInitTimer.asm \
 	  AsmTimer/AsmTickTimer.asm \
 	  AsmTimer/AsmDestroyTimer.asm \

@@ -46,6 +46,9 @@ typedef struct AsmText AsmText;
 // +0 4byte pos | +4 4byte size | +8 8byte link | +16 4byte gc_id | +20 4byte color
 typedef struct AsmRectangle AsmRectangle;
 
+// +0 4byte pos | +4 4byte size | +8 8byte link | +16 4byte gc_id | +20 4byte color | +24 2byte start_angle | +26 2byte end_angle
+typedef struct AsmCircle AsmCircle;
+
 typedef struct {
     unsigned char unused;
     unsigned char red;
@@ -69,6 +72,11 @@ typedef struct {
     unsigned short width;
     unsigned short height;
 } AsmPosSize;
+
+typedef struct {
+    double start_angle;
+    double end_angle;
+} AsmAngle;
 
 typedef struct {
     char data[32];
@@ -98,9 +106,9 @@ char AsmHasMovedWindow(AsmWindow *window);
 
 char AsmHasResizedWindow(AsmWindow *window);
 
-AsmPos AsmPositionWindow(AsmWindow *window);
+AsmPos AsmGetPositionWindow(AsmWindow *window);
 
-AsmSize AsmSizeWindow(AsmWindow *window);
+AsmSize AsmGetSizeWindow(AsmWindow *window);
 
 char AsmClearWindow(AsmWindow *window, AsmColor color);
 
@@ -131,6 +139,14 @@ AsmRectangle *AsmCreateRectangle(AsmLink *link, AsmPosSize dimension, AsmColor c
 char AsmDrawRectangle(AsmWindow *window, AsmRectangle *rectangle);
 
 char AsmDestroyRectangle(AsmRectangle *rectangle);
+
+// // AsmCircle
+
+AsmCircle *AsmCreateCircle(AsmLink *link, AsmPosSize dimension, AsmAngle angle, AsmColor color);
+
+char AsmDrawCircle(AsmWindow *window, AsmCircle *circle);
+
+char AsmDestroyCircle(AsmCircle *circle);
 
 // // AsmTask
 

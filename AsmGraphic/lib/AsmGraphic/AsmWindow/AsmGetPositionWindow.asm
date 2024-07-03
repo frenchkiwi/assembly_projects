@@ -1,11 +1,11 @@
 section .data
 
 section .text
-    global AsmSizeWindow
+    global AsmGetPositionWindow
     %include "AsmLibrary.inc"
     %include "AsmGraphic.inc"
 
-AsmSizeWindow:
+AsmGetPositionWindow:
     xor rax, rax
-    mov eax, dword[rdi + 20]
+    mov eax, dword[rdi + 16]
     ret

@@ -54,6 +54,22 @@
     %define RECTANGLE_GREEN r12 + 22
     %define RECTANGLE_RED r12 + 23
 
+    %define CIRCLE_POSSIZE r12 + 0
+    %define CIRCLE_POS r12 + 0
+    %define CIRCLE_X r12 + 0
+    %define CIRCLE_Y r12 + 2
+    %define CIRCLE_SIZE r12 + 4
+    %define CIRCLE_WIDTH r12 + 4
+    %define CIRCLE_HEIGHT r12 + 6
+    %define CIRCLE_LINK r12 + 8
+    %define CIRCLE_GC r12 + 16
+    %define CIRCLE_COLOR r12 + 20
+    %define CIRCLE_BLUE r12 + 21
+    %define CIRCLE_GREEN r12 + 22
+    %define CIRCLE_RED r12 + 23
+    %define CIRCLE_ANGLE r12 + 24
+    %define CIRCLE_BASE_ANGLE r12 + 24
+    %define CIRCLE_REAL_ANGLE r12 + 26
 
     extern AsmCreateLink
     extern AsmThreadEvent
@@ -66,8 +82,8 @@
     extern AsmIsOpenWindow
     extern AsmHasMovedWindow
     extern AsmHasResizeddWindow
-    extern AsmPositionWindow
-    extern AsmSizeWindow
+    extern AsmGetPositionWindow
+    extern AsmGetSizeWindow
     extern AsmRenameWindow
     extern AsmDisplayWindow
     extern AsmCloseWindow
@@ -82,6 +98,10 @@
     extern AsmCreateRectangle
     extern AsmDrawRectangle
     extern AsmDestroyRectangle
+
+    extern AsmCreateCircle
+    extern AsmDrawCircle
+    extern AsmDestroyCircle
 
     extern AsmInitTimer
     extern AsmTickTimer
