@@ -9,11 +9,12 @@ AsmClearWindow:
     cmp rdi, 0
     je .bye_error0
     bswap esi
-    cmp dword[rdi + 30], esi
-    je .bye
 
     push r12
     mov r12, rdi
+
+    cmp dword[rdi + 30], esi
+    je .clear_window
 
     sub rsp, 16
     mov byte[rsp], 56
@@ -33,6 +34,7 @@ AsmClearWindow:
     cmp rax, rdx
     jne .bye_error
 
+    .clear_window:
     sub rsp, 24
     mov byte[rsp], 70
     mov word[rsp + 2], 5

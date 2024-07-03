@@ -12,7 +12,7 @@ void analyze_event(AsmEvent event, AsmLink *link, AsmWindow *window)
             break;
         case AsmEventMouseButtonPressed:
             AsmPrint("Button pressed: %d\n", AsmBUTTON(event));
-            if (AsmBell(link, 99))
+            if (AsmBell(link, 100))
                 AsmPutlstr("AsmBell error");
             break;
         case AsmEventMouseButtonRelease:
@@ -73,10 +73,10 @@ int main(int ac, char **av, char **envp)
     AsmText *text = AsmCreateText(link, "Bonjour", font, (AsmPos){50, 50});
     if (!text)
         AsmPutlstr("AsmCreateText error");
-    AsmRectangle *rectangle = AsmCreateRectangle(link, (AsmPosSize){50, 70, 500, 5}, AsmPURPLE);
+    AsmRectangle *rectangle = AsmCreateRectangle(link, (AsmPosSize){50, 70, 900, 5}, AsmPURPLE);
     if (!rectangle)
         AsmPutlstr("AsmCreateRectangle error");
-    AsmCircle *circle = AsmCreateCircle(link, (AsmPosSize){300, 300, 200, 50}, (AsmAngle){0.0, 360.0}, AsmPURPLE);
+    AsmCircle *circle = AsmCreateCircle(link, (AsmPosSize){300, 300, 50, 50}, (AsmAngle){0.0, 360.0}, AsmPURPLE);
     if (!circle)
         AsmPutlstr("AsmCreateCircle error");
     AsmTimer *updateT = AsmInitTimer(2.0);
