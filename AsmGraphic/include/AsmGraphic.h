@@ -16,11 +16,9 @@
 #define AsmEventKeyRelease 3
 #define AsmEventMouseButtonPressed 4
 #define AsmEventMouseButtonRelease 5
-#define AsmEventExposure 12
-#define AsmEventWindowMapped 19
-#define AsmEventWindowCreate 21
 #define AsmEventWindowModified 22
 #define AsmEventSpecial 33
+#define AsmEventClose 35
 
 #define AsmTYPE(event) (unsigned char)event.data[0] % 128
 #define AsmKEYCODE(event) (unsigned char)event.data[1]
@@ -95,6 +93,10 @@ AsmWindow *AsmCreateWindow(AsmLink *link, AsmSize size, char *name);
 char AsmOpenWindow(AsmWindow *window);
 
 char AsmIsOpenWindow(AsmWindow *window);
+
+char AsmHasMovedWindow(AsmWindow *window);
+
+char AsmHasResizedWindow(AsmWindow *window);
 
 AsmPos AsmPositionWindow(AsmWindow *window);
 

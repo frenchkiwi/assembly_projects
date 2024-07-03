@@ -15,6 +15,8 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmWindow/AsmCreateWindow.asm \
 	  AsmWindow/AsmOpenWindow.asm \
 	  AsmWindow/AsmIsOpenWindow.asm \
+	  AsmWindow/AsmHasMovedWindow.asm \
+	  AsmWindow/AsmHasResizedWindow.asm \
 	  AsmWindow/AsmPositionWindow.asm \
 	  AsmWindow/AsmSizeWindow.asm \
 	  AsmWindow/AsmClearWindow.asm \

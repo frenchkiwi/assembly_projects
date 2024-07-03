@@ -18,7 +18,13 @@ void analyze_event(AsmEvent event, AsmLink *link, AsmWindow *window)
         case AsmEventMouseButtonRelease:
             AsmPrint("Button release: %d\n", AsmBUTTON(event));
             break;
-        case AsmEventSpecial:
+        case AsmEventWindowModified:
+            if (AsmHasMovedWindow(window))
+                AsmPutlstr("Window moved");
+            if (AsmHasResizedWindow(window))
+                AsmPutlstr("Window resized");
+            break;
+        case AsmEventClose:
             if (AsmCloseWindow(window))
                 AsmPutlstr("AsmCloseWindow error");
             break;

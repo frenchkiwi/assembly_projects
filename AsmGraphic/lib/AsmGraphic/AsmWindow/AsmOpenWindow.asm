@@ -57,29 +57,31 @@ AsmOpenWindow:
     jne .bye_error
 
     push r12
-    mov r12, qword[r8 + 8]
+    mov r12, r8
 
-    mov rdi, r12
+    mov rdi, qword[WINDOW_LINK]
     mov rsi, 19
     call AsmWaitEvent
     mov rdi, rax
     call AsmDalloc
 
-    mov rdi, r12
+    mov rdi, qword[WINDOW_LINK]
     mov rsi, 21
     call AsmWaitEvent
     mov rdi, rax
     call AsmDalloc
 
-    mov rdi, r12
+    mov rdi, qword[WINDOW_LINK]
     mov rsi, 22
     call AsmWaitEvent
     mov rdi, rax
     call AsmDalloc
 
-    mov rdi, r12
+    mov rdi, qword[WINDOW_LINK]
     mov rsi, 22
     call AsmWaitEvent
+    mov r8, qword[rax + 8 + 16]
+    mov qword[WINDOW_POSSIZE], r8
     mov rdi, rax
     call AsmDalloc
 

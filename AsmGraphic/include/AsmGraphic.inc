@@ -20,6 +20,7 @@
     %define WINDOW_ID r12 + 0
     %define WINDOW_PIXMAP r12 + 4
     %define WINDOW_LINK r12 + 8
+    %define WINDOW_POSSIZE r12 + 16
     %define WINDOW_POS r12 + 16
     %define WINDOW_X r12 + 16
     %define WINDOW_Y r12 + 18
@@ -63,6 +64,8 @@
     extern AsmCreateWindow
     extern AsmOpenWindow
     extern AsmIsOpenWindow
+    extern AsmHasMovedWindow
+    extern AsmHasResizeddWindow
     extern AsmPositionWindow
     extern AsmSizeWindow
     extern AsmRenameWindow
