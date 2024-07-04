@@ -73,7 +73,7 @@ int main(int ac, char **av, char **envp)
     AsmLink *link = AsmCreateLink(envp);
     if (!link)
         AsmPutlstr("AsmCreateLink error");
-    AsmWindow *window = AsmCreateWindow(link, (AsmSize){800, 600}, "AsmGraphic Rework");
+    AsmWindow *window = AsmCreateWindow(link, (AsmSize){400, 300}, "AsmGraphic Rework");
     if (!window)
         AsmPutlstr("AsmCreateWindow error");
     AsmEvent event;
@@ -83,7 +83,7 @@ int main(int ac, char **av, char **envp)
     AsmText *text = AsmCreateText(link, "Bonjour", font, (AsmPos){50, 50});
     if (!text)
         AsmPutlstr("AsmCreateText error");
-    AsmRectangle *rectangle = AsmCreateRectangle(link, (AsmPosSize){50, 70, 900, 5}, AsmPurple);
+    AsmRectangle *rectangle = AsmCreateRectangle(link, (AsmPosSize){50, 70, 1800, 5}, AsmPurple);
     if (!rectangle)
         AsmPutlstr("AsmCreateRectangle error");
     AsmCircle *circle = AsmCreateCircle(link, (AsmPosSize){300, 300, 50, 50}, (AsmAngle){0.0, 360.0}, AsmPurple);
@@ -98,9 +98,9 @@ int main(int ac, char **av, char **envp)
 
     if (AsmOpenWindow(window))
         AsmPutlstr("AsmOpenWindow error");
-    if (AsmSetPositionWindow(window, (AsmPos){800, 700}))
+    if (AsmSetPositionWindow(window, (AsmPos){0, 0}))
         AsmPutlstr("AsmSetPositionWindow error");
-    if (AsmSetSizeWindow(window, (AsmSize){400, 300}))
+    if (AsmSetSizeWindow(window, (AsmSize){800, 600}))
         AsmPutlstr("AsmSetSizeWindow error");
     while (AsmIsOpenWindow(window)) {
         while (AsmPollEvent(&event, window))
