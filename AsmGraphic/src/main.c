@@ -3,20 +3,20 @@
 
 void analyze_event(AsmEvent event, AsmLink *link, AsmWindow *window)
 {
-    switch (AsmTYPE(event)) {
+    switch (event.info.type) {
         case AsmEventKeyPressed:
-            AsmPrint("Key pressed: %d\n", AsmKEYCODE(event));
+            AsmPrint("Key pressed: %b\n", event.key.keycode);
             break;
         case AsmEventKeyRelease:
-            AsmPrint("Key release: %d\n", AsmKEYCODE(event));
+            AsmPrint("Key release: %b\n", event.key.keycode);
             break;
         case AsmEventMouseButtonPressed:
-            AsmPrint("Button pressed: %d\n", AsmBUTTON(event));
+            AsmPrint("Button pressed: %b at x: %w, y: %w\n", event.mouse.button, event.mouse.pos_window.x, event.mouse.pos_window.y);
             if (AsmBell(link, 100))
                 AsmPutlstr("AsmBell error");
             break;
         case AsmEventMouseButtonRelease:
-            AsmPrint("Button release: %d\n", AsmBUTTON(event));
+            AsmPrint("Button release: %b\n", event.mouse.button);
             break;
         case AsmEventWindowModified:
             if (AsmHasMovedWindow(window))
@@ -29,7 +29,7 @@ void analyze_event(AsmEvent event, AsmLink *link, AsmWindow *window)
                 AsmPutlstr("AsmCloseWindow error");
             break;
         default:
-            AsmPrint("Event unknow: %d\n", AsmTYPE(event));
+            AsmPrint("Event unknow: %d\n", event.info.type);
     }
 }
 
@@ -38,8 +38,8 @@ void update(AsmLink *link, AsmWindow *window, AsmRectangle *rectangle, AsmText *
     AsmPos pos = AsmGetPositionWindow(window);
     AsmSize size = AsmGetSizeWindow(window);
 
-    AsmPrint("x: %d et y: %d\n", pos.x, pos.y);
-    AsmPrint("width: %d et height: %d\n", size.width, size.heigth);
+    AsmPrint("x: %w et y: %w\n", pos.x, pos.y);
+    AsmPrint("width: %w et height: %w\n", size.width, size.heigth);
     return;
 }
 
@@ -73,10 +73,10 @@ int main(int ac, char **av, char **envp)
     AsmText *text = AsmCreateText(link, "Bonjour", font, (AsmPos){50, 50});
     if (!text)
         AsmPutlstr("AsmCreateText error");
-    AsmRectangle *rectangle = AsmCreateRectangle(link, (AsmPosSize){50, 70, 900, 5}, AsmPURPLE);
+    AsmRectangle *rectangle = AsmCreateRectangle(link, (AsmPosSize){50, 70, 900, 5}, AsmPurple);
     if (!rectangle)
         AsmPutlstr("AsmCreateRectangle error");
-    AsmCircle *circle = AsmCreateCircle(link, (AsmPosSize){300, 300, 50, 50}, (AsmAngle){0.0, 360.0}, AsmPURPLE);
+    AsmCircle *circle = AsmCreateCircle(link, (AsmPosSize){300, 300, 50, 50}, (AsmAngle){0.0, 360.0}, AsmPurple);
     if (!circle)
         AsmPutlstr("AsmCreateCircle error");
     AsmTimer *updateT = AsmInitTimer(2.0);

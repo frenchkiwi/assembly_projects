@@ -7,6 +7,7 @@ section .text
 AsmPrint:
     cmp rdi, 0
     je .bye
+
     push r9
     push r8
     push rcx
@@ -48,8 +49,14 @@ AsmPrint:
     .analyze_flag:
         cmp byte[r12 + r13 + 1], 'c'
         je .c_flag
+        cmp byte[r12 + r13 + 1], 'b'
+        je .b_flag
+        cmp byte[r12 + r13 + 1], 'w'
+        je .w_flag
         cmp byte[r12 + r13 + 1], 'd'
         je .d_flag
+        cmp byte[r12 + r13 + 1], 'q'
+        je .q_flag
         cmp byte[r12 + r13 + 1], 's'
         je .s_flag
         cmp byte[r12 + r13 + 1], '%'
@@ -69,7 +76,31 @@ AsmPrint:
         inc r13
         jmp .next_param
 
+    .b_flag:
+        mov rdi, qword[rbp + r14]
+        movsx di, dil
+        movsx edi, di
+        movsx rdi, edi
+        call AsmPutnbr
+        inc r13
+        jmp .next_param
+
+    .w_flag:
+        mov rdi, qword[rbp + r14]
+        movsx edi, di
+        movsx rdi, edi
+        call AsmPutnbr
+        inc r13
+        jmp .next_param
+
     .d_flag:
+        mov rdi, qword[rbp + r14]
+        movsx rdi, edi
+        call AsmPutnbr
+        inc r13
+        jmp .next_param
+    
+    .q_flag:
         mov rdi, qword[rbp + r14]
         call AsmPutnbr
         inc r13

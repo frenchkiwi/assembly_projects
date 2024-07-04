@@ -20,14 +20,7 @@
 #define AsmEventSpecial 33
 #define AsmEventClose 35
 
-#define AsmTYPE(event) (unsigned char)event.data[0] % 128
-#define AsmKEYCODE(event) (unsigned char)event.data[1]
-#define AsmBUTTON(event) (unsigned char)event.data[1]
-#define AsmCLIENT_WINDOW(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
-#define AsmCLIENT_ATOM(event) (unsigned char)event.data[8] | (unsigned char)event.data[9] << 8 | (unsigned char)event.data[10] << 16 | (unsigned char)event.data[11] << 24
-#define AsmCONFIGURE_EVENT(event) (unsigned char)event.data[4] | (unsigned char)event.data[5] << 8 | (unsigned char)event.data[6] << 16 | (unsigned char)event.data[7] << 24
-
-#define AsmPURPLE (AsmColor){0, 200, 0, 255}
+#define AsmPurple (AsmColor){0, 200, 0, 255}
 
 //link: +0 4byte fd socket | +4 8byte thread_info | +12 8byte header | +20 request body
 // thread_info: +0 1byte futex | +1 1byte conditionnal variable | +2 4byte thread id | +6 8byte thread_stack | +14 8byte event_queue
@@ -49,37 +42,58 @@ typedef struct AsmRectangle AsmRectangle;
 // +0 4byte pos | +4 4byte size | +8 8byte link | +16 4byte gc_id | +20 4byte color | +24 2byte start_angle | +26 2byte end_angle
 typedef struct AsmCircle AsmCircle;
 
-typedef struct {
+typedef struct AsmColor{
     unsigned char unused;
     unsigned char red;
     unsigned char green;
     unsigned char blue;
 } AsmColor;
 
-typedef struct {
+typedef struct AsmPos{
     short x;
     short y;
 } AsmPos;
 
-typedef struct {
+typedef struct AsmSize{
     unsigned short width;
     unsigned short heigth;
 } AsmSize;
 
-typedef struct {
+typedef struct AsmPosSize{
     short x;
     short y;
     unsigned short width;
     unsigned short height;
 } AsmPosSize;
 
-typedef struct {
+typedef struct AsmAngle{
     double start_angle;
     double end_angle;
 } AsmAngle;
 
-typedef struct {
-    char data[32];
+typedef struct AsmEvent{
+    union {
+        struct {
+            unsigned char type;
+            unsigned char keycode;
+            char data1[18];
+            AsmPos pos_global;
+            AsmPos pos_window;
+            char data2[4];
+        } key;
+        struct {
+            unsigned char type;
+            unsigned char button;
+            char data1[18];
+            AsmPos pos_global;
+            AsmPos pos_window;
+            char data2[4];
+        } mouse;
+        struct {
+            unsigned char type;
+            unsigned char data[31];
+        } info;
+    };
 } AsmEvent;
 
 typedef struct AsmTimer AsmTimer;
