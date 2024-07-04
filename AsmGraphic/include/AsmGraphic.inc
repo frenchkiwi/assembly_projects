@@ -84,6 +84,8 @@
     extern AsmHasResizeddWindow
     extern AsmGetPositionWindow
     extern AsmGetSizeWindow
+    extern AsmSetPositionWindow
+    extern AsmSetSizeWindow
     extern AsmRenameWindow
     extern AsmDisplayWindow
     extern AsmCloseWindow

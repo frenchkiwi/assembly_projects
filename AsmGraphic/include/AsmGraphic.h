@@ -16,6 +16,9 @@
 #define AsmEventKeyRelease 3
 #define AsmEventMouseButtonPressed 4
 #define AsmEventMouseButtonRelease 5
+#define AsmEventMouseMoved 6
+#define AsmEventGetFocus 9
+#define AsmEventLostFocus 10
 #define AsmEventWindowModified 22
 #define AsmEventSpecial 33
 #define AsmEventClose 35
@@ -123,6 +126,10 @@ char AsmHasResizedWindow(AsmWindow *window);
 AsmPos AsmGetPositionWindow(AsmWindow *window);
 
 AsmSize AsmGetSizeWindow(AsmWindow *window);
+
+char AsmSetPositionWindow(AsmWindow *window, AsmPos position);
+
+char AsmSetSizeWindow(AsmWindow *window, AsmSize size);
 
 char AsmClearWindow(AsmWindow *window, AsmColor color);
 

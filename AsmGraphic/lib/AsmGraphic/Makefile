@@ -19,6 +19,8 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmWindow/AsmHasResizedWindow.asm \
 	  AsmWindow/AsmGetPositionWindow.asm \
 	  AsmWindow/AsmGetSizeWindow.asm \
+	  AsmWindow/AsmSetPositionWindow.asm \
+	  AsmWindow/AsmSetSizeWindow.asm \
 	  AsmWindow/AsmClearWindow.asm \
 	  AsmWindow/AsmDisplayWindow.asm \
 	  AsmWindow/AsmRenameWindow.asm \

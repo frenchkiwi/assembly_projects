@@ -34,6 +34,10 @@ AsmWaitEvent:
     ret
 
     .check_event:
+        cmp rsi, 8
+        jle .quit_loop
+        cmp rsi, 10
+        jle .window4
         cmp rsi, 17
         jle .quit_loop
         cmp rsi, 20

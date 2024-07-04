@@ -15,10 +15,20 @@ void analyze_event(AsmEvent event, AsmLink *link, AsmWindow *window)
             if (AsmBell(link, 100))
                 AsmPutlstr("AsmBell error");
             break;
+        case AsmEventMouseMoved:
+            AsmPrint("Mouse moved at x: %w, y: %w\n", event.mouse.pos_window.x, event.mouse.pos_window.y);
+            break;
         case AsmEventMouseButtonRelease:
             AsmPrint("Button release: %b\n", event.mouse.button);
             break;
+        case AsmEventGetFocus:
+            AsmPutlstr("Window get focus");
+            break;
+        case AsmEventLostFocus:
+            AsmPutlstr("Window lost focus");
+            break;
         case AsmEventWindowModified:
+            AsmPutlstr("Window modified");
             if (AsmHasMovedWindow(window))
                 AsmPutlstr("Window moved");
             if (AsmHasResizedWindow(window))
@@ -88,6 +98,10 @@ int main(int ac, char **av, char **envp)
 
     if (AsmOpenWindow(window))
         AsmPutlstr("AsmOpenWindow error");
+    if (AsmSetPositionWindow(window, (AsmPos){800, 700}))
+        AsmPutlstr("AsmSetPositionWindow error");
+    if (AsmSetSizeWindow(window, (AsmSize){400, 300}))
+        AsmPutlstr("AsmSetSizeWindow error");
     while (AsmIsOpenWindow(window)) {
         while (AsmPollEvent(&event, window))
             analyze_event(event, link, window);

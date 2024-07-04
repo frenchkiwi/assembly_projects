@@ -48,7 +48,7 @@ AsmCreateWindow:
     mov dword[rsp + 24], r9d ; set visual_id
     mov dword[rsp + 28], 0x2 | 0x800 ; set bitmask
     mov dword[rsp + 32], 0x00000000 ; set background to black
-    mov dword[rsp + 36], 0x1 | 0x4 | 0x20000 ; key press | button press | structure_notify
+    mov dword[rsp + 36], 0x1 | 0x4 | 0x40 | 0x20000 | 0x00200000 ; key press | button press | motion pointer | structure_notify | focus
     
     mov rax, 1
     mov rdi, qword[r12]

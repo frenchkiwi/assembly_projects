@@ -57,6 +57,12 @@ AsmCloseWindow:
     call AsmDalloc
 
     mov rdi, r12
+    mov rsi, 10
+    call AsmWaitEvent
+    mov rdi, rax
+    call AsmDalloc
+
+    mov rdi, r12
     mov rsi, 21
     call AsmWaitEvent
     mov rdi, rax
