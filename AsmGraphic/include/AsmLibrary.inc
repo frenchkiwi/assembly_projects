@@ -63,6 +63,8 @@
     extern AsmGetstr
     extern AsmPutnbr
     extern AsmPutlnbr
+    extern AsmPutunbr
+    extern AsmPutlunbr
     extern AsmStrlen
     extern AsmStrcpy
     extern AsmStrncpy

@@ -25,6 +25,10 @@ void AsmPutnbr(long n);
 
 void AsmPutlnbr(long n);
 
+void AsmPutunbr(unsigned long n);
+
+void AsmPutlunbr(unsigned long n);
+
 int AsmStrlen(char *str);
 
 char *AsmStrcpy(char *dest, char const *src);

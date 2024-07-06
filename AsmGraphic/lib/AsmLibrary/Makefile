@@ -15,6 +15,8 @@ SRC = AsmString/AsmPutchar.asm \
 	  AsmString/AsmGetstr.asm \
 	  AsmString/AsmPutnbr.asm \
 	  AsmString/AsmPutlnbr.asm \
+	  AsmString/AsmPutunbr.asm \
+	  AsmString/AsmPutlunbr.asm \
 	  AsmString/AsmStrlen.asm \
 	  AsmString/AsmStrcpy.asm \
 	  AsmString/AsmStrncpy.asm \

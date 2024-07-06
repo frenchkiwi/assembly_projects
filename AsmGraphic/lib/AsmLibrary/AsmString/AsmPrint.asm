@@ -57,6 +57,10 @@ AsmPrint:
         je .d_flag
         cmp byte[r12 + r13 + 1], 'q'
         je .q_flag
+        cmp byte[r12 + r13 + 1], 'u'
+        je .u_flag
+        cmp byte[r12 + r13 + 1], 'u'
+        je .u_flag
         cmp byte[r12 + r13 + 1], 's'
         je .s_flag
         cmp byte[r12 + r13 + 1], '%'
@@ -78,17 +82,14 @@ AsmPrint:
 
     .b_flag:
         mov rdi, qword[rbp + r14]
-        movsx di, dil
-        movsx edi, di
-        movsx rdi, edi
+        movsx rdi, dil
         call AsmPutnbr
         inc r13
         jmp .next_param
 
     .w_flag:
         mov rdi, qword[rbp + r14]
-        movsx edi, di
-        movsx rdi, edi
+        movsx rdi, di
         call AsmPutnbr
         inc r13
         jmp .next_param
@@ -106,6 +107,12 @@ AsmPrint:
         inc r13
         jmp .next_param
     
+    .u_flag:
+        mov rdi, qword[rbp + r14]
+        call AsmPutunbr
+        inc r13
+        jmp .next_param
+
     .s_flag:
         mov rdi, qword[rbp + r14]
         call AsmPutstr
