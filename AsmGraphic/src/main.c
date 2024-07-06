@@ -53,13 +53,14 @@ void update(AsmLink *link, AsmWindow *window, AsmRectangle *rectangle, AsmText *
     AsmPos text_position = AsmGetPositionText(text);
     AsmColor circle_color = AsmGetColorCircle(circle);
     AsmPosSize circle_dimension = AsmGetDimensionCircle(circle);
-    // AsmAngle circle_angle = AsmGetAngleCircle(circle);
+    AsmAngle circle_angle = AsmGetAngleCircle(circle);
 
     AsmPrint("x: %w et y: %w\n", pos.x, pos.y);
     AsmPrint("width: %w et height: %w\n", size.width, size.heigth);
     AsmPrint("rectangle: x: %w, y: %w, width: %u, height: %u, red: %u, green: %u, blue: %u\n", rectangle_dimension.x, rectangle_dimension.y, rectangle_dimension.width, rectangle_dimension.height, rectangle_color.red, rectangle_color.green, rectangle_color.blue);
     AsmPrint("text: x: %w, y: %w, red: %u, green: %u, blue: %u\n", text_position.x, text_position.y, text_color.red, text_color.green, text_color.blue);
     AsmPrint("circle: x: %w, y: %w, width: %u, height: %u, red: %u, green: %u, blue: %u\n", circle_dimension.x, circle_dimension.y, circle_dimension.width, circle_dimension.height, circle_color.red, circle_color.green, circle_color.blue);
+    circle_angle = circle_angle;
     return;
 }
 
