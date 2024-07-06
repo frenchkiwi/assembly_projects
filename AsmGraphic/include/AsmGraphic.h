@@ -169,7 +169,11 @@ AsmRectangle *AsmCreateRectangle(AsmLink *link, AsmPosSize dimension, AsmColor c
 
 AsmColor AsmGetColorRectangle(AsmRectangle *rectangle);
 
+AsmPosSize AsmGetDimensionRectangle(AsmRectangle *rectangle);
+
 char AsmSetColorRectangle(AsmRectangle *rectangle, AsmColor color);
+
+char AsmSetDimensionRectangle(AsmRectangle *rectangle, AsmPosSize dimension);
 
 char AsmDrawRectangle(AsmWindow *window, AsmRectangle *rectangle);
 

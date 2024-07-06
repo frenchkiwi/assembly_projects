@@ -37,7 +37,9 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmText/AsmDestroyText.asm \
 	  AsmRectangle/AsmCreateRectangle.asm \
 	  AsmRectangle/AsmGetColorRectangle.asm \
+	  AsmRectangle/AsmGetDimensionRectangle.asm \
 	  AsmRectangle/AsmSetColorRectangle.asm \
+	  AsmRectangle/AsmSetDimensionRectangle.asm \
 	  AsmRectangle/AsmDrawRectangle.asm \
 	  AsmRectangle/AsmDestroyRectangle.asm \
 	  AsmCircle/AsmCreateCircle.asm \
