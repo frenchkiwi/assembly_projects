@@ -153,7 +153,11 @@ AsmText *AsmCreateText(AsmLink *link, char *string, AsmFont *font, AsmPos pos);
 
 AsmColor AsmGetColorText(AsmText *text);
 
+AsmPos AsmGetPositionText(AsmText *text);
+
 char AsmSetColorText(AsmText *text, AsmColor color);
+
+char AsmSetPositionText(AsmText *text, AsmPos position);
 
 char AsmDrawText(AsmWindow *window, AsmText *text);
 

@@ -10,6 +10,8 @@ AsmSetColorText:
     je .bye_error
 
     bswap esi
+    cmp dword[rdi + 24], esi
+    je .bye
     mov dword[rdi + 24], esi
 
     sub rsp, 16
@@ -30,6 +32,7 @@ AsmSetColorText:
     cmp rax, rdx
     jne .bye_error
 
+    .bye:
     xor rax, rax
     ret
 

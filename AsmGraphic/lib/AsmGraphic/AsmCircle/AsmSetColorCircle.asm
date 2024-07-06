@@ -10,6 +10,8 @@ AsmSetColorCircle:
     je .bye_error
 
     bswap esi
+    cmp dword[rdi + 20], esi
+    je .bye
     mov dword[rdi + 20], esi
 
     sub rsp, 16
@@ -30,6 +32,7 @@ AsmSetColorCircle:
     cmp rax, rdx
     jne .bye_error
 
+    .bye:
     xor rax, rax
     ret
 

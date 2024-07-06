@@ -30,7 +30,9 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmText/AsmDestroyFont.asm \
 	  AsmText/AsmCreateText.asm \
 	  AsmText/AsmGetColorText.asm \
+	  AsmText/AsmGetPositionText.asm \
 	  AsmText/AsmSetColorText.asm \
+	  AsmText/AsmSetPositionText.asm \
 	  AsmText/AsmDrawText.asm \
 	  AsmText/AsmDestroyText.asm \
 	  AsmRectangle/AsmCreateRectangle.asm \
