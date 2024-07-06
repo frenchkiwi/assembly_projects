@@ -48,16 +48,17 @@ void update(AsmLink *link, AsmWindow *window, AsmRectangle *rectangle, AsmText *
     AsmPos pos = AsmGetPositionWindow(window);
     AsmSize size = AsmGetSizeWindow(window);
     AsmColor rectangle_color = AsmGetColorRectangle(rectangle);
-    AsmPosSize rectanngle_dimension = AsmGetDimensionRectangle(rectangle);
+    AsmPosSize rectangle_dimension = AsmGetDimensionRectangle(rectangle);
     AsmColor text_color = AsmGetColorText(text);
     AsmPos text_position = AsmGetPositionText(text);
     AsmColor circle_color = AsmGetColorCircle(circle);
+    AsmPosSize circle_dimension = AsmGetDimensionCircle(circle);
 
     AsmPrint("x: %w et y: %w\n", pos.x, pos.y);
     AsmPrint("width: %w et height: %w\n", size.width, size.heigth);
-    AsmPrint("rectangle: x: %w, y: %w, width: %q, height: %q, red: %q, green: %q, blue: %q\n", rectanngle_dimension.x, rectanngle_dimension.y, rectanngle_dimension.width, rectanngle_dimension.height, rectangle_color.red, rectangle_color.green, rectangle_color.blue);
+    AsmPrint("rectangle: x: %w, y: %w, width: %q, height: %q, red: %q, green: %q, blue: %q\n", rectangle_dimension.x, rectangle_dimension.y, rectangle_dimension.width, rectangle_dimension.height, rectangle_color.red, rectangle_color.green, rectangle_color.blue);
     AsmPrint("text: x: %w, y: %w, red: %q, green: %q, blue: %q\n", text_position.x, text_position.y, text_color.red, text_color.green, text_color.blue);
-    AsmPrint("circle: red: %q, green: %q, blue: %q\n", circle_color.red, circle_color.green, circle_color.blue);
+    AsmPrint("circle: x: %w, y: %w, width: %q, height: %q, red: %q, green: %q, blue: %q\n", circle_dimension.x, circle_dimension.y, circle_dimension.width, circle_dimension.height, circle_color.red, circle_color.green, circle_color.blue);
     return;
 }
 
@@ -116,6 +117,8 @@ int main(int ac, char **av, char **envp)
         AsmPutlstr("AsmSetDimensionRectangle error");
     if (AsmSetColorCircle(circle, AsmWhite))
         AsmPutlstr("AsmSetColorCircle error");
+    if (AsmSetDimensionCircle(circle, (AsmPosSize){500, 400, 50, 50}))
+        AsmPutlstr("AsmSetDimensionCircle error");
     if (AsmSetColorText(text, AsmPurple))
         AsmPutlstr("AsmSetColorText error");
     if (AsmSetPositionText(text, (AsmPos){0, 18}))

@@ -185,7 +185,11 @@ AsmCircle *AsmCreateCircle(AsmLink *link, AsmPosSize dimension, AsmAngle angle, 
 
 AsmColor AsmGetColorCircle(AsmCircle *circle);
 
+AsmPosSize AsmGetDimensionCircle(AsmCircle *circle);
+
 char AsmSetColorCircle(AsmCircle *circle, AsmColor color);
+
+char AsmSetDimensionCircle(AsmCircle *circle, AsmPosSize dimension);
 
 char AsmDrawCircle(AsmWindow *window, AsmCircle *circle);
 

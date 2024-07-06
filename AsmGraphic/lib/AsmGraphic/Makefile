@@ -43,8 +43,12 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmRectangle/AsmDrawRectangle.asm \
 	  AsmRectangle/AsmDestroyRectangle.asm \
 	  AsmCircle/AsmCreateCircle.asm \
+	  AsmCircle/AsmGetAngleCircle.asm \
 	  AsmCircle/AsmGetColorCircle.asm \
+	  AsmCircle/AsmGetDimensionCircle.asm \
+	  AsmCircle/AsmSetAngleCircle.asm \
 	  AsmCircle/AsmSetColorCircle.asm \
+	  AsmCircle/AsmSetDimensionCircle.asm \
 	  AsmCircle/AsmDrawCircle.asm \
 	  AsmCircle/AsmDestroyCircle.asm \
 	  AsmTimer/AsmInitTimer.asm \
