@@ -43,29 +43,27 @@ AsmCreateText:
     mov qword[rbx + 8], r12
     mov dword[rbx + 20], r15d
     mov dword[rbx + 24], 0x00FFFFFF
-    mov dword[rbx + 28], 0x00000000
 
-    sub rsp, 16 + 4 + 4 + 4 + 4; gc create request + 4 value + p
+    sub rsp, 16 + 4 + 4; gc create request + 2 value
     mov byte[rsp], 55
-    mov word[rsp + 2], 4 + 3
+    mov word[rsp + 2], 4 + 2
     mov r8d, dword[LINK_ID_GENERATOR]
     mov dword[rsp + 4], r8d
     mov dword[rbx + 16], r8d
     inc dword[LINK_ID_GENERATOR]
     mov r8d, dword[LINK_ID]
     mov dword[rsp + 8], r8d
-    mov dword[rsp + 12], 0x00000004 | 0x00000008 | 0x00004000 ; foreground | background | font
+    mov dword[rsp + 12], 0x00000004 | 0x00004000 ; foreground | font
     mov dword[rsp + 16], 0x00FFFFFF
-    mov dword[rsp + 20], 0x00000000
     mov r8d, dword[r14]
-    mov dword[rsp + 24], r8d
+    mov dword[rsp + 20], r8d
 
     mov rax, 1
     mov rdi, qword[LINK_SOCKET]
     lea rsi, [rsp]
-    mov rdx, 16 + 4 + 4 + 4
+    mov rdx, 16 + 4 + 4
     syscall
-    add rsp, 16 + 4 + 4 + 4 + 4
+    add rsp, 16 + 4 + 4
     cmp rax, rdx
     jne .bye_errorD2
 

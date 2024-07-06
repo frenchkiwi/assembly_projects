@@ -47,9 +47,15 @@ void update(AsmLink *link, AsmWindow *window, AsmRectangle *rectangle, AsmText *
 {
     AsmPos pos = AsmGetPositionWindow(window);
     AsmSize size = AsmGetSizeWindow(window);
+    AsmColor rectangle_color = AsmGetColorRectangle(rectangle);
+    AsmColor text_color = AsmGetColorText(text);
+    AsmColor circle_color = AsmGetColorCircle(circle);
 
     AsmPrint("x: %w et y: %w\n", pos.x, pos.y);
     AsmPrint("width: %w et height: %w\n", size.width, size.heigth);
+    AsmPrint("rectangle: red: %q, green: %q, blue: %q\n", rectangle_color.red, rectangle_color.green, rectangle_color.blue);
+    AsmPrint("text: red: %q, green: %q, blue: %q\n", text_color.red, text_color.green, text_color.blue);
+    AsmPrint("circle: red: %q, green: %q, blue: %q\n", circle_color.red, circle_color.green, circle_color.blue);
     return;
 }
 
@@ -102,6 +108,12 @@ int main(int ac, char **av, char **envp)
         AsmPutlstr("AsmSetPositionWindow error");
     if (AsmSetSizeWindow(window, (AsmSize){800, 600}))
         AsmPutlstr("AsmSetSizeWindow error");
+    if (AsmSetColorRectangle(rectangle, AsmGreen))
+        AsmPutlstr("AsmSetColorRectangle error");
+    if (AsmSetColorCircle(circle, AsmWhite))
+        AsmPutlstr("AsmSetColorCircle error");
+    if (AsmSetColorText(text, AsmPurple))
+        AsmPutlstr("AsmSetColorText error");
     while (AsmIsOpenWindow(window)) {
         while (AsmPollEvent(&event, window))
             analyze_event(event, link, window);

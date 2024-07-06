@@ -29,12 +29,18 @@ SRC = AsmLink/AsmCreateLink.asm \
 	  AsmText/AsmCreateFont.asm \
 	  AsmText/AsmDestroyFont.asm \
 	  AsmText/AsmCreateText.asm \
+	  AsmText/AsmGetColorText.asm \
+	  AsmText/AsmSetColorText.asm \
 	  AsmText/AsmDrawText.asm \
 	  AsmText/AsmDestroyText.asm \
 	  AsmRectangle/AsmCreateRectangle.asm \
+	  AsmRectangle/AsmGetColorRectangle.asm \
+	  AsmRectangle/AsmSetColorRectangle.asm \
 	  AsmRectangle/AsmDrawRectangle.asm \
 	  AsmRectangle/AsmDestroyRectangle.asm \
 	  AsmCircle/AsmCreateCircle.asm \
+	  AsmCircle/AsmGetColorCircle.asm \
+	  AsmCircle/AsmSetColorCircle.asm \
 	  AsmCircle/AsmDrawCircle.asm \
 	  AsmCircle/AsmDestroyCircle.asm \
 	  AsmTimer/AsmInitTimer.asm \

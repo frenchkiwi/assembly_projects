@@ -50,9 +50,10 @@
     %define RECTANGLE_LINK r12 + 8
     %define RECTANGLE_GC r12 + 16
     %define RECTANGLE_COLOR r12 + 20
-    %define RECTANGLE_BLUE r12 + 21
-    %define RECTANGLE_GREEN r12 + 22
-    %define RECTANGLE_RED r12 + 23
+    %define RECTANGLE_BLUE r12 + 20
+    %define RECTANGLE_GREEN r12 + 21
+    %define RECTANGLE_RED r12 + 22
+    %define RECTANGLE_UNUSED r12 + 23
 
     %define CIRCLE_POSSIZE r12 + 0
     %define CIRCLE_POS r12 + 0
@@ -64,9 +65,10 @@
     %define CIRCLE_LINK r12 + 8
     %define CIRCLE_GC r12 + 16
     %define CIRCLE_COLOR r12 + 20
-    %define CIRCLE_BLUE r12 + 21
-    %define CIRCLE_GREEN r12 + 22
-    %define CIRCLE_RED r12 + 23
+    %define CIRCLE_BLUE r12 + 20
+    %define CIRCLE_GREEN r12 + 21
+    %define CIRCLE_RED r12 + 22
+    %define CIRCLE_UNUSED r12 + 23
     %define CIRCLE_ANGLE r12 + 24
     %define CIRCLE_BASE_ANGLE r12 + 24
     %define CIRCLE_REAL_ANGLE r12 + 26
@@ -94,14 +96,28 @@
     extern AsmCreateFont
     extern AsmDestroyFont
     extern AsmCreateText
+    extern AsmGetColorText
+    extern AsmGetPositionText
+    extern AsmSetColorText
+    extern AsmSetPositionText
     extern AsmDrawText
     extern AsmDestroyText
 
     extern AsmCreateRectangle
+    extern AsmGetColorRectangle
+    extern AsmGetDimensionRectangle
+    extern AsmSetColorRectangle
+    extern AsmSetDimensionRectangle
     extern AsmDrawRectangle
     extern AsmDestroyRectangle
 
     extern AsmCreateCircle
+    extern AsmGetAngleCircle
+    extern AsmGetColorCircle
+    extern AsmGetDimensionCircle
+    extern AsmSetAngleCircle
+    extern AsmSetColorCircle
+    extern AsmSetDimensionCircle
     extern AsmDrawCircle
     extern AsmDestroyCircle
 

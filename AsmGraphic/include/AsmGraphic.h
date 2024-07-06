@@ -24,6 +24,8 @@
 #define AsmEventClose 35
 
 #define AsmPurple (AsmColor){0, 200, 0, 255}
+#define AsmGreen (AsmColor){0, 0, 255, 0}
+#define AsmWhite (AsmColor){0, 255, 255, 255}
 
 //link: +0 4byte fd socket | +4 8byte thread_info | +12 8byte header | +20 request body
 // thread_info: +0 1byte futex | +1 1byte conditionnal variable | +2 4byte thread id | +6 8byte thread_stack | +14 8byte event_queue
@@ -149,6 +151,10 @@ char AsmDestroyFont(AsmFont *font);
 
 AsmText *AsmCreateText(AsmLink *link, char *string, AsmFont *font, AsmPos pos);
 
+AsmColor AsmGetColorText(AsmText *text);
+
+char AsmSetColorText(AsmText *text, AsmColor color);
+
 char AsmDrawText(AsmWindow *window, AsmText *text);
 
 char AsmDestroyText(AsmText *text);
@@ -157,6 +163,10 @@ char AsmDestroyText(AsmText *text);
 
 AsmRectangle *AsmCreateRectangle(AsmLink *link, AsmPosSize dimension, AsmColor color);
 
+AsmColor AsmGetColorRectangle(AsmRectangle *rectangle);
+
+char AsmSetColorRectangle(AsmRectangle *rectangle, AsmColor color);
+
 char AsmDrawRectangle(AsmWindow *window, AsmRectangle *rectangle);
 
 char AsmDestroyRectangle(AsmRectangle *rectangle);
@@ -164,6 +174,10 @@ char AsmDestroyRectangle(AsmRectangle *rectangle);
 // // AsmCircle
 
 AsmCircle *AsmCreateCircle(AsmLink *link, AsmPosSize dimension, AsmAngle angle, AsmColor color);
+
+AsmColor AsmGetColorCircle(AsmCircle *circle);
+
+char AsmSetColorCircle(AsmCircle *circle, AsmColor color);
 
 char AsmDrawCircle(AsmWindow *window, AsmCircle *circle);
 

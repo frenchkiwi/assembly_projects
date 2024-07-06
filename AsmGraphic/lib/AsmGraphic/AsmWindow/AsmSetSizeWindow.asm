@@ -101,8 +101,14 @@ AsmSetSizeWindow:
     lea rsi, [rsp]
     mov rdx, 8
     syscall
-
     add rsp, 32
+
+    mov rdi, r12
+    mov rsi, 22
+    call AsmWaitEvent
+    mov rdi, rax
+    call AsmDalloc
+
     pop r12
 
     xor rax, rax
