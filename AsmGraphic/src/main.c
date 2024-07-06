@@ -53,6 +53,7 @@ void update(AsmLink *link, AsmWindow *window, AsmRectangle *rectangle, AsmText *
     AsmPos text_position = AsmGetPositionText(text);
     AsmColor circle_color = AsmGetColorCircle(circle);
     AsmPosSize circle_dimension = AsmGetDimensionCircle(circle);
+    // AsmAngle circle_angle = AsmGetAngleCircle(circle);
 
     AsmPrint("x: %w et y: %w\n", pos.x, pos.y);
     AsmPrint("width: %w et height: %w\n", size.width, size.heigth);
@@ -115,6 +116,8 @@ int main(int ac, char **av, char **envp)
         AsmPutlstr("AsmSetColorRectangle error");
     if (AsmSetDimensionRectangle(rectangle, (AsmPosSize){0, 500, 500, 10}))
         AsmPutlstr("AsmSetDimensionRectangle error");
+    if (AsmSetAngleCircle(circle, (AsmAngle){0, 180}))
+        AsmPutlstr("AsmSetAngleCircle error");
     if (AsmSetColorCircle(circle, AsmWhite))
         AsmPutlstr("AsmSetColorCircle error");
     if (AsmSetDimensionCircle(circle, (AsmPosSize){500, 400, 50, 50}))

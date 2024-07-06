@@ -183,9 +183,13 @@ char AsmDestroyRectangle(AsmRectangle *rectangle);
 
 AsmCircle *AsmCreateCircle(AsmLink *link, AsmPosSize dimension, AsmAngle angle, AsmColor color);
 
+AsmAngle AsmGetAngleCircle(AsmCircle *circle);
+
 AsmColor AsmGetColorCircle(AsmCircle *circle);
 
 AsmPosSize AsmGetDimensionCircle(AsmCircle *circle);
+
+char AsmSetAngleCircle(AsmCircle *circle, AsmAngle Angle);
 
 char AsmSetColorCircle(AsmCircle *circle, AsmColor color);
 
