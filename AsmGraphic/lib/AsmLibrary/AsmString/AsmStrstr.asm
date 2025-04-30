@@ -5,26 +5,25 @@ section .text
     %include "AsmLibrary.inc"
 
 AsmStrstr:
-    dec rdi
-    movzx r9, byte[rsi]
+    xor rcx, rcx
     .loop:
+        mov bl, [rsi + rcx]
+        cmp bl, 0
+        je .found
+        mov al, [rdi + rcx]
+        cmp al, 0
+        je .end
+        cmp al, bl
+        jne .restart
+        inc rcx
+        jmp .loop
+    .restart:
+        xor rcx, rcx
         inc rdi
-        cmp byte[rdi], r9b
-        jne .not_find
-        mov rcx, -1
-        .loop_cmp:
-            inc rcx
-            cmp byte[rsi + rcx], 0
-            cmove rax, rdi
-            je .bye
-            mov r8b, byte[rsi + rcx]
-            cmp byte[rdi + rcx], r8b
-            jne .not_find
-            cmp byte[rdi + rcx], 0
-            jne .loop_cmp
-        .not_find:
-        cmp byte[rdi], 0
-        jne .loop
-    xor rax, rax
-    .bye:
-    ret
+        jmp .loop
+    .end:
+        xor rax, rax
+        ret
+    .found:
+        mov rax, rdi
+        ret
